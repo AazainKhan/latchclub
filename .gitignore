@@ -1,0 +1,23 @@
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+.next/
+coverage/
+
+# OS/editor noise
+.DS_Store
+
+# Supabase local state
+.supabase/
+supabase/.temp/
