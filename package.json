@@ -1,4 +1,16 @@
 {
+	"name": "latchclub",
+	"private": true,
+	"scripts": {
+		"db:start": "supabase start",
+		"db:stop": "supabase stop",
+		"db:status": "supabase status",
+		"db:reset": "supabase db reset",
+		"db:push": "supabase db push",
+		"db:push:dry": "supabase db push --dry-run",
+		"db:migration:new": "supabase migration new",
+		"db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF > packages/db/src/database.types.ts"
+  },
 	"devDependencies": {
 		"supabase": "^2.84.4"
 	}
