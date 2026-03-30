@@ -9,3 +9,7 @@ set
   description = excluded.description,
   display_order = excluded.display_order,
   is_active = excluded.is_active;
+
+-- Merchants, offers, merchant_members, saved_merchants, and demo subscriptions
+-- depend on auth users, so they are kept in:
+--   supabase/snippets/dev-demo-data.sql
