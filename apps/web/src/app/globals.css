@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8efe8;
+  --foreground: #211513;
+  --panel: #fffaf6;
+  --panel-border: #e8d7cb;
+  --accent: #d5562f;
+  --accent-dark: #241412;
+  --muted: #6c5249;
+  --highlight: #f5e2d3;
+  --font-brand: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --font-ui: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(213, 86, 47, 0.13), transparent 28rem),
+    linear-gradient(180deg, #fff7f1 0%, var(--background) 100%);
+  color: var(--foreground);
+  font-family: var(--font-ui);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-brand);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}

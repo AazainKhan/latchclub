@@ -1,0 +1,35 @@
+{
+  "name": "@latchclub/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "dev": "expo start",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@latchclub/db": "workspace:*",
+    "@latchclub/utils": "workspace:*",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@sentry/react-native": "~7.2.0",
+    "expo": "~54.0.33",
+    "expo-status-bar": "~3.0.9",
+    "posthog-react-native": "^3.8.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-web": "^0.21.0",
+    "react-native-url-polyfill": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
+}
