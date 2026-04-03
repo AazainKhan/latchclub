@@ -36,21 +36,21 @@ const steps: Step[] = [
     title: "Pick your plan",
     description:
       "Choose the membership tier that fits your lifestyle. Start free or go all-in.",
-    icon: <LayoutGrid className="h-5 w-5 text-neutral-300" />,
+    icon: <LayoutGrid className="h-5 w-5 text-teal-300" />,
   },
   {
     number: "02",
     title: "Browse & save",
     description:
       "Discover deals across dining, wellness, and experiences in your city.",
-    icon: <Search className="h-5 w-5 text-neutral-300" />,
+    icon: <Search className="h-5 w-5 text-teal-300" />,
   },
   {
     number: "03",
     title: "Experience more",
     description:
       "Redeem offers instantly. No codes, no hassle. Just show your phone.",
-    icon: <Check className="h-5 w-5 text-neutral-300" />,
+    icon: <Check className="h-5 w-5 text-teal-300" />,
   },
 ]
 
@@ -60,7 +60,7 @@ export default function HowItWorks() {
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
   return (
-    <section className="py-24 md:py-32">
+    <section className="bg-teal-50 py-24 md:py-32">
       <div className="mx-auto max-w-6xl px-6">
         {/* Section header */}
         <motion.div
@@ -87,7 +87,7 @@ export default function HowItWorks() {
           </motion.h2>
         </motion.div>
 
-        {/* Desktop: horizontal connected steps */}
+        {/* Desktop: horizontal connected step cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -95,46 +95,49 @@ export default function HowItWorks() {
           viewport={{ once: true, amount: 0.15 }}
           className="relative mt-20 hidden md:block"
         >
-          {/* Connecting line — sits behind the cards */}
+          {/* Connecting line — sits behind the cards at icon center height */}
           <div
-            className="pointer-events-none absolute left-0 right-0 border-t border-mist"
+            className="pointer-events-none absolute left-0 right-0 border-t border-teal-100"
             style={{ top: 24 }}
           />
 
-          <div className="grid grid-cols-3 gap-12">
+          <div className="grid grid-cols-3 gap-8">
             {steps.map((step) => (
               <motion.div key={step.number} variants={variants} className="relative">
                 {/* Icon circle — sits on the connecting line */}
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-mist bg-white">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-teal-100 bg-teal-50">
                   {step.icon}
                 </div>
 
-                {/* Large decorative number */}
-                <p
-                  className="mt-6 text-8xl font-medium text-neutral-100"
-                  style={{ letterSpacing: "-0.04em", lineHeight: "1" }}
-                >
-                  {step.number}
-                </p>
+                {/* Card body */}
+                <div className="mt-6 rounded-xl border border-teal-100 bg-white p-6">
+                  {/* Large decorative number */}
+                  <p
+                    className="text-6xl font-medium text-teal-100"
+                    style={{ letterSpacing: "-0.04em", lineHeight: "1" }}
+                  >
+                    {step.number}
+                  </p>
 
-                {/* Title */}
-                <h3
-                  className="mt-4 text-xl font-medium text-carbon"
-                  style={{ letterSpacing: "-0.02em" }}
-                >
-                  {step.title}
-                </h3>
+                  {/* Title */}
+                  <h3
+                    className="mt-4 text-xl font-medium text-carbon"
+                    style={{ letterSpacing: "-0.02em" }}
+                  >
+                    {step.title}
+                  </h3>
 
-                {/* Description */}
-                <p className="mt-2 max-w-xs text-base leading-relaxed text-neutral-300">
-                  {step.description}
-                </p>
+                  {/* Description */}
+                  <p className="mt-2 text-base leading-relaxed text-neutral-300">
+                    {step.description}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Mobile: vertical connected steps */}
+        {/* Mobile: vertical connected step cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -144,11 +147,11 @@ export default function HowItWorks() {
         >
           {/* Vertical connecting line */}
           <div
-            className="pointer-events-none absolute bottom-0 left-6 top-0 w-px bg-mist"
+            className="pointer-events-none absolute bottom-0 left-6 top-0 w-px bg-teal-100"
             style={{ transform: "translateX(-0.5px)" }}
           />
 
-          <div className="space-y-12">
+          <div className="space-y-8">
             {steps.map((step) => (
               <motion.div
                 key={step.number}
@@ -156,15 +159,15 @@ export default function HowItWorks() {
                 className="relative flex gap-6"
               >
                 {/* Icon circle — on the vertical line */}
-                <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-mist bg-white">
+                <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-teal-100 bg-teal-50">
                   {step.icon}
                 </div>
 
-                {/* Content */}
-                <div className="pt-1">
+                {/* Card body */}
+                <div className="flex-1 rounded-xl border border-teal-100 bg-white p-6">
                   {/* Decorative number */}
                   <p
-                    className="text-5xl font-medium text-neutral-100"
+                    className="text-5xl font-medium text-teal-100"
                     style={{ letterSpacing: "-0.04em", lineHeight: "1" }}
                   >
                     {step.number}
@@ -177,7 +180,7 @@ export default function HowItWorks() {
                     {step.title}
                   </h3>
 
-                  <p className="mt-1.5 max-w-xs text-sm leading-relaxed text-neutral-300">
+                  <p className="mt-1.5 text-sm leading-relaxed text-neutral-300">
                     {step.description}
                   </p>
                 </div>

@@ -8,20 +8,21 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-mist">
+    <footer className="bg-carbon border-t border-white/10">
       <div className="mx-auto max-w-5xl px-6 py-10">
         <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start gap-1.5">
             <Link
               href="/"
-              className="text-lg tracking-[-0.02em] text-carbon"
+              className="text-lg"
+              style={{ letterSpacing: "-0.02em" }}
             >
-              <span className="font-normal">latch</span>
-              <span className="font-medium">club</span>
+              <span className="text-white/70">latch</span>
+              <span className="font-medium text-white">club</span>
             </Link>
-            <span className="text-xs text-neutral-200">
-              Designed in Canada 🍁
+            <span className="text-xs text-white/30">
+              Designed in Canada
             </span>
           </div>
 
@@ -31,7 +32,7 @@ export default function Footer() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm text-neutral-200 transition-colors hover:text-carbon"
+                className="text-sm text-white/50 transition-colors hover:text-white"
               >
                 {link.label}
               </Link>
@@ -39,8 +40,8 @@ export default function Footer() {
           </nav>
 
           {/* Copyright */}
-          <p className="text-xs text-neutral-200">
-            &copy; 2025 Latchclub. All rights reserved.
+          <p className="text-xs text-white/40">
+            &copy; {new Date().getFullYear()} Latchclub. All rights reserved.
           </p>
         </div>
       </div>

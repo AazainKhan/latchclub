@@ -9,9 +9,10 @@ type FormStatus = "idle" | "loading" | "success" | "error"
 
 interface WaitlistFormProps {
   className?: string
+  variant?: "light" | "dark"
 }
 
-export default function WaitlistForm({ className }: WaitlistFormProps) {
+export default function WaitlistForm({ className, variant = "light" }: WaitlistFormProps) {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<FormStatus>("idle")
   const [errorMessage, setErrorMessage] = useState("")
@@ -45,11 +46,14 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     }
   }
 
+  const isDark = variant === "dark"
+
   if (status === "success") {
     return (
       <p
         className={cn(
-          "text-sm text-teal-400 font-medium tracking-tight",
+          "text-sm font-medium tracking-tight",
+          isDark ? "text-teal-300" : "text-teal-400",
           className
         )}
       >
@@ -61,7 +65,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={cn("flex flex-row items-center gap-3 max-w-md", className)}
+      className={cn("relative flex flex-row items-center gap-3 max-w-md", className)}
     >
       <Input
         type="email"
@@ -70,17 +74,32 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
         onChange={(e) => setEmail(e.target.value)}
         required
         disabled={status === "loading"}
-        className="h-10 flex-1"
+        className={cn(
+          "h-11 flex-1",
+          isDark
+            ? "bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-teal-300/40"
+            : ""
+        )}
       />
       <Button
         type="submit"
         disabled={status === "loading"}
-        className="h-10 px-5 bg-carbon text-white shrink-0"
+        className={cn(
+          "h-11 px-6 shrink-0",
+          isDark
+            ? "bg-teal-300 text-white hover:bg-teal-300/90"
+            : "bg-carbon text-white"
+        )}
       >
         {status === "loading" ? "Joining..." : "Join Waitlist"}
       </Button>
       {status === "error" && errorMessage && (
-        <p className="text-sm text-error absolute mt-14">{errorMessage}</p>
+        <p className={cn(
+          "text-sm absolute -bottom-7 left-0",
+          isDark ? "text-red-400" : "text-error"
+        )}>
+          {errorMessage}
+        </p>
       )}
     </form>
   )

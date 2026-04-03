@@ -10,6 +10,7 @@ interface PricingFeature {
 interface PricingTier {
   name: string
   price: string
+  period: string
   description: string
   features: PricingFeature[]
   cta: string
@@ -21,6 +22,7 @@ const tiers: PricingTier[] = [
   {
     name: "Explorer",
     price: "$0",
+    period: "forever",
     description: "Get a taste of what Latchclub offers.",
     features: [
       { text: "5 deals per month" },
@@ -33,6 +35,7 @@ const tiers: PricingTier[] = [
   {
     name: "Member",
     price: "$15",
+    period: "/month",
     description: "Unlock the full Latchclub experience.",
     popular: true,
     features: [
@@ -48,6 +51,7 @@ const tiers: PricingTier[] = [
   {
     name: "Family",
     price: "$25",
+    period: "/month",
     description: "Share the savings with your household.",
     features: [
       { text: "Everything in Member" },
@@ -68,11 +72,10 @@ const container = {
 }
 
 const cardVariant = {
-  hidden: { opacity: 0, scale: 0.96, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
-    scale: 1,
-    filter: "blur(0px)",
+    y: 0,
     transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
   },
 }
@@ -90,7 +93,7 @@ export default function Pricing() {
   const activeCardVariant = prefersReduced ? cardVariantReduced : cardVariant
 
   return (
-    <section id="pricing" className="bg-bone py-16 md:py-24 px-6">
+    <section id="pricing" className="bg-white py-20 md:py-28 px-6">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
@@ -129,23 +132,37 @@ export default function Pricing() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
         >
-          {/* Gradient orb behind featured card */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-300/5 rounded-full blur-3xl pointer-events-none" />
-
           {tiers.map((tier) => (
             <motion.div
               key={tier.name}
               variants={activeCardVariant}
+              {...(!tier.featured && !prefersReduced
+                ? {
+                    whileHover: { y: -4 },
+                    transition: { duration: 0.15, ease: "easeOut" },
+                  }
+                : {})}
               className={`
-                rounded-xl flex flex-col relative
+                rounded-xl flex flex-col relative overflow-hidden
                 ${tier.featured
                   ? "bg-carbon text-white border-2 border-carbon order-first md:order-none p-8 md:p-10"
                   : "bg-white border border-mist p-8 md:p-10"
                 }
               `}
             >
+              {/* Decorative watermark on featured card */}
+              {tier.featured && (
+                <span
+                  className="absolute -right-4 -top-4 text-white/[0.04] font-medium pointer-events-none select-none"
+                  style={{ fontSize: "160px", letterSpacing: "-0.04em", lineHeight: 1 }}
+                  aria-hidden="true"
+                >
+                  15
+                </span>
+              )}
+
               {/* Tier name + popular badge */}
-              <div className="flex items-center gap-2.5 mb-4">
+              <div className="relative flex items-center gap-2.5 mb-4">
                 <h3
                   className={`text-lg font-medium ${tier.featured ? "text-white" : "text-carbon"}`}
                   style={{ letterSpacing: "-0.02em" }}
@@ -160,7 +177,7 @@ export default function Pricing() {
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="relative flex items-baseline gap-1 mb-2">
                 <span
                   className={`text-5xl font-medium ${tier.featured ? "text-white" : "text-carbon"}`}
                   style={{ letterSpacing: "-0.04em" }}
@@ -168,20 +185,20 @@ export default function Pricing() {
                   {tier.price}
                 </span>
                 <span className={`text-sm ${tier.featured ? "text-neutral-400" : "text-neutral-300"}`}>
-                  /month
+                  {tier.period}
                 </span>
               </div>
 
               {/* Description */}
               <p
-                className={`text-sm mb-8 ${tier.featured ? "text-neutral-400" : "text-neutral-300"}`}
+                className={`relative text-sm mb-8 ${tier.featured ? "text-neutral-400" : "text-neutral-300"}`}
                 style={{ lineHeight: 1.7 }}
               >
                 {tier.description}
               </p>
 
               {/* Features */}
-              <ul className="flex flex-col gap-3 mb-8 flex-1">
+              <ul className="relative flex flex-col gap-3 mb-8 flex-1">
                 {tier.features.map((feature) => (
                   <li key={feature.text} className="flex items-start gap-2.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-teal-300 mt-2 shrink-0" />
@@ -198,7 +215,7 @@ export default function Pricing() {
               {/* CTA */}
               <Button
                 variant={tier.featured ? "secondary" : "outline"}
-                className={`w-full h-11 transition-opacity hover:opacity-90 ${
+                className={`relative w-full h-11 transition-opacity hover:opacity-90 ${
                   tier.featured
                     ? "bg-white text-carbon hover:bg-white/90"
                     : "border-mist text-carbon hover:bg-bone"

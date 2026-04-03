@@ -25,7 +25,9 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleScroll() {
-      setScrolled(window.scrollY > 80)
+      // Switch from transparent/dark mode to solid/light mode
+      // once user scrolls past ~90% of the viewport height (the hero)
+      setScrolled(window.scrollY > window.innerHeight * 0.9)
     }
 
     handleScroll()
@@ -36,17 +38,20 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-16 transition-colors duration-300",
+        "fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300",
         scrolled
           ? "bg-white/80 backdrop-blur-md border-b border-mist"
-          : "bg-transparent"
+          : "bg-transparent border-b border-transparent"
       )}
     >
       <nav className="mx-auto flex h-full max-w-6xl items-center justify-between px-4 md:px-6">
-        {/* Logo */}
+        {/* Logo — white on dark hero, carbon on light */}
         <Link
           href="/"
-          className="text-lg tracking-[-0.02em] text-carbon"
+          className={cn(
+            "text-lg tracking-[-0.02em] transition-colors duration-300",
+            scrolled ? "text-carbon" : "text-white"
+          )}
         >
           <span className="font-normal">latch</span>
           <span className="font-medium">club</span>
@@ -58,17 +63,22 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className="text-sm font-normal text-neutral-300 transition-colors hover:text-carbon"
+              className={cn(
+                "text-sm font-normal transition-colors duration-300",
+                scrolled
+                  ? "text-neutral-300 hover:text-carbon"
+                  : "text-white/70 hover:text-white"
+              )}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        {/* Desktop CTA */}
+        {/* Desktop CTA — always teal */}
         <Button
           size="sm"
-          className="hidden bg-carbon text-white md:inline-flex"
+          className="hidden md:inline-flex bg-teal-300 text-white hover:bg-teal-300/90"
           onClick={() => {
             document
               .getElementById("hero")
@@ -85,7 +95,10 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className={cn(
+                  "md:hidden transition-colors duration-300",
+                  scrolled ? "text-carbon" : "text-white"
+                )}
                 aria-label="Open menu"
               />
             }
@@ -116,7 +129,7 @@ export default function Navbar() {
               <SheetClose
                 render={
                   <Button
-                    className="mt-4 w-full bg-carbon text-white"
+                    className="mt-4 w-full bg-teal-300 text-white hover:bg-teal-300/90"
                     onClick={() => {
                       document
                         .getElementById("hero")
