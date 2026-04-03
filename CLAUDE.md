@@ -29,7 +29,7 @@
 ---
 
 ## Skills
-Read **SKILLS.md** for the full list of installed Claude Code design skills.
+Read **docs/SKILLS.md** for the full list of installed Claude Code design skills.
 All design skills must be installed before running any build session.
 
 The most critical skill is Anthropic's official `frontend-design` skill.
@@ -38,10 +38,10 @@ It activates automatically on any UI task and prevents generic "AI slop" output.
 At the start of every UI session, include:
 ```
 Activate all relevant design skills before writing any code.
-Reference DESIGN.md, SKILLS.md, and /inspo/ for constraints and references.
+Reference docs/DESIGN.md, docs/SKILLS.md, and /inspo/ for constraints and references.
 ```
 
-Summary of hard rules (full detail in DESIGN.md):
+Summary of hard rules (full detail in docs/DESIGN.md):
 - Font weights: 400 and 500 ONLY — never 600, 700, 800
 - Heading letter-spacing: -0.02em to -0.04em (tight, like Apple/Linear)
 - Body line-height: 1.65–1.75. Max line length: 65ch.
@@ -103,6 +103,10 @@ latchclub/
 ├── middleware.ts                   # Protects /admin routes
 ├── public/
 │   └── assets/                    # Brand assets
+├── docs/
+│   ├── DESIGN.md                  # Design system reference
+│   ├── SKILLS.md                  # Claude Code skills config
+│   └── SESSION_PROMPTS.md         # Build session prompts
 ├── inspo/                         # Design references (not served)
 ├── CLAUDE.md
 └── .env.local
