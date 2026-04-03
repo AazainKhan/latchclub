@@ -53,7 +53,7 @@ export default function AppShowcase() {
         y: 40,
         opacity: 0,
         duration: 0.7,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".showcase-text",
           start: "top 80%",

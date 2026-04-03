@@ -53,7 +53,7 @@ export default function FAQ() {
       y: 60,
       opacity: 0,
       duration: 0.8,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".faq-section", start: "top 75%" },
     })
 
@@ -62,7 +62,7 @@ export default function FAQ() {
       opacity: 0,
       stagger: 0.08,
       duration: 0.6,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".faq-items", start: "top 80%" },
     })
   }, { scope: container })

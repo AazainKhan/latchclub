@@ -15,7 +15,7 @@ export default function FooterCTA() {
       y: 40,
       opacity: 0,
       duration: 0.6,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".cta-section", start: "top 75%" },
     })
 
@@ -23,7 +23,7 @@ export default function FooterCTA() {
       y: 60,
       opacity: 0,
       duration: 0.8,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".cta-section", start: "top 70%" },
     })
 
@@ -31,7 +31,7 @@ export default function FooterCTA() {
       y: 40,
       opacity: 0,
       duration: 0.7,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".cta-section", start: "top 65%" },
     })
 
@@ -39,7 +39,7 @@ export default function FooterCTA() {
       y: 30,
       opacity: 0,
       duration: 0.6,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".cta-section", start: "top 60%" },
     })
 
@@ -47,7 +47,7 @@ export default function FooterCTA() {
       y: 30,
       opacity: 0,
       duration: 0.6,
-      ease: "checkout",
+      ease: "power3.out",
       scrollTrigger: { trigger: ".cta-section", start: "top 55%" },
     })
   }, { scope: container })

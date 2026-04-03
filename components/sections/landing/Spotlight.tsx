@@ -28,7 +28,7 @@ export default function Spotlight() {
         y: 40,
         opacity: 0,
         duration: 0.6,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".spotlight-section",
           start: "top 75%",
@@ -39,7 +39,7 @@ export default function Spotlight() {
         y: 60,
         opacity: 0,
         duration: 0.8,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".spotlight-section",
           start: "top 70%",
@@ -50,7 +50,7 @@ export default function Spotlight() {
         y: 40,
         opacity: 0,
         duration: 0.7,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".spotlight-section",
           start: "top 65%",

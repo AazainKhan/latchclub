@@ -116,7 +116,7 @@ export default function ProductTabs() {
         y: 80,
         opacity: 0,
         duration: 0.8,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".product-tabs-section",
           start: "top 80%",
@@ -127,7 +127,7 @@ export default function ProductTabs() {
         y: 60,
         opacity: 0,
         duration: 0.7,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".product-tabs-section",
           start: "top 75%",
@@ -138,7 +138,7 @@ export default function ProductTabs() {
         y: 40,
         opacity: 0,
         duration: 0.6,
-        ease: "checkout",
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".product-tabs-section",
           start: "top 70%",
@@ -161,7 +161,7 @@ export default function ProductTabs() {
     gsap.fromTo(
       contentEl,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.4, ease: "checkout" }
+      { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }
     )
   }, [activeTab])
 
@@ -179,7 +179,7 @@ export default function ProductTabs() {
       x: rect.left - parentRect.left,
       width: rect.width,
       duration: 0.3,
-      ease: "checkout",
+      ease: "power3.out",
     })
   }, [activeTab])
 

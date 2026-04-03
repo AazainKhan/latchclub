@@ -1,81 +1,53 @@
 "use client"
 
 import { useRef } from "react"
-import { gsap, SplitText } from "@/lib/gsap"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useGSAP } from "@gsap/react"
 import { Button } from "@/components/ui/button"
 
-/* Floating deal cards data */
-interface DealCard {
+/* ── Marquee card data ── */
+interface MarqueeCard {
   category: string
   name: string
   description: string
   badge: string
-  top?: string
-  left?: string
-  right?: string
-  bottom?: string
-  rotate: number
-  delay: number
-  parallaxSpeed: number
+  gradient: string
 }
 
-const dealCards: DealCard[] = [
-  {
-    category: "Dining",
-    name: "Kinka Izakaya",
-    description: "2-for-1 Dinner",
-    badge: "50% OFF",
-    top: "14%",
-    left: "4%",
-    rotate: -6,
-    delay: 0,
-    parallaxSpeed: -60,
-  },
-  {
-    category: "Wellness",
-    name: "Scandinave Spa",
-    description: "Day Pass",
-    badge: "$45 OFF",
-    top: "10%",
-    right: "5%",
-    rotate: 4,
-    delay: 0.8,
-    parallaxSpeed: -90,
-  },
-  {
-    category: "Experiences",
-    name: "ROM Tickets",
-    description: "Family Pack",
-    badge: "BOGO",
-    bottom: "26%",
-    left: "5%",
-    rotate: 3,
-    delay: 1.6,
-    parallaxSpeed: -40,
-  },
-  {
-    category: "Fitness",
-    name: "Barry's Bootcamp",
-    description: "First Month",
-    badge: "40% OFF",
-    bottom: "20%",
-    right: "4%",
-    rotate: -4,
-    delay: 2.4,
-    parallaxSpeed: -70,
-  },
-  {
-    category: "Travel",
-    name: "Porter Airlines",
-    description: "Weekend Getaway",
-    badge: "$120 OFF",
-    top: "46%",
-    right: "2%",
-    rotate: 5,
-    delay: 3.2,
-    parallaxSpeed: -50,
-  },
+const leftCol1Cards: MarqueeCard[] = [
+  { category: "Dining", name: "Kinka Izakaya", description: "2-for-1 Dinner", badge: "50% OFF", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Wellness", name: "Scandinave Spa", description: "Day Pass", badge: "$45 OFF", gradient: "from-[#162530] to-[#0c1820]" },
+  { category: "Fitness", name: "Barry's Bootcamp", description: "First Month", badge: "40% OFF", gradient: "from-[#1a2530] to-[#101c25]" },
+  { category: "Travel", name: "Porter Airlines", description: "Weekend Getaway", badge: "$120 OFF", gradient: "from-[#15222e] to-[#0b1620]" },
+  { category: "Dining", name: "Pai Northern Thai", description: "BOGO Entrées", badge: "2-for-1", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Experience", name: "Escape Manor", description: "Team Booking", badge: "30% OFF", gradient: "from-[#162530] to-[#0c1820]" },
+]
+
+const leftCol2Cards: MarqueeCard[] = [
+  { category: "Wellness", name: "Hammam Spa", description: "Couples Package", badge: "35% OFF", gradient: "from-[#162530] to-[#0c1820]" },
+  { category: "Dining", name: "Alo Restaurant", description: "Tasting Menu", badge: "$50 OFF", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Fitness", name: "F45 Training", description: "Monthly Pass", badge: "25% OFF", gradient: "from-[#1a2530] to-[#101c25]" },
+  { category: "Experience", name: "ROM Tickets", description: "Family Pack", badge: "BOGO", gradient: "from-[#15222e] to-[#0b1620]" },
+  { category: "Dining", name: "Richmond Station", description: "Prix Fixe", badge: "40% OFF", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Wellness", name: "Body Blitz Spa", description: "Full Day", badge: "$30 OFF", gradient: "from-[#162530] to-[#0c1820]" },
+]
+
+const rightCol1Cards: MarqueeCard[] = [
+  { category: "Experience", name: "CN Tower", description: "EdgeWalk", badge: "20% OFF", gradient: "from-[#15222e] to-[#0b1620]" },
+  { category: "Dining", name: "Canoe Restaurant", description: "Lunch Special", badge: "2-for-1", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Fitness", name: "Ride Cycle Club", description: "10-Pack", badge: "30% OFF", gradient: "from-[#1a2530] to-[#101c25]" },
+  { category: "Wellness", name: "Elmwood Spa", description: "Massage Package", badge: "$40 OFF", gradient: "from-[#162530] to-[#0c1820]" },
+  { category: "Dining", name: "Byblos Toronto", description: "Date Night", badge: "35% OFF", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Experience", name: "Ripley's Aquarium", description: "Annual Pass", badge: "25% OFF", gradient: "from-[#15222e] to-[#0b1620]" },
+]
+
+const rightCol2Cards: MarqueeCard[] = [
+  { category: "Fitness", name: "Othership Sauna", description: "Breathwork", badge: "40% OFF", gradient: "from-[#1a2530] to-[#101c25]" },
+  { category: "Dining", name: "DaiLo", description: "Dim Sum Brunch", badge: "2-for-1", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Wellness", name: "Float Toronto", description: "Float Session", badge: "$25 OFF", gradient: "from-[#162530] to-[#0c1820]" },
+  { category: "Travel", name: "Flair Airlines", description: "Montreal Trip", badge: "$80 OFF", gradient: "from-[#15222e] to-[#0b1620]" },
+  { category: "Dining", name: "Planta Queen", description: "Lunch Combo", badge: "30% OFF", gradient: "from-[#1a2a35] to-[#0f1a22]" },
+  { category: "Experience", name: "Hot Docs Cinema", description: "Movie Night", badge: "BOGO", gradient: "from-[#15222e] to-[#0b1620]" },
 ]
 
 /* Stats data */
@@ -92,31 +64,51 @@ const stats: StatItem[] = [
   { value: 0, label: "Dominant Players" },
 ]
 
+/* Marquee card component */
+function MarqueeCardItem({ card }: { card: MarqueeCard }) {
+  return (
+    <div className={`marquee-card w-[220px] h-[280px] rounded-2xl bg-gradient-to-b ${card.gradient} border border-white/[0.08] p-5 flex flex-col justify-between shrink-0`}>
+      <div>
+        <p className="text-[10px] tracking-[0.1em] uppercase text-teal-300/70">{card.category}</p>
+        <p className="text-sm font-medium text-white mt-2 tracking-[-0.01em]">{card.name}</p>
+        <p className="text-xs text-white/40 mt-1">{card.description}</p>
+      </div>
+      <span className="inline-block self-start text-[10px] font-medium bg-teal-300/15 text-teal-300 px-2.5 py-1 rounded-full">
+        {card.badge}
+      </span>
+    </div>
+  )
+}
+
+/* Marquee column — renders cards doubled for seamless loop */
+function MarqueeColumn({ cards, className }: { cards: MarqueeCard[]; className?: string }) {
+  return (
+    <div className={`marquee-col flex flex-col gap-4 ${className || ""}`}>
+      {/* Original set */}
+      {cards.map((card, i) => (
+        <MarqueeCardItem key={`a-${i}`} card={card} />
+      ))}
+      {/* Cloned set for seamless loop */}
+      {cards.map((card, i) => (
+        <MarqueeCardItem key={`b-${i}`} card={card} />
+      ))}
+    </div>
+  )
+}
+
 export default function Hero() {
   const container = useRef<HTMLElement>(null)
 
   /* ── GSAP entrance timeline ── */
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        // Show everything immediately for reduced motion
-        gsap.set(
-          [
-            ".hero-eyebrow",
-            ".hero-heading",
-            ".hero-subtext",
-            ".hero-actions",
-            ".hero-stats .stat-item",
-            ".deal-card",
-            ".scroll-indicator",
-          ],
-          { opacity: 1, y: 0, filter: "none" }
-        )
-        // Set stat numbers to final values
+      const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+      if (isReduced) {
+        gsap.set([".hero-eyebrow", ".hero-heading", ".hero-subtext", ".hero-actions", ".hero-stats .stat-item", ".scroll-indicator"], { opacity: 1, y: 0, filter: "none" })
+        gsap.set(".marquee-wrap", { opacity: 1 })
         document.querySelectorAll(".stat-number").forEach((el) => {
-          const target = parseFloat(
-            el.getAttribute("data-value") || "0"
-          )
+          const target = parseFloat(el.getAttribute("data-value") || "0")
           const prefix = el.getAttribute("data-prefix") || ""
           const suffix = el.getAttribute("data-suffix") || ""
           el.textContent = `${prefix}${target >= 1000 ? Math.round(target).toLocaleString() : Math.round(target)}${suffix}`
@@ -124,277 +116,171 @@ export default function Hero() {
         return
       }
 
-      const tl = gsap.timeline({
-        defaults: { ease: "checkout", force3D: true },
+      /* ── Vertical marquee animation ── */
+      // Each column scrolls continuously. Col 1 & 3 go UP, Col 2 & 4 go DOWN.
+      const colHeight = 6 * (280 + 16) // 6 cards * (280px height + 16px gap)
+
+      // Columns scrolling UP (start at 0, move to -colHeight)
+      gsap.to(".marquee-up", {
+        y: -colHeight,
+        duration: 30,
+        ease: "none",
+        repeat: -1,
+        modifiers: {
+          y: gsap.utils.unitize((y: number) => y % colHeight),
+        },
       })
 
-      // SplitText on the heading
-      const split = new SplitText(".hero-heading", {
-        type: "chars,words",
+      // Columns scrolling DOWN (start at -colHeight, move to 0)
+      gsap.set(".marquee-down", { y: -colHeight })
+      gsap.to(".marquee-down", {
+        y: 0,
+        duration: 25,
+        ease: "none",
+        repeat: -1,
+        modifiers: {
+          y: gsap.utils.unitize((y: number) => {
+            const val = y % colHeight
+            return val > 0 ? val - colHeight : val
+          }),
+        },
       })
 
-      tl.from(".hero-eyebrow", {
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-      })
-        .from(
-          split.chars,
-          {
-            y: 40,
-            opacity: 0,
-            filter: "blur(8px)",
-            stagger: 0.02,
-            duration: 0.6,
-          },
-          "-=0.4"
-        )
-        .from(
-          ".hero-subtext",
-          { y: 30, opacity: 0, duration: 0.7 },
-          "-=0.3"
-        )
-        .from(
-          ".hero-actions",
-          { y: 30, opacity: 0, duration: 0.7 },
-          "-=0.4"
-        )
-        .from(
-          ".hero-stats .stat-item",
-          { y: 20, opacity: 0, stagger: 0.1, duration: 0.6 },
-          "-=0.3"
-        )
-        .from(
-          ".deal-card",
-          {
-            y: 40,
-            opacity: 0,
-            scale: 0.9,
-            stagger: 0.15,
-            duration: 0.8,
-          },
-          "-=0.5"
-        )
-        .from(
-          ".scroll-indicator",
-          { opacity: 0, duration: 0.5 },
-          "-=0.2"
-        )
+      // Fade in marquee columns
+      gsap.from(".marquee-wrap", { opacity: 0, duration: 1.5, delay: 0.5, ease: "power2.out" })
+
+      /* ── Entrance timeline ── */
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } })
+
+      // Animate heading words (not chars — chars break layout wrapping)
+      const headingWords = container.current?.querySelectorAll(".hero-heading span, .hero-heading em")
+
+      tl.from(".hero-eyebrow", { y: 30, opacity: 0, duration: 0.8 })
+      if (headingWords && headingWords.length > 0) {
+        tl.from(headingWords, { y: 50, opacity: 0, filter: "blur(6px)", stagger: 0.08, duration: 0.7 }, "-=0.4")
+      } else {
+        tl.from(".hero-heading", { y: 50, opacity: 0, filter: "blur(6px)", duration: 0.8 }, "-=0.4")
+      }
+      tl.from(".hero-subtext", { y: 30, opacity: 0, duration: 0.7 }, "-=0.3")
+        .from(".hero-actions", { y: 30, opacity: 0, duration: 0.7 }, "-=0.4")
+        .from(".hero-stats .stat-item", { y: 20, opacity: 0, stagger: 0.1, duration: 0.6 }, "-=0.3")
+        .from(".scroll-indicator", { opacity: 0, duration: 0.5 }, "-=0.2")
     },
     { scope: container }
   )
 
-  /* ── GSAP scroll-linked scrub-out + parallax ── */
-  useGSAP(
-    () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-        return
+  /* ── Scroll-linked scrub + parallax (NO scope — needs global selectors) ── */
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (!container.current) return
 
-      // Hero content scrubs out as you scroll
-      gsap.to(".hero-content", {
-        y: -150,
-        opacity: 0,
+    const section = container.current
+
+    gsap.to(section.querySelector(".hero-content")!, {
+      y: -150,
+      opacity: 0,
+      ease: "none",
+      scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1.5 },
+    })
+
+    gsap.to(section.querySelector(".marquee-left")!, {
+      y: -60,
+      ease: "none",
+      scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
+    })
+
+    gsap.to(section.querySelector(".marquee-right")!, {
+      y: -40,
+      ease: "none",
+      scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
+    })
+
+    gsap.to(section.querySelector(".hero-grid")!, {
+      y: -80,
+      ease: "none",
+      scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
+    })
+
+    // Stats scroll-linked counters
+    section.querySelectorAll(".stat-number").forEach((el) => {
+      const target = parseFloat(el.getAttribute("data-value") || "0")
+      const prefix = el.getAttribute("data-prefix") || ""
+      const suffix = el.getAttribute("data-suffix") || ""
+      const proxy = { val: 0 }
+      gsap.to(proxy, {
+        val: target,
         ease: "none",
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "bottom top",
-          scrub: 1.5,
+        scrollTrigger: { trigger: section.querySelector(".hero-stats")!, start: "top 85%", end: "top 45%", scrub: 1 },
+        onUpdate: () => {
+          el.textContent = `${prefix}${target >= 1000 ? Math.round(proxy.val).toLocaleString() : Math.round(proxy.val)}${suffix}`
         },
       })
+    })
 
-      // Each floating card has different parallax speed
-      document.querySelectorAll(".deal-card").forEach((card, i) => {
-        gsap.to(card, {
-          y: -40 - i * 25,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
-      })
-
-      // Grid shifts on scroll
-      gsap.to(".hero-grid", {
-        y: -80,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-      })
-
-      // Stats count up tied to scroll
-      const statEls = document.querySelectorAll(".stat-number")
-      statEls.forEach((el) => {
-        const target = parseFloat(
-          el.getAttribute("data-value") || "0"
-        )
-        const prefix = el.getAttribute("data-prefix") || ""
-        const suffix = el.getAttribute("data-suffix") || ""
-        const proxy = { val: 0 }
-        gsap.to(proxy, {
-          val: target,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-stats",
-            start: "top 85%",
-            end: "top 45%",
-            scrub: 1,
-          },
-          onUpdate: () => {
-            el.textContent = `${prefix}${target >= 1000 ? Math.round(proxy.val).toLocaleString() : Math.round(proxy.val)}${suffix}`
-          },
-        })
-      })
-
-      // Scroll indicator line grows with scroll
-      gsap.to(".scroll-line-fill", {
+    const scrollFill = section.querySelector(".scroll-line-fill")
+    if (scrollFill) {
+      gsap.to(scrollFill, {
         height: 48,
         ease: "none",
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "200px top",
-          scrub: 1,
-        },
+        scrollTrigger: { trigger: section, start: "top top", end: "200px top", scrub: 1 },
       })
+    }
 
-      // Scroll progress bar (full page)
-      gsap.to(".scroll-progress-bar", {
+    const progressBar = document.querySelector(".scroll-progress-bar")
+    if (progressBar) {
+      gsap.to(progressBar, {
         scaleX: 1,
         ease: "none",
-        scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.3,
-        },
+        scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.3 },
       })
-    },
-    { scope: container }
-  )
+    }
+  })
 
   return (
     <>
-      {/* Scroll progress indicator -- fixed top bar */}
-      <div
-        className="scroll-progress-bar fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]"
-        style={{ transform: "scaleX(0)" }}
-      />
+      <div className="scroll-progress-bar fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]" style={{ transform: "scaleX(0)" }} />
 
       <section
         ref={container}
         id="hero"
-        className="hero-section relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
+        className="hero-section relative min-h-screen overflow-hidden"
         style={{ backgroundColor: "#162028" }}
       >
-        {/* Animated grid background */}
+        {/* Grid background */}
         <div className="hero-grid absolute inset-0 pointer-events-none">
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `
-                linear-gradient(rgba(3, 164, 147, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(3, 164, 147, 0.06) 1px, transparent 1px)
-              `,
+              backgroundImage: "linear-gradient(rgba(3,164,147,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(3,164,147,0.05) 1px, transparent 1px)",
               backgroundSize: "60px 60px",
             }}
           />
         </div>
 
-        {/* Teal glow orbs -- CSS animation for ambient pulse */}
+        {/* Teal glow orbs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div
-            className="hero-glow-1 absolute w-[600px] h-[600px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(3, 164, 147, 0.12) 0%, transparent 70%)",
-              top: "10%",
-              left: "20%",
-              animation:
-                "heroGlowPulse 8s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="hero-glow-2 absolute w-[400px] h-[400px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(3, 164, 147, 0.08) 0%, transparent 70%)",
-              bottom: "15%",
-              right: "15%",
-              animation:
-                "heroGlowPulse 10s ease-in-out 2s infinite",
-            }}
-          />
+          <div className="absolute w-[600px] h-[600px] rounded-full" style={{ background: "radial-gradient(circle, rgba(3,164,147,0.1) 0%, transparent 70%)", top: "10%", left: "30%" }} />
+          <div className="absolute w-[400px] h-[400px] rounded-full" style={{ background: "radial-gradient(circle, rgba(3,164,147,0.06) 0%, transparent 70%)", bottom: "15%", right: "20%" }} />
         </div>
 
-        {/* Ambient glow keyframes -- dangerouslySetInnerHTML avoids styled-jsx dependency */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes heroGlowPulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.15); opacity: 1; }
-          }
-        ` }} />
+        {/* Noise overlay */}
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, opacity: 0.03 }} />
 
-        {/* Noise texture overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            opacity: 0.03,
-          }}
-        />
+        {/* ═══ MAIN LAYOUT: marquee columns | center content | marquee columns ═══ */}
+        <div className="relative z-10 flex min-h-screen">
 
-        {/* Floating deal cards -- GSAP parallax via className targeting */}
-        {dealCards.map((card, index) => (
-          <div
-            key={card.name}
-            className={`deal-card deal-card-${index} absolute hidden lg:block`}
-            style={{
-              top: card.top,
-              bottom: card.bottom,
-              left: card.left,
-              right: card.right,
-              opacity: 0,
-            }}
-          >
-            <div
-              style={{
-                transform: `rotate(${card.rotate}deg)`,
-              }}
-            >
-              <div className="rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm p-4 max-w-[160px]">
-                <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">
-                  {card.category}
-                </p>
-                <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">
-                  {card.name}
-                </p>
-                <p className="text-[11px] text-white/40 mt-0.5">
-                  {card.description}
-                </p>
-                <span className="inline-block mt-2 text-[10px] font-medium bg-teal-300/20 text-teal-300 px-2 py-0.5 rounded-full">
-                  {card.badge}
-                </span>
-              </div>
-            </div>
+          {/* LEFT MARQUEE COLUMNS (2 columns) */}
+          <div className="marquee-wrap marquee-left hidden lg:flex gap-4 w-[470px] shrink-0 overflow-hidden relative">
+            {/* Gradient mask top/bottom */}
+            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 15%, transparent 85%, #162028 100%)" }} />
+            <MarqueeColumn cards={leftCol1Cards} className="marquee-up pt-12" />
+            <MarqueeColumn cards={leftCol2Cards} className="marquee-down pt-24" />
           </div>
-        ))}
 
-        {/* Main content -- GSAP scrub-out on scroll */}
-        <div className="hero-content relative z-10 mx-auto w-full max-w-6xl">
-          <div className="flex flex-col items-start">
+          {/* CENTER CONTENT */}
+          <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 py-24 md:py-0">
             {/* Eyebrow */}
-            <span
-              className="hero-eyebrow mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400"
-              style={{ opacity: 0 }}
-            >
+            <span className="hero-eyebrow mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal-300" />
@@ -402,114 +288,68 @@ export default function Hero() {
               Toronto, Canada &middot; Launching 2026
             </span>
 
-            {/* H1 -- GSAP SplitText handles character animation */}
-            <h1
-              className="hero-heading font-medium tracking-[-0.03em] max-w-4xl"
-              style={{
-                fontSize: "clamp(3.25rem, 7vw, 6rem)",
-                lineHeight: 1.0,
-              }}
-            >
-              <span className="text-white">
-                The membership that{" "}
-              </span>
+            {/* Heading */}
+            <h1 className="hero-heading font-medium tracking-[-0.03em] max-w-3xl" style={{ fontSize: "clamp(2.75rem, 6vw, 5rem)", lineHeight: 1.0 }}>
+              <span className="text-white">The membership that </span>
               <em className="text-teal-300 italic">pays</em>
               <br />
-              <span
-                style={{
-                  WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
-                  color: "transparent",
-                }}
-              >
-                for itself.
-              </span>
+              <span style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.3)", color: "transparent" }}>for itself.</span>
             </h1>
 
             {/* Subtext */}
-            <p
-              className="hero-subtext mt-8 max-w-xl text-base text-neutral-400"
-              style={{ lineHeight: 1.7, opacity: 0 }}
-            >
-              One membership. Access to premier dining, wellness, fitness,
-              and lifestyle experiences across Toronto — at prices that
-              make going out feel good again.
+            <p className="hero-subtext mt-8 max-w-md text-base text-neutral-400" style={{ lineHeight: 1.7 }}>
+              One membership. Access to premier dining, wellness, fitness, and lifestyle experiences across Toronto — at prices that make going out feel good again.
             </p>
 
             {/* CTA buttons */}
-            <div
-              className="hero-actions mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4"
-              style={{ opacity: 0 }}
-            >
+            <div className="hero-actions mt-10 flex flex-col sm:flex-row items-center gap-4">
               <Button
-                className="h-12 px-8 bg-teal-300 text-carbon hover:bg-teal-300/90 text-sm tracking-[-0.01em]"
-                onClick={() => {
-                  const el = document.getElementById("waitlist")
-                  if (el) el.scrollIntoView({ behavior: "smooth" })
-                }}
+                className="h-12 px-8 bg-teal-300 text-carbon hover:bg-teal-300/90 text-sm"
+                onClick={() => document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Join the Waitlist
-                <span className="ml-2">&rarr;</span>
+                Join the Waitlist <span className="ml-2">&rarr;</span>
               </Button>
-              <Button
-                variant="ghost"
-                className="h-12 px-8 text-white/60 hover:text-white hover:bg-white/5 text-sm tracking-[-0.01em]"
-              >
-                View Pricing
-                <span className="ml-2">&darr;</span>
+              <Button variant="ghost" className="h-12 px-8 text-white/60 hover:text-white hover:bg-white/5 text-sm">
+                View Pricing <span className="ml-2">&darr;</span>
               </Button>
             </div>
-          </div>
 
-          {/* Stats -- bottom right, GSAP scroll-linked counters */}
-          <div className="hero-stats mt-24 md:mt-32 flex justify-end">
-            <div className="flex gap-12 md:gap-16">
+            {/* Stats */}
+            <div className="hero-stats mt-16 md:mt-24 flex gap-10 md:gap-14">
               {stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="stat-item text-right"
-                  style={{ opacity: 0 }}
-                >
+                <div key={stat.label} className="stat-item text-center">
                   <p
-                    className="stat-number text-3xl font-medium text-teal-300 tracking-[-0.02em]"
+                    className="stat-number text-2xl md:text-3xl font-medium text-teal-300 tracking-[-0.02em]"
                     data-value={stat.value}
                     data-prefix={stat.prefix || ""}
                     data-suffix={stat.suffix || ""}
                   >
                     {stat.prefix ?? ""}0{stat.suffix ?? ""}
                   </p>
-                  <p className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 mt-1">
-                    {stat.label}
-                  </p>
+                  <p className="text-[10px] tracking-[0.1em] uppercase text-neutral-400 mt-1">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Scroll indicator -- bottom left */}
-        <div
-          className="scroll-indicator absolute bottom-8 left-6 md:left-10 z-10 flex items-end gap-3"
-          style={{ opacity: 0 }}
-        >
-          <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
-            <div
-              className="scroll-line-fill absolute bottom-0 left-0 w-full bg-teal-300"
-              style={{ height: 0 }}
-            />
+          {/* RIGHT MARQUEE COLUMNS (2 columns) */}
+          <div className="marquee-wrap marquee-right hidden lg:flex gap-4 w-[470px] shrink-0 overflow-hidden relative">
+            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 15%, transparent 85%, #162028 100%)" }} />
+            <MarqueeColumn cards={rightCol1Cards} className="marquee-down pt-8" />
+            <MarqueeColumn cards={rightCol2Cards} className="marquee-up pt-20" />
           </div>
-          <span className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">
-            Scroll to explore
-          </span>
         </div>
 
-        {/* Bottom gradient transition */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent, #F5F7F7)",
-          }}
-        />
+        {/* Scroll indicator */}
+        <div className="scroll-indicator absolute bottom-8 left-6 md:left-10 z-20 flex items-end gap-3">
+          <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
+            <div className="scroll-line-fill absolute bottom-0 left-0 w-full bg-teal-300" style={{ height: 0 }} />
+          </div>
+          <span className="text-[10px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">Scroll to explore</span>
+        </div>
+
+        {/* Bottom gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-20" style={{ background: "linear-gradient(to bottom, transparent, #162028)" }} />
       </section>
     </>
   )
