@@ -38,7 +38,7 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-500",
         scrolled
           ? "bg-white/80 backdrop-blur-md border-b border-mist"
           : "bg-transparent border-b border-transparent"
@@ -49,7 +49,7 @@ export default function Navbar() {
         <Link
           href="/"
           className={cn(
-            "text-lg tracking-[-0.02em] transition-colors duration-300",
+            "text-lg tracking-[-0.02em] transition-colors duration-500",
             scrolled ? "text-carbon" : "text-white"
           )}
         >
@@ -64,7 +64,7 @@ export default function Navbar() {
               key={link.label}
               href={link.href}
               className={cn(
-                "text-sm font-normal transition-colors duration-300",
+                "text-sm font-normal transition-colors duration-500",
                 scrolled
                   ? "text-neutral-300 hover:text-carbon"
                   : "text-white/70 hover:text-white"
@@ -96,7 +96,7 @@ export default function Navbar() {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "md:hidden transition-colors duration-300",
+                  "md:hidden transition-colors duration-500",
                   scrolled ? "text-carbon" : "text-white"
                 )}
                 aria-label="Open menu"

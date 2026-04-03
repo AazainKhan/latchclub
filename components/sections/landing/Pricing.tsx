@@ -67,20 +67,44 @@ const tiers: PricingTier[] = [
 const container = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.1 },
+    transition: { staggerChildren: 0.12 },
   },
 }
 
 const cardVariant = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 60, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1] as const },
   },
 }
 
 const cardVariantReduced = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.3 },
+  },
+}
+
+const sectionHeader = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } },
+}
+
+const blurUp = {
+  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
+  visible: {
+    opacity: 1,
+    filter: "blur(0px)",
+    y: 0,
+    transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
+  },
+}
+
+const blurUpReduced = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -95,9 +119,18 @@ export default function Pricing() {
   return (
     <section id="pricing" className="bg-white py-20 md:py-28 px-6">
       <div className="mx-auto max-w-5xl">
-        {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <div className="flex items-center justify-center gap-2 mb-4">
+        {/* Header — staggered entrance */}
+        <motion.div
+          className="text-center mb-12 md:mb-16"
+          variants={prefersReduced ? { hidden: {}, visible: {} } : sectionHeader}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+        >
+          <motion.div
+            className="flex items-center justify-center gap-2 mb-4"
+            variants={prefersReduced ? blurUpReduced : blurUp}
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-teal-300" />
             <p
               className="text-xs uppercase text-neutral-300"
@@ -105,21 +138,23 @@ export default function Pricing() {
             >
               Pricing
             </p>
-          </div>
-          <h2
+          </motion.div>
+          <motion.h2
             className="text-3xl md:text-5xl font-medium text-carbon"
             style={{ letterSpacing: "-0.03em", lineHeight: 1.1 }}
+            variants={prefersReduced ? blurUpReduced : blurUp}
           >
             <span className="text-neutral-200">Simple, transparent </span>
             pricing.
-          </h2>
-          <p
+          </motion.h2>
+          <motion.p
             className="text-lg text-neutral-300 mt-4 max-w-[65ch] mx-auto"
             style={{ lineHeight: 1.7 }}
+            variants={prefersReduced ? blurUpReduced : blurUp}
           >
             Start free. Upgrade when you&apos;re ready.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Horizontal rule */}
         <div className="border-t border-mist mb-12 md:mb-16" />

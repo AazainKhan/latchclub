@@ -5,16 +5,16 @@ import { LayoutGrid, Search, Check } from "lucide-react"
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.12 } },
 }
 
 const blurUp = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 20 },
+  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
   visible: {
     opacity: 1,
     filter: "blur(0px)",
     y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
+    transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
   },
 }
 

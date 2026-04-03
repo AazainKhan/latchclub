@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { motion, useReducedMotion, useInView } from "framer-motion"
+import { motion, useReducedMotion, useInView, useScroll, useTransform, MotionValue } from "framer-motion"
 import WaitlistForm from "@/components/shared/WaitlistForm"
 
-const EASE = [0.25, 0.1, 0.25, 1] as const
+const EASE = [0.23, 1, 0.32, 1] as const
 
 const container = {
   hidden: {},
@@ -19,8 +19,45 @@ const blurUp = {
     opacity: 1,
     filter: "blur(0px)",
     y: 0,
+    transition: { duration: 0.7, ease: EASE },
+  },
+}
+
+/* Character-level heading animation (GlowGuide pattern) */
+const charContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.02 } },
+}
+
+const charVariant = {
+  hidden: { opacity: 0, filter: "blur(12px)", y: 10 },
+  visible: {
+    opacity: 1,
+    filter: "blur(0px)",
+    y: 0,
     transition: { duration: 0.6, ease: EASE },
   },
+}
+
+interface SplitTextProps {
+  children: string
+  className?: string
+}
+
+function SplitText({ children, className }: SplitTextProps) {
+  return (
+    <motion.span className={className} variants={charContainer} style={{ display: "inline-block" }}>
+      {children.split("").map((char, i) => (
+        <motion.span
+          key={i}
+          variants={charVariant}
+          style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  )
 }
 
 const noAnimation = {
@@ -129,9 +166,17 @@ function useAnimatedCounter(target: number, duration: number, shouldAnimate: boo
   return { count, start }
 }
 
-/* Floating deal card component */
-function FloatingDealCard({ card, prefersReducedMotion }: { card: DealCard; prefersReducedMotion: boolean | null }) {
-  const style: React.CSSProperties = {
+/* Floating deal card component with scroll-linked parallax */
+function FloatingDealCard({
+  card,
+  prefersReducedMotion,
+  parallaxY,
+}: {
+  card: DealCard
+  prefersReducedMotion: boolean | null
+  parallaxY: MotionValue<number>
+}) {
+  const style: Record<string, string | undefined> = {
     top: card.top,
     bottom: card.bottom,
     left: card.left,
@@ -141,10 +186,10 @@ function FloatingDealCard({ card, prefersReducedMotion }: { card: DealCard; pref
   return (
     <motion.div
       className="absolute hidden lg:block"
-      style={style}
+      style={{ ...style, y: prefersReducedMotion ? 0 : parallaxY }}
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 1.2 + card.delay * 0.3, ease: EASE }}
+      transition={{ duration: 0.7, delay: 1.2 + card.delay * 0.3, ease: EASE }}
     >
       <motion.div
         style={{ rotate: card.rotate }}
@@ -182,6 +227,15 @@ export default function Hero() {
   const counterRef = useRef<HTMLParagraphElement>(null)
   const isInView = useInView(counterRef, { once: true, amount: 0.5 })
 
+  /* Scroll-linked parallax for floating cards (checkout.com pattern) */
+  const { scrollY } = useScroll()
+  const card1Y = useTransform(scrollY, [0, 500], [0, -30])
+  const card2Y = useTransform(scrollY, [0, 500], [0, -50])
+  const card3Y = useTransform(scrollY, [0, 500], [0, -20])
+  const card4Y = useTransform(scrollY, [0, 500], [0, -40])
+  const card5Y = useTransform(scrollY, [0, 500], [0, -25])
+  const parallaxValues = [card1Y, card2Y, card3Y, card4Y, card5Y]
+
   const itemVariants = prefersReducedMotion ? noAnimation : blurUp
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
@@ -207,9 +261,14 @@ export default function Hero() {
         }}
       />
 
-      {/* Floating deal cards — desktop only */}
-      {dealCards.map((card) => (
-        <FloatingDealCard key={card.name} card={card} prefersReducedMotion={prefersReducedMotion} />
+      {/* Floating deal cards — desktop only, with scroll parallax */}
+      {dealCards.map((card, index) => (
+        <FloatingDealCard
+          key={card.name}
+          card={card}
+          prefersReducedMotion={prefersReducedMotion}
+          parallaxY={parallaxValues[index]}
+        />
       ))}
 
       {/* Main content */}
@@ -231,15 +290,25 @@ export default function Hero() {
           Coming to Canada &mdash; Join the waitlist
         </motion.span>
 
-        {/* H1 — Large two-tone heading on dark */}
+        {/* H1 — Character-level stagger animation (GlowGuide pattern) */}
         <motion.h1
-          variants={itemVariants}
+          variants={prefersReducedMotion ? noAnimation : { hidden: {}, visible: { transition: { staggerChildren: 0.02, delayChildren: 0.1 } } }}
           className="font-medium uppercase tracking-[-0.04em] text-5xl md:text-7xl lg:text-[5.5rem]"
           style={{ lineHeight: 0.95 }}
         >
-          <span className="text-neutral-400">Save more.</span>
-          <br />
-          <span className="text-white">Experience more.</span>
+          {prefersReducedMotion ? (
+            <>
+              <span className="text-neutral-400">Save more.</span>
+              <br />
+              <span className="text-white">Experience more.</span>
+            </>
+          ) : (
+            <>
+              <SplitText className="text-neutral-400">Save more.</SplitText>
+              <br />
+              <SplitText className="text-white">Experience more.</SplitText>
+            </>
+          )}
         </motion.h1>
 
         {/* Subtext */}
