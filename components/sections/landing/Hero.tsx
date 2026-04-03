@@ -1,20 +1,20 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
-import { motion, useReducedMotion, useInView, useScroll, useTransform, MotionValue } from "framer-motion"
-import WaitlistForm from "@/components/shared/WaitlistForm"
+import { useEffect, useRef, useState } from "react"
+import { motion, useReducedMotion, useScroll, useTransform, MotionValue } from "framer-motion"
+import { Button } from "@/components/ui/button"
 
 const EASE = [0.23, 1, 0.32, 1] as const
 
 const container = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.12 },
+    transition: { staggerChildren: 0.1 },
   },
 }
 
 const blurUp = {
-  hidden: { opacity: 0, filter: "blur(8px)", y: 40 },
+  hidden: { opacity: 0, filter: "blur(8px)", y: 32 },
   visible: {
     opacity: 1,
     filter: "blur(0px)",
@@ -23,10 +23,9 @@ const blurUp = {
   },
 }
 
-/* Character-level heading animation (GlowGuide pattern) */
 const charContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.02 } },
+  visible: { transition: { staggerChildren: 0.018 } },
 }
 
 const charVariant = {
@@ -39,6 +38,12 @@ const charVariant = {
   },
 }
 
+const noAnimation = {
+  hidden: { opacity: 1 },
+  visible: { opacity: 1 },
+}
+
+/* Split text for character-level animation */
 interface SplitTextProps {
   children: string
   className?: string
@@ -60,11 +65,6 @@ function SplitText({ children, className }: SplitTextProps) {
   )
 }
 
-const noAnimation = {
-  hidden: { opacity: 1 },
-  visible: { opacity: 1 },
-}
-
 /* Floating deal cards data */
 interface DealCard {
   category: string
@@ -77,7 +77,7 @@ interface DealCard {
   bottom?: string
   rotate: number
   delay: number
-  color: string
+  parallaxSpeed: number
 }
 
 const dealCards: DealCard[] = [
@@ -86,87 +86,93 @@ const dealCards: DealCard[] = [
     name: "Kinka Izakaya",
     description: "2-for-1 Dinner",
     badge: "50% OFF",
-    top: "12%",
+    top: "14%",
     left: "4%",
     rotate: -6,
     delay: 0,
-    color: "from-orange-400 to-red-400",
+    parallaxSpeed: -60,
   },
   {
     category: "Wellness",
     name: "Scandinave Spa",
     description: "Day Pass",
     badge: "$45 OFF",
-    top: "8%",
+    top: "10%",
     right: "5%",
     rotate: 4,
     delay: 0.8,
-    color: "from-teal-300 to-cyan-400",
+    parallaxSpeed: -90,
   },
   {
     category: "Experiences",
     name: "ROM Tickets",
     description: "Family Pack",
     badge: "BOGO",
-    bottom: "24%",
+    bottom: "26%",
     left: "5%",
     rotate: 3,
     delay: 1.6,
-    color: "from-violet-400 to-indigo-400",
+    parallaxSpeed: -40,
   },
   {
     category: "Fitness",
     name: "Barry's Bootcamp",
     description: "First Month",
     badge: "40% OFF",
-    bottom: "18%",
+    bottom: "20%",
     right: "4%",
     rotate: -4,
     delay: 2.4,
-    color: "from-pink-400 to-rose-400",
+    parallaxSpeed: -70,
   },
   {
     category: "Travel",
     name: "Porter Airlines",
     description: "Weekend Getaway",
     badge: "$120 OFF",
-    top: "44%",
+    top: "46%",
     right: "2%",
     rotate: 5,
     delay: 3.2,
-    color: "from-sky-400 to-blue-400",
+    parallaxSpeed: -50,
   },
 ]
 
-function useAnimatedCounter(target: number, duration: number, shouldAnimate: boolean) {
+/* Scroll-linked animated counter for stats */
+function useScrollCounter(
+  scrollY: MotionValue<number>,
+  target: number,
+  scrollStart: number,
+  scrollEnd: number,
+  prefersReducedMotion: boolean | null
+) {
   const [count, setCount] = useState(0)
-  const hasAnimated = useRef(false)
 
-  const start = useCallback(() => {
-    if (hasAnimated.current || !shouldAnimate) {
+  useEffect(() => {
+    if (prefersReducedMotion) {
       setCount(target)
       return
     }
-    hasAnimated.current = true
-    const startTime = performance.now()
 
-    function tick(now: number) {
-      const elapsed = now - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.round(eased * target))
-      if (progress < 1) {
-        requestAnimationFrame(tick)
+    const unsubscribe = scrollY.on("change", (latest) => {
+      if (latest <= scrollStart) {
+        setCount(0)
+      } else if (latest >= scrollEnd) {
+        setCount(target)
+      } else {
+        const progress = (latest - scrollStart) / (scrollEnd - scrollStart)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCount(Math.round(eased * target))
       }
-    }
+    })
 
-    requestAnimationFrame(tick)
-  }, [target, duration, shouldAnimate])
+    return unsubscribe
+  }, [scrollY, target, scrollStart, scrollEnd, prefersReducedMotion])
 
-  return { count, start }
+  return count
 }
 
-/* Floating deal card component with scroll-linked parallax */
+/* Floating deal card with deeper per-card parallax */
 function FloatingDealCard({
   card,
   prefersReducedMotion,
@@ -196,9 +202,7 @@ function FloatingDealCard({
         animate={
           prefersReducedMotion
             ? {}
-            : {
-                y: [0, -8, 0],
-              }
+            : { y: [0, -8, 0] }
         }
         transition={{
           duration: 6,
@@ -207,9 +211,7 @@ function FloatingDealCard({
           delay: card.delay,
         }}
       >
-        <div className="rounded-xl border border-white/10 bg-white/[0.07] backdrop-blur-sm p-4 max-w-[160px]">
-          {/* Category color indicator */}
-          <div className={`h-2 w-8 rounded-full bg-gradient-to-r ${card.color} mb-2 opacity-80`} />
+        <div className="rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm p-4 max-w-[160px]">
           <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">{card.category}</p>
           <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">{card.name}</p>
           <p className="text-[11px] text-white/40 mt-0.5">{card.description}</p>
@@ -222,130 +224,305 @@ function FloatingDealCard({
   )
 }
 
+/* Stats data */
+interface StatItem {
+  value: number
+  prefix?: string
+  suffix?: string
+  label: string
+}
+
+const stats: StatItem[] = [
+  { value: 135, prefix: "$", suffix: "B", label: "Total Market" },
+  { value: 9378, label: "Toronto Merchants" },
+  { value: 0, label: "Dominant Players" },
+]
+
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion()
-  const counterRef = useRef<HTMLParagraphElement>(null)
-  const isInView = useInView(counterRef, { once: true, amount: 0.5 })
+  const heroRef = useRef<HTMLElement>(null)
 
-  /* Scroll-linked parallax for floating cards (checkout.com pattern) */
-  const { scrollY } = useScroll()
-  const card1Y = useTransform(scrollY, [0, 500], [0, -30])
-  const card2Y = useTransform(scrollY, [0, 500], [0, -50])
-  const card3Y = useTransform(scrollY, [0, 500], [0, -20])
-  const card4Y = useTransform(scrollY, [0, 500], [0, -40])
-  const card5Y = useTransform(scrollY, [0, 500], [0, -25])
-  const parallaxValues = [card1Y, card2Y, card3Y, card4Y, card5Y]
+  /* Global scroll for progress bar + hero parallax */
+  const { scrollY, scrollYProgress } = useScroll()
+
+  /* Hero content parallax — moves up faster as you scroll away */
+  const heroY = useTransform(scrollY, [0, 800], [0, -200])
+  const heroOpacity = useTransform(scrollY, [0, 600], [1, 0])
+
+  /* Grid background shift on scroll */
+  const gridY = useTransform(scrollY, [0, 800], [0, -60])
+
+  /* Deeper parallax per floating card */
+  const cardParallaxValues = dealCards.map((card) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useTransform(scrollY, [0, 800], [0, card.parallaxSpeed])
+  )
+
+  /* Scroll-linked stat counters */
+  const stat1 = useScrollCounter(scrollY, 135, 100, 500, prefersReducedMotion)
+  const stat2 = useScrollCounter(scrollY, 9378, 100, 500, prefersReducedMotion)
+  const stat3 = useScrollCounter(scrollY, 0, 100, 500, prefersReducedMotion)
+  const statValues = [stat1, stat2, stat3]
+
+  /* Scroll indicator line animation */
+  const scrollLineHeight = useTransform(scrollY, [0, 200], [0, 48])
 
   const itemVariants = prefersReducedMotion ? noAnimation : blurUp
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
-  const { count, start } = useAnimatedCounter(1200, 1500, !prefersReducedMotion)
-
-  useEffect(() => {
-    if (isInView) {
-      start()
-    }
-  }, [isInView, start])
-
   return (
-    <section
-      id="hero"
-      className="relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
-      style={{ backgroundColor: "#162028" }}
-    >
-      {/* Subtle ambient glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(3, 164, 147, 0.08), transparent)",
-        }}
+    <>
+      {/* Scroll progress indicator — fixed top bar */}
+      <motion.div
+        style={{ scaleX: scrollYProgress }}
+        className="fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]"
       />
 
-      {/* Floating deal cards — desktop only, with scroll parallax */}
-      {dealCards.map((card, index) => (
-        <FloatingDealCard
-          key={card.name}
-          card={card}
-          prefersReducedMotion={prefersReducedMotion}
-          parallaxY={parallaxValues[index]}
-        />
-      ))}
-
-      {/* Main content */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center"
+      <section
+        ref={heroRef}
+        id="hero"
+        className="relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
+        style={{ backgroundColor: "#162028" }}
       >
-        {/* Badge with pulsing teal dot */}
-        <motion.span
-          variants={itemVariants}
-          className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/[0.15] bg-white/5 px-4 py-1.5 text-sm text-white/70"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-300" />
-          </span>
-          Coming to Canada &mdash; Join the waitlist
-        </motion.span>
-
-        {/* H1 — Character-level stagger animation (GlowGuide pattern) */}
-        <motion.h1
-          variants={prefersReducedMotion ? noAnimation : { hidden: {}, visible: { transition: { staggerChildren: 0.02, delayChildren: 0.1 } } }}
-          className="font-medium uppercase tracking-[-0.04em] text-5xl md:text-7xl lg:text-[5.5rem]"
-          style={{ lineHeight: 0.95 }}
-        >
-          {prefersReducedMotion ? (
-            <>
-              <span className="text-neutral-400">Save more.</span>
-              <br />
-              <span className="text-white">Experience more.</span>
-            </>
-          ) : (
-            <>
-              <SplitText className="text-neutral-400">Save more.</SplitText>
-              <br />
-              <SplitText className="text-white">Experience more.</SplitText>
-            </>
-          )}
-        </motion.h1>
-
-        {/* Subtext */}
-        <motion.p
-          variants={itemVariants}
-          className="mt-8 max-w-md text-base text-neutral-400"
-          style={{ lineHeight: 1.7 }}
-        >
-          Unlock exclusive deals on dining, wellness, and experiences across
-          Canada.
-        </motion.p>
-
-        {/* Waitlist Form — dark variant */}
+        {/* Animated grid background */}
         <motion.div
-          variants={itemVariants}
-          className="mt-10 flex w-full justify-center"
+          className="absolute inset-0 pointer-events-none"
+          style={{ y: prefersReducedMotion ? 0 : gridY }}
         >
-          <WaitlistForm variant="dark" />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(3, 164, 147, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(3, 164, 147, 0.06) 1px, transparent 1px)
+              `,
+              backgroundSize: "60px 60px",
+            }}
+          />
         </motion.div>
 
-        {/* Social Proof — Animated counter */}
-        <motion.p
-          ref={counterRef}
-          variants={itemVariants}
-          className="mt-5 text-sm text-neutral-400"
-        >
-          Join {prefersReducedMotion ? "1,200" : count.toLocaleString()}+ Canadians already on the waitlist
-        </motion.p>
-      </motion.div>
+        {/* Teal glow orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute w-[600px] h-[600px] rounded-full"
+            style={{
+              background: "radial-gradient(circle, rgba(3, 164, 147, 0.12) 0%, transparent 70%)",
+              top: "10%",
+              left: "20%",
+            }}
+            animate={prefersReducedMotion ? {} : { scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute w-[400px] h-[400px] rounded-full"
+            style={{
+              background: "radial-gradient(circle, rgba(3, 164, 147, 0.08) 0%, transparent 70%)",
+              bottom: "15%",
+              right: "15%",
+            }}
+            animate={prefersReducedMotion ? {} : { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          />
+        </div>
 
-      {/* Bottom gradient transition to next section */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-        style={{
-          background: "linear-gradient(to bottom, transparent, #F5F7F7)",
-        }}
-      />
-    </section>
+        {/* Noise texture overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            opacity: 0.03,
+          }}
+        />
+
+        {/* Floating deal cards with deeper parallax */}
+        {dealCards.map((card, index) => (
+          <FloatingDealCard
+            key={card.name}
+            card={card}
+            prefersReducedMotion={prefersReducedMotion}
+            parallaxY={cardParallaxValues[index]}
+          />
+        ))}
+
+        {/* Main content — parallax out on scroll */}
+        <motion.div
+          style={{
+            y: prefersReducedMotion ? 0 : heroY,
+            opacity: prefersReducedMotion ? 1 : heroOpacity,
+          }}
+          className="relative z-10 mx-auto w-full max-w-6xl"
+        >
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col items-start"
+          >
+            {/* Eyebrow */}
+            <motion.span
+              variants={itemVariants}
+              className="mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400"
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal-300" />
+              </span>
+              Toronto, Canada &middot; Launching 2026
+            </motion.span>
+
+            {/* H1 — character-level stagger */}
+            <motion.h1
+              variants={prefersReducedMotion ? noAnimation : { hidden: {}, visible: { transition: { staggerChildren: 0.018, delayChildren: 0.1 } } }}
+              className="font-medium tracking-[-0.03em] max-w-4xl"
+              style={{
+                fontSize: "clamp(3.25rem, 7vw, 6rem)",
+                lineHeight: 1.0,
+              }}
+            >
+              {prefersReducedMotion ? (
+                <>
+                  <span className="text-white">The membership that </span>
+                  <em className="text-teal-300 italic">pays</em>
+                  <br />
+                  <span
+                    style={{
+                      WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
+                      color: "transparent",
+                    }}
+                  >
+                    for itself.
+                  </span>
+                </>
+              ) : (
+                <>
+                  <SplitText className="text-white">The membership that </SplitText>
+                  <motion.em
+                    className="text-teal-300 italic"
+                    variants={charContainer}
+                    style={{ display: "inline-block" }}
+                  >
+                    {("pays").split("").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        variants={charVariant}
+                        style={{ display: "inline-block" }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </motion.em>
+                  <br />
+                  <motion.span
+                    variants={charContainer}
+                    style={{
+                      display: "inline-block",
+                      WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
+                      color: "transparent",
+                    }}
+                  >
+                    {("for itself.").split("").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        variants={charVariant}
+                        style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </motion.span>
+                </>
+              )}
+            </motion.h1>
+
+            {/* Subtext */}
+            <motion.p
+              variants={itemVariants}
+              className="mt-8 max-w-xl text-base text-neutral-400"
+              style={{ lineHeight: 1.7 }}
+            >
+              One membership. Access to premier dining, wellness, fitness, and
+              lifestyle experiences across Toronto — at prices that make going out
+              feel good again.
+            </motion.p>
+
+            {/* CTA buttons */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            >
+              <Button
+                className="h-12 px-8 bg-teal-300 text-carbon hover:bg-teal-300/90 text-sm tracking-[-0.01em]"
+                onClick={() => {
+                  const el = document.getElementById("waitlist")
+                  if (el) el.scrollIntoView({ behavior: "smooth" })
+                }}
+              >
+                Join the Waitlist
+                <span className="ml-2">&rarr;</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-12 px-8 text-white/60 hover:text-white hover:bg-white/5 text-sm tracking-[-0.01em]"
+                render={<a href="/deck" target="_blank" rel="noopener noreferrer" />}
+              >
+                Investor Deck
+                <span className="ml-2">&nearr;</span>
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats — bottom right, scroll-linked counters */}
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            className="mt-24 md:mt-32 flex justify-end"
+          >
+            <div className="flex gap-12 md:gap-16">
+              {stats.map((stat, index) => (
+                <div key={stat.label} className="text-right">
+                  <p className="text-3xl font-medium text-teal-300 tracking-[-0.02em]">
+                    {stat.prefix ?? ""}
+                    {index === 2
+                      ? statValues[index]
+                      : statValues[index].toLocaleString()}
+                    {stat.suffix ?? ""}
+                  </p>
+                  <p className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 mt-1">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll indicator — bottom left */}
+        <motion.div
+          className="absolute bottom-8 left-6 md:left-10 z-10 flex items-end gap-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 0.5 }}
+        >
+          <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
+            <motion.div
+              className="absolute bottom-0 left-0 w-full bg-teal-300"
+              style={{ height: prefersReducedMotion ? 48 : scrollLineHeight }}
+            />
+          </div>
+          <span className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">
+            Scroll to explore
+          </span>
+        </motion.div>
+
+        {/* Bottom gradient transition */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+          style={{
+            background: "linear-gradient(to bottom, transparent, #F5F7F7)",
+          }}
+        />
+      </section>
+    </>
   )
 }
