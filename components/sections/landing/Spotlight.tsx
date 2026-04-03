@@ -1,31 +1,8 @@
 "use client"
 
-import { useRef, useEffect } from "react"
-import { motion, useReducedMotion } from "framer-motion"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-const blurUp = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
-  },
-}
-
-const noAnimation = {
-  hidden: {},
-  visible: {},
-}
+import { useRef } from "react"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 
 interface StatRow {
   label: string
@@ -40,121 +17,121 @@ const stats: StatRow[] = [
 ]
 
 export default function Spotlight() {
-  const prefersReduced = useReducedMotion()
-  const variants = prefersReduced ? noAnimation : blurUp
-  const containerVariants = prefersReduced ? noAnimation : container
-  const sectionRef = useRef<HTMLElement>(null)
+  const container = useRef<HTMLElement>(null)
 
-  /* ── GSAP scroll-linked animations ── */
-  useEffect(() => {
-    if (prefersReduced) return
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
-    const timer = setTimeout(() => {
-      if (!sectionRef.current) return
+      /* ── Entrance reveals ── */
+      gsap.from(".spotlight-badge", {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        ease: "checkout",
+        scrollTrigger: {
+          trigger: ".spotlight-section",
+          start: "top 75%",
+        },
+      })
 
-      const ctx = gsap.context(() => {
-        /* Parallax scrub on the heading — moves slower than scroll */
-        gsap.to(".spotlight-heading", {
-          y: -40,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".spotlight-section",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
+      gsap.from(".spotlight-heading", {
+        y: 60,
+        opacity: 0,
+        duration: 0.8,
+        ease: "checkout",
+        scrollTrigger: {
+          trigger: ".spotlight-section",
+          start: "top 70%",
+        },
+      })
 
-        /* Scale-in on the metrics card */
-        gsap.from(".spotlight-metrics-card", {
-          scale: 0.9,
-          opacity: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".spotlight-metrics-card",
-            start: "top 85%",
-            end: "top 50%",
-            scrub: 1,
-          },
-        })
-      }, sectionRef.current)
+      gsap.from(".spotlight-description", {
+        y: 40,
+        opacity: 0,
+        duration: 0.7,
+        ease: "checkout",
+        scrollTrigger: {
+          trigger: ".spotlight-section",
+          start: "top 65%",
+        },
+      })
 
-      return () => ctx.revert()
-    }, 100)
+      /* ── Heading parallax — moves slower than scroll ── */
+      gsap.to(".spotlight-heading", {
+        y: -50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".spotlight-section",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1.5,
+        },
+      })
 
-    return () => clearTimeout(timer)
-  }, [prefersReduced])
+      /* ── Metrics card scale-in scrubbed ── */
+      gsap.from(".spotlight-metrics", {
+        scale: 0.88,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".spotlight-metrics",
+          start: "top 90%",
+          end: "top 50%",
+          scrub: 1,
+        },
+      })
+    },
+    { scope: container }
+  )
 
   return (
-    <section ref={sectionRef} className="spotlight-section bg-carbon py-20 md:py-28">
+    <section ref={container} className="spotlight-section bg-carbon py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         {/* Top badge */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
+        <span
+          className="spotlight-badge inline-block rounded-md bg-teal-300 px-3 py-1 text-xs font-medium uppercase text-white"
+          style={{ letterSpacing: "0.1em" }}
         >
-          <motion.span
-            variants={variants}
-            className="inline-block rounded-md bg-teal-300 px-3 py-1 text-xs font-medium uppercase text-white"
-            style={{ letterSpacing: "0.1em" }}
-          >
-            Spotlight
-          </motion.span>
-        </motion.div>
+          Spotlight
+        </span>
 
         {/* Two-column header */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-5 md:items-end"
-        >
+        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-5 md:items-end">
           {/* Left column — 60% — GSAP parallax target */}
           <div className="spotlight-heading md:col-span-3">
-            <motion.h2
-              variants={variants}
+            <h2
               className="font-medium text-4xl md:text-6xl uppercase text-white"
               style={{ letterSpacing: "-0.04em", lineHeight: "0.95" }}
             >
               Intelligent
               <br />
               Savings
-            </motion.h2>
+            </h2>
           </div>
 
           {/* Right column — 40% */}
-          <motion.div className="md:col-span-2">
-            <motion.p
-              variants={variants}
+          <div className="spotlight-description md:col-span-2">
+            <p
               className="text-base text-neutral-400 leading-relaxed"
               style={{ lineHeight: "1.7" }}
             >
               Automatically match you with the best deals using your location,
               preferences, and spending patterns. More savings, zero effort.
-            </motion.p>
-            <motion.a
-              variants={variants}
+            </p>
+            <a
               href="#"
               className="mt-4 inline-flex items-center gap-1 text-sm text-white transition-colors hover:text-teal-300"
             >
               Learn more
               <span aria-hidden="true">&rarr;</span>
-            </motion.a>
-          </motion.div>
-        </motion.div>
+            </a>
+          </div>
+        </div>
 
         {/* Metrics card — GSAP scale-in target */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="mt-12"
-        >
-          <div className="spotlight-metrics-card relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8">
+        <div className="mt-12">
+          <div className="spotlight-metrics relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-4 md:items-center">
               {/* Left heading */}
               <div className="md:col-span-1">
@@ -201,7 +178,7 @@ export default function Spotlight() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

@@ -1,31 +1,14 @@
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
+import { useRef } from "react"
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion"
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 80 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
-  },
-}
-
-const noAnimation = {
-  hidden: {},
-  visible: {},
-}
 
 interface FAQItem {
   question: string
@@ -61,36 +44,48 @@ const faqItems: FAQItem[] = [
 ]
 
 export default function FAQ() {
-  const prefersReducedMotion = useReducedMotion()
-  const variants = prefersReducedMotion ? noAnimation : fadeUp
-  const containerVariants = prefersReducedMotion ? noAnimation : container
+  const container = useRef<HTMLElement>(null)
+
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    gsap.from(".faq-heading", {
+      y: 60,
+      opacity: 0,
+      duration: 0.8,
+      ease: "checkout",
+      scrollTrigger: { trigger: ".faq-section", start: "top 75%" },
+    })
+
+    gsap.from(".faq-item", {
+      y: 40,
+      opacity: 0,
+      stagger: 0.08,
+      duration: 0.6,
+      ease: "checkout",
+      scrollTrigger: { trigger: ".faq-items", start: "top 80%" },
+    })
+  }, { scope: container })
 
   return (
-    <section className="bg-[#F5F7F7] py-16 md:py-24 dark:bg-[#162028]">
+    <section
+      className="faq-section bg-[#F5F7F7] py-16 md:py-24 dark:bg-[#162028]"
+      ref={container}
+    >
       <div className="mx-auto max-w-3xl px-6">
         {/* Heading */}
-        <motion.h2
-          variants={variants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="text-center text-2xl font-medium uppercase text-[#162028] md:text-4xl dark:text-white"
+        <h2
+          className="faq-heading text-center text-2xl font-medium uppercase text-[#162028] md:text-4xl dark:text-white"
           style={{ letterSpacing: "-0.04em", lineHeight: "1.1" }}
         >
           Frequently asked questions
-        </motion.h2>
+        </h2>
 
         {/* Accordion */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="mt-12"
-        >
+        <div className="faq-items mt-12">
           <Accordion>
             {faqItems.map((item, index) => (
-              <motion.div key={index} variants={variants}>
+              <div key={index} className="faq-item">
                 <AccordionItem
                   className="border-b border-[#D2DBDE] dark:border-white/10"
                 >
@@ -104,10 +99,10 @@ export default function FAQ() {
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
-              </motion.div>
+              </div>
             ))}
           </Accordion>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

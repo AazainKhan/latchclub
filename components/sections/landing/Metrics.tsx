@@ -1,115 +1,71 @@
 "use client"
 
-import { useRef, useEffect, useState, useCallback } from "react"
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion"
-
-const EASE = [0.23, 1, 0.32, 1] as const
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-const blurUp = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.7, ease: EASE },
-  },
-}
-
-const blurUpReduced = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
-}
+import { useRef } from "react"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 
 const TARGET = 2_000_000
 
 export default function Metrics() {
-  const prefersReduced = useReducedMotion()
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const [displayValue, setDisplayValue] = useState(0)
-  const hasCompleted = useRef(false)
+  const container = useRef<HTMLElement>(null)
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const el = document.querySelector(".metrics-number")
+        if (el) el.textContent = "$2M+"
+        return
+      }
 
-  /* Map scroll progress to a 0-1 range for the counter.
-     The number should reach its target roughly when the section
-     is centered in the viewport (scrollYProgress ~0.3-0.6). */
-  const counterProgress = useTransform(
-    scrollYProgress,
-    [0.15, 0.55],
-    [0, 1]
+      /* ── Giant "$2M+" counter tied to scroll ── */
+      const proxy = { val: 0 }
+      gsap.to(proxy, {
+        val: TARGET,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".metrics-section",
+          start: "top 80%",
+          end: "top 30%",
+          scrub: 1,
+        },
+        onUpdate: () => {
+          const el = document.querySelector(".metrics-number")
+          if (el) {
+            if (proxy.val >= 1000000) {
+              el.textContent = `$${(proxy.val / 1000000).toFixed(proxy.val >= 1900000 ? 0 : 1)}M+`
+            } else if (proxy.val >= 1000) {
+              el.textContent = `$${Math.round(proxy.val / 1000)}K+`
+            } else {
+              el.textContent = `$${Math.round(proxy.val)}+`
+            }
+          }
+        },
+      })
+
+      /* ── Card scale-in ── */
+      gsap.from(".metrics-card", {
+        scale: 0.92,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".metrics-card",
+          start: "top 85%",
+          end: "top 50%",
+          scrub: 1,
+        },
+      })
+    },
+    { scope: container }
   )
-
-  useMotionValueEvent(counterProgress, "change", (latest) => {
-    if (prefersReduced) {
-      setDisplayValue(TARGET)
-      return
-    }
-    if (hasCompleted.current) return
-
-    const clamped = Math.min(Math.max(latest, 0), 1)
-    /* Apply an ease-out curve for a more natural ramp */
-    const eased = 1 - Math.pow(1 - clamped, 3)
-    const value = Math.round(eased * TARGET)
-    setDisplayValue(value)
-
-    if (clamped >= 1) {
-      hasCompleted.current = true
-      setDisplayValue(TARGET)
-    }
-  })
-
-  /* Set immediately for reduced motion */
-  const setImmediate = useCallback(() => {
-    if (prefersReduced) {
-      setDisplayValue(TARGET)
-    }
-  }, [prefersReduced])
-
-  useEffect(() => {
-    setImmediate()
-  }, [setImmediate])
-
-  const itemVariant = prefersReduced ? blurUpReduced : blurUp
-  const containerVariant = prefersReduced
-    ? { hidden: {}, visible: {} }
-    : container
-
-  const formattedValue =
-    displayValue >= TARGET
-      ? "$2M+"
-      : `$${displayValue.toLocaleString()}+`
 
   return (
     <section
-      ref={sectionRef}
-      className="py-20 md:py-28 px-6"
+      ref={container}
+      className="metrics-section py-20 md:py-28 px-6"
       style={{ backgroundColor: "#162028" }}
     >
-      <motion.div
-        className="mx-auto max-w-4xl"
-        variants={containerVariant}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
-      >
-        <motion.div
-          variants={itemVariant}
-          className="rounded-2xl border border-white/10 bg-white/[0.05] p-12 md:p-16 text-center"
-        >
+      <div className="mx-auto max-w-4xl">
+        <div className="metrics-card rounded-2xl border border-white/10 bg-white/[0.05] p-12 md:p-16 text-center">
           {/* Label */}
           <p
             className="text-xs uppercase text-neutral-400 mb-8"
@@ -118,28 +74,16 @@ export default function Metrics() {
             Savings you can count on
           </p>
 
-          {/* Big number with blur entrance */}
-          <motion.p
-            className="text-6xl md:text-8xl lg:text-[10rem] font-medium text-teal-300"
+          {/* Big number */}
+          <p
+            className="metrics-number text-6xl md:text-8xl lg:text-[10rem] font-medium text-teal-300"
             style={{
               letterSpacing: "-0.04em",
               lineHeight: 1.1,
             }}
-            initial={
-              prefersReduced
-                ? { opacity: 1 }
-                : { opacity: 0, filter: "blur(12px)" }
-            }
-            whileInView={
-              prefersReduced
-                ? { opacity: 1 }
-                : { opacity: 1, filter: "blur(0px)" }
-            }
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, ease: EASE }}
           >
-            {formattedValue}
-          </motion.p>
+            $0+
+          </p>
 
           {/* Description */}
           <p
@@ -148,8 +92,8 @@ export default function Metrics() {
           >
             The total savings our members have unlocked across Canada.
           </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   )
 }

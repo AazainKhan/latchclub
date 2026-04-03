@@ -1,73 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { useRef } from "react"
+import { gsap, SplitText } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 import { Button } from "@/components/ui/button"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
-
-const EASE = [0.23, 1, 0.32, 1] as const
-
-const container = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.1 },
-  },
-}
-
-const blurUp = {
-  hidden: { opacity: 0, filter: "blur(8px)", y: 32 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.7, ease: EASE },
-  },
-}
-
-const charContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.018 } },
-}
-
-const charVariant = {
-  hidden: { opacity: 0, filter: "blur(12px)", y: 10 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.6, ease: EASE },
-  },
-}
-
-const noAnimation = {
-  hidden: { opacity: 1 },
-  visible: { opacity: 1 },
-}
-
-/* Split text for character-level animation */
-interface SplitTextProps {
-  children: string
-  className?: string
-}
-
-function SplitText({ children, className }: SplitTextProps) {
-  return (
-    <motion.span className={className} variants={charContainer} style={{ display: "inline-block" }}>
-      {children.split("").map((char, i) => (
-        <motion.span
-          key={i}
-          variants={charVariant}
-          style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
-        >
-          {char}
-        </motion.span>
-      ))}
-    </motion.span>
-  )
-}
 
 /* Floating deal cards data */
 interface DealCard {
@@ -157,175 +93,203 @@ const stats: StatItem[] = [
 ]
 
 export default function Hero() {
-  const prefersReducedMotion = useReducedMotion()
-  const heroRef = useRef<HTMLElement>(null)
-  const stat1Ref = useRef<HTMLParagraphElement>(null)
-  const stat2Ref = useRef<HTMLParagraphElement>(null)
-  const stat3Ref = useRef<HTMLParagraphElement>(null)
+  const container = useRef<HTMLElement>(null)
 
-  const [statValues, setStatValues] = useState([0, 0, 0])
+  /* ── GSAP entrance timeline ── */
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // Show everything immediately for reduced motion
+        gsap.set(
+          [
+            ".hero-eyebrow",
+            ".hero-heading",
+            ".hero-subtext",
+            ".hero-actions",
+            ".hero-stats .stat-item",
+            ".deal-card",
+            ".scroll-indicator",
+          ],
+          { opacity: 1, y: 0, filter: "none" }
+        )
+        // Set stat numbers to final values
+        document.querySelectorAll(".stat-number").forEach((el) => {
+          const target = parseFloat(
+            el.getAttribute("data-value") || "0"
+          )
+          const prefix = el.getAttribute("data-prefix") || ""
+          const suffix = el.getAttribute("data-suffix") || ""
+          el.textContent = `${prefix}${target >= 1000 ? Math.round(target).toLocaleString() : Math.round(target)}${suffix}`
+        })
+        return
+      }
 
-  /* ── GSAP scroll-linked animations ── */
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setStatValues([135, 9378, 0])
-      return
-    }
+      const tl = gsap.timeline({
+        defaults: { ease: "checkout", force3D: true },
+      })
 
-    // Wait for DOM to be ready
-    const timer = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        /* 1. Hero content scrub-out: moves up and fades as user scrolls past */
-        gsap.to(".hero-content", {
-          y: -200,
-          opacity: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
+      // SplitText on the heading
+      const split = new SplitText(".hero-heading", {
+        type: "chars,words",
+      })
 
-        /* 2. Floating cards parallax scrub: each at different speed */
-        gsap.to(".deal-card-0", {
-          y: dealCards[0].parallaxSpeed,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
+      tl.from(".hero-eyebrow", {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+      })
+        .from(
+          split.chars,
+          {
+            y: 40,
+            opacity: 0,
+            filter: "blur(8px)",
+            stagger: 0.02,
+            duration: 0.6,
           },
-        })
-        gsap.to(".deal-card-1", {
-          y: dealCards[1].parallaxSpeed,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
+          "-=0.4"
+        )
+        .from(
+          ".hero-subtext",
+          { y: 30, opacity: 0, duration: 0.7 },
+          "-=0.3"
+        )
+        .from(
+          ".hero-actions",
+          { y: 30, opacity: 0, duration: 0.7 },
+          "-=0.4"
+        )
+        .from(
+          ".hero-stats .stat-item",
+          { y: 20, opacity: 0, stagger: 0.1, duration: 0.6 },
+          "-=0.3"
+        )
+        .from(
+          ".deal-card",
+          {
+            y: 40,
+            opacity: 0,
+            scale: 0.9,
+            stagger: 0.15,
+            duration: 0.8,
           },
-        })
-        gsap.to(".deal-card-2", {
-          y: dealCards[2].parallaxSpeed,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
-        gsap.to(".deal-card-3", {
-          y: dealCards[3].parallaxSpeed,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
-        gsap.to(".deal-card-4", {
-          y: dealCards[4].parallaxSpeed,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
+          "-=0.5"
+        )
+        .from(
+          ".scroll-indicator",
+          { opacity: 0, duration: 0.5 },
+          "-=0.2"
+        )
+    },
+    { scope: container }
+  )
 
-        /* 3. Stats counter scrub: numbers count up tied to scroll */
-        const counter1 = { val: 0 }
-        gsap.to(counter1, {
-          val: 135,
+  /* ── GSAP scroll-linked scrub-out + parallax ── */
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+        return
+
+      // Hero content scrubs out as you scroll
+      gsap.to(".hero-content", {
+        y: -150,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.5,
+        },
+      })
+
+      // Each floating card has different parallax speed
+      document.querySelectorAll(".deal-card").forEach((card, i) => {
+        gsap.to(card, {
+          y: -40 - i * 25,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+      })
+
+      // Grid shifts on scroll
+      gsap.to(".hero-grid", {
+        y: -80,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+        },
+      })
+
+      // Stats count up tied to scroll
+      const statEls = document.querySelectorAll(".stat-number")
+      statEls.forEach((el) => {
+        const target = parseFloat(
+          el.getAttribute("data-value") || "0"
+        )
+        const prefix = el.getAttribute("data-prefix") || ""
+        const suffix = el.getAttribute("data-suffix") || ""
+        const proxy = { val: 0 }
+        gsap.to(proxy, {
+          val: target,
           ease: "none",
           scrollTrigger: {
             trigger: ".hero-stats",
-            start: "top 80%",
-            end: "top 40%",
+            start: "top 85%",
+            end: "top 45%",
             scrub: 1,
           },
           onUpdate: () => {
-            setStatValues((prev) => [Math.round(counter1.val), prev[1], prev[2]])
+            el.textContent = `${prefix}${target >= 1000 ? Math.round(proxy.val).toLocaleString() : Math.round(proxy.val)}${suffix}`
           },
         })
+      })
 
-        const counter2 = { val: 0 }
-        gsap.to(counter2, {
-          val: 9378,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-stats",
-            start: "top 80%",
-            end: "top 40%",
-            scrub: 1,
-          },
-          onUpdate: () => {
-            setStatValues((prev) => [prev[0], Math.round(counter2.val), prev[2]])
-          },
-        })
+      // Scroll indicator line grows with scroll
+      gsap.to(".scroll-line-fill", {
+        height: 48,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "200px top",
+          scrub: 1,
+        },
+      })
 
-        /* counter3 stays at 0 — "Dominant Players" is always 0 */
-
-        /* 4. Grid background shift on scroll */
-        gsap.to(".hero-grid", {
-          y: -60,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        })
-
-        /* 5. Scroll indicator line grows with scroll */
-        gsap.to(".scroll-line-fill", {
-          height: 48,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".hero-section",
-            start: "top top",
-            end: "200px top",
-            scrub: 1,
-          },
-        })
-      }, heroRef.current!)
-
-      return () => ctx.revert()
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [prefersReducedMotion])
-
-  const itemVariants = prefersReducedMotion ? noAnimation : blurUp
-  const containerVariants = prefersReducedMotion ? noAnimation : container
+      // Scroll progress bar (full page)
+      gsap.to(".scroll-progress-bar", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3,
+        },
+      })
+    },
+    { scope: container }
+  )
 
   return (
     <>
-      {/* Scroll progress indicator — fixed top bar (kept lightweight with GSAP) */}
-      <div className="hero-progress-bar fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]" style={{ transform: "scaleX(0)" }} ref={(el) => {
-        if (!el || prefersReducedMotion) return
-        gsap.to(el, {
-          scaleX: 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: document.documentElement,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: 0.3,
-          },
-        })
-      }} />
+      {/* Scroll progress indicator -- fixed top bar */}
+      <div
+        className="scroll-progress-bar fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]"
+        style={{ transform: "scaleX(0)" }}
+      />
 
       <section
-        ref={heroRef}
+        ref={container}
         id="hero"
         className="hero-section relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
         style={{ backgroundColor: "#162028" }}
@@ -344,29 +308,39 @@ export default function Hero() {
           />
         </div>
 
-        {/* Teal glow orbs */}
+        {/* Teal glow orbs -- CSS animation for ambient pulse */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <motion.div
-            className="absolute w-[600px] h-[600px] rounded-full"
+          <div
+            className="hero-glow-1 absolute w-[600px] h-[600px] rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(3, 164, 147, 0.12) 0%, transparent 70%)",
+              background:
+                "radial-gradient(circle, rgba(3, 164, 147, 0.12) 0%, transparent 70%)",
               top: "10%",
               left: "20%",
+              animation:
+                "heroGlowPulse 8s ease-in-out infinite",
             }}
-            animate={prefersReducedMotion ? {} : { scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
-          <motion.div
-            className="absolute w-[400px] h-[400px] rounded-full"
+          <div
+            className="hero-glow-2 absolute w-[400px] h-[400px] rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(3, 164, 147, 0.08) 0%, transparent 70%)",
+              background:
+                "radial-gradient(circle, rgba(3, 164, 147, 0.08) 0%, transparent 70%)",
               bottom: "15%",
               right: "15%",
+              animation:
+                "heroGlowPulse 10s ease-in-out 2s infinite",
             }}
-            animate={prefersReducedMotion ? {} : { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
         </div>
+
+        {/* Ambient glow keyframes -- dangerouslySetInnerHTML avoids styled-jsx dependency */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes heroGlowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 1; }
+          }
+        ` }} />
 
         {/* Noise texture overlay */}
         <div
@@ -377,146 +351,94 @@ export default function Hero() {
           }}
         />
 
-        {/* Floating deal cards — GSAP parallax via className targeting */}
+        {/* Floating deal cards -- GSAP parallax via className targeting */}
         {dealCards.map((card, index) => (
-          <motion.div
+          <div
             key={card.name}
-            className={`deal-card-${index} absolute hidden lg:block`}
+            className={`deal-card deal-card-${index} absolute hidden lg:block`}
             style={{
               top: card.top,
               bottom: card.bottom,
               left: card.left,
               right: card.right,
+              opacity: 0,
             }}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.2 + card.delay * 0.3, ease: EASE }}
           >
-            <motion.div
-              style={{ rotate: card.rotate }}
-              animate={
-                prefersReducedMotion
-                  ? {}
-                  : { y: [0, -8, 0] }
-              }
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: card.delay,
+            <div
+              style={{
+                transform: `rotate(${card.rotate}deg)`,
               }}
             >
               <div className="rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm p-4 max-w-[160px]">
-                <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">{card.category}</p>
-                <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">{card.name}</p>
-                <p className="text-[11px] text-white/40 mt-0.5">{card.description}</p>
+                <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">
+                  {card.category}
+                </p>
+                <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">
+                  {card.name}
+                </p>
+                <p className="text-[11px] text-white/40 mt-0.5">
+                  {card.description}
+                </p>
                 <span className="inline-block mt-2 text-[10px] font-medium bg-teal-300/20 text-teal-300 px-2 py-0.5 rounded-full">
                   {card.badge}
                 </span>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         ))}
 
-        {/* Main content — GSAP scrub-out on scroll */}
+        {/* Main content -- GSAP scrub-out on scroll */}
         <div className="hero-content relative z-10 mx-auto w-full max-w-6xl">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col items-start"
-          >
+          <div className="flex flex-col items-start">
             {/* Eyebrow */}
-            <motion.span
-              variants={itemVariants}
-              className="mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400"
+            <span
+              className="hero-eyebrow mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400"
+              style={{ opacity: 0 }}
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal-300" />
               </span>
               Toronto, Canada &middot; Launching 2026
-            </motion.span>
+            </span>
 
-            {/* H1 — character-level stagger */}
-            <motion.h1
-              variants={prefersReducedMotion ? noAnimation : { hidden: {}, visible: { transition: { staggerChildren: 0.018, delayChildren: 0.1 } } }}
-              className="font-medium tracking-[-0.03em] max-w-4xl"
+            {/* H1 -- GSAP SplitText handles character animation */}
+            <h1
+              className="hero-heading font-medium tracking-[-0.03em] max-w-4xl"
               style={{
                 fontSize: "clamp(3.25rem, 7vw, 6rem)",
                 lineHeight: 1.0,
               }}
             >
-              {prefersReducedMotion ? (
-                <>
-                  <span className="text-white">The membership that </span>
-                  <em className="text-teal-300 italic">pays</em>
-                  <br />
-                  <span
-                    style={{
-                      WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
-                      color: "transparent",
-                    }}
-                  >
-                    for itself.
-                  </span>
-                </>
-              ) : (
-                <>
-                  <SplitText className="text-white">The membership that </SplitText>
-                  <motion.em
-                    className="text-teal-300 italic"
-                    variants={charContainer}
-                    style={{ display: "inline-block" }}
-                  >
-                    {("pays").split("").map((char, i) => (
-                      <motion.span
-                        key={i}
-                        variants={charVariant}
-                        style={{ display: "inline-block" }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                  </motion.em>
-                  <br />
-                  <motion.span
-                    variants={charContainer}
-                    style={{
-                      display: "inline-block",
-                      WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
-                      color: "transparent",
-                    }}
-                  >
-                    {("for itself.").split("").map((char, i) => (
-                      <motion.span
-                        key={i}
-                        variants={charVariant}
-                        style={{ display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
-                      >
-                        {char}
-                      </motion.span>
-                    ))}
-                  </motion.span>
-                </>
-              )}
-            </motion.h1>
+              <span className="text-white">
+                The membership that{" "}
+              </span>
+              <em className="text-teal-300 italic">pays</em>
+              <br />
+              <span
+                style={{
+                  WebkitTextStroke: "1.5px rgba(255,255,255,0.3)",
+                  color: "transparent",
+                }}
+              >
+                for itself.
+              </span>
+            </h1>
 
             {/* Subtext */}
-            <motion.p
-              variants={itemVariants}
-              className="mt-8 max-w-xl text-base text-neutral-400"
-              style={{ lineHeight: 1.7 }}
+            <p
+              className="hero-subtext mt-8 max-w-xl text-base text-neutral-400"
+              style={{ lineHeight: 1.7, opacity: 0 }}
             >
-              One membership. Access to premier dining, wellness, fitness, and
-              lifestyle experiences across Toronto — at prices that make going out
-              feel good again.
-            </motion.p>
+              One membership. Access to premier dining, wellness, fitness,
+              and lifestyle experiences across Toronto — at prices that
+              make going out feel good again.
+            </p>
 
             {/* CTA buttons */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            <div
+              className="hero-actions mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+              style={{ opacity: 0 }}
             >
               <Button
                 className="h-12 px-8 bg-teal-300 text-carbon hover:bg-teal-300/90 text-sm tracking-[-0.01em]"
@@ -535,28 +457,25 @@ export default function Hero() {
                 View Pricing
                 <span className="ml-2">&darr;</span>
               </Button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
-          {/* Stats — bottom right, GSAP scroll-linked counters */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="hero-stats mt-24 md:mt-32 flex justify-end"
-          >
+          {/* Stats -- bottom right, GSAP scroll-linked counters */}
+          <div className="hero-stats mt-24 md:mt-32 flex justify-end">
             <div className="flex gap-12 md:gap-16">
-              {stats.map((stat, index) => (
-                <div key={stat.label} className="text-right">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="stat-item text-right"
+                  style={{ opacity: 0 }}
+                >
                   <p
-                    ref={index === 0 ? stat1Ref : index === 1 ? stat2Ref : stat3Ref}
-                    className="text-3xl font-medium text-teal-300 tracking-[-0.02em]"
+                    className="stat-number text-3xl font-medium text-teal-300 tracking-[-0.02em]"
+                    data-value={stat.value}
+                    data-prefix={stat.prefix || ""}
+                    data-suffix={stat.suffix || ""}
                   >
-                    {stat.prefix ?? ""}
-                    {index === 2
-                      ? statValues[index]
-                      : statValues[index].toLocaleString()}
-                    {stat.suffix ?? ""}
+                    {stat.prefix ?? ""}0{stat.suffix ?? ""}
                   </p>
                   <p className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 mt-1">
                     {stat.label}
@@ -564,32 +483,31 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Scroll indicator — bottom left */}
-        <motion.div
-          className="absolute bottom-8 left-6 md:left-10 z-10 flex items-end gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 0.5 }}
+        {/* Scroll indicator -- bottom left */}
+        <div
+          className="scroll-indicator absolute bottom-8 left-6 md:left-10 z-10 flex items-end gap-3"
+          style={{ opacity: 0 }}
         >
           <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
             <div
               className="scroll-line-fill absolute bottom-0 left-0 w-full bg-teal-300"
-              style={{ height: prefersReducedMotion ? 48 : 0 }}
+              style={{ height: 0 }}
             />
           </div>
           <span className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">
             Scroll to explore
           </span>
-        </motion.div>
+        </div>
 
         {/* Bottom gradient transition */}
         <div
           className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
           style={{
-            background: "linear-gradient(to bottom, transparent, #F5F7F7)",
+            background:
+              "linear-gradient(to bottom, transparent, #F5F7F7)",
           }}
         />
       </section>
