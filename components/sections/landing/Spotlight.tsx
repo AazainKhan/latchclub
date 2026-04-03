@@ -1,12 +1,11 @@
 "use client"
 
-import { useRef } from "react"
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion"
+import { useRef, useEffect } from "react"
+import { motion, useReducedMotion } from "framer-motion"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 const container = {
   hidden: {},
@@ -20,20 +19,6 @@ const blurUp = {
     filter: "blur(0px)",
     y: 0,
     transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
-  },
-}
-
-const blurUpDelayed = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.23, 1, 0.32, 1] as const,
-      delay: 0.3,
-    },
   },
 }
 
@@ -57,21 +42,51 @@ const stats: StatRow[] = [
 export default function Spotlight() {
   const prefersReduced = useReducedMotion()
   const variants = prefersReduced ? noAnimation : blurUp
-  const delayedVariants = prefersReduced ? noAnimation : blurUpDelayed
   const containerVariants = prefersReduced ? noAnimation : container
+  const sectionRef = useRef<HTMLElement>(null)
 
-  const headingRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: headingRef,
-    offset: ["start end", "end start"],
-  })
+  /* ── GSAP scroll-linked animations ── */
+  useEffect(() => {
+    if (prefersReduced) return
 
-  // Subtle parallax: heading moves slower than scroll
-  const headingY = useTransform(scrollYProgress, [0, 1], [40, -40])
-  const parallaxY = prefersReduced ? 0 : headingY
+    const timer = setTimeout(() => {
+      if (!sectionRef.current) return
+
+      const ctx = gsap.context(() => {
+        /* Parallax scrub on the heading — moves slower than scroll */
+        gsap.to(".spotlight-heading", {
+          y: -40,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".spotlight-section",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+
+        /* Scale-in on the metrics card */
+        gsap.from(".spotlight-metrics-card", {
+          scale: 0.9,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".spotlight-metrics-card",
+            start: "top 85%",
+            end: "top 50%",
+            scrub: 1,
+          },
+        })
+      }, sectionRef.current)
+
+      return () => ctx.revert()
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [prefersReduced])
 
   return (
-    <section className="bg-carbon py-20 md:py-28">
+    <section ref={sectionRef} className="spotlight-section bg-carbon py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         {/* Top badge */}
         <motion.div
@@ -91,15 +106,14 @@ export default function Spotlight() {
 
         {/* Two-column header */}
         <motion.div
-          ref={headingRef}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
           className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-5 md:items-end"
         >
-          {/* Left column — 60% */}
-          <motion.div className="md:col-span-3" style={{ y: parallaxY }}>
+          {/* Left column — 60% — GSAP parallax target */}
+          <div className="spotlight-heading md:col-span-3">
             <motion.h2
               variants={variants}
               className="font-medium text-4xl md:text-6xl uppercase text-white"
@@ -109,7 +123,7 @@ export default function Spotlight() {
               <br />
               Savings
             </motion.h2>
-          </motion.div>
+          </div>
 
           {/* Right column — 40% */}
           <motion.div className="md:col-span-2">
@@ -132,7 +146,7 @@ export default function Spotlight() {
           </motion.div>
         </motion.div>
 
-        {/* Metrics card */}
+        {/* Metrics card — GSAP scale-in target */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -140,10 +154,7 @@ export default function Spotlight() {
           viewport={{ once: true, amount: 0.15 }}
           className="mt-12"
         >
-          <motion.div
-            variants={delayedVariants}
-            className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8"
-          >
+          <div className="spotlight-metrics-card relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-4 md:items-center">
               {/* Left heading */}
               <div className="md:col-span-1">
@@ -189,7 +200,7 @@ export default function Spotlight() {
                 </span>
               </div>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

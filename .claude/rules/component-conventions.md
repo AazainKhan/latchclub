@@ -28,5 +28,5 @@
 - No raw HTML <button> or <input> — use shadcn/ui
 - No localStorage or sessionStorage
 - No hardcoded colors — Tailwind tokens only
-- No GSAP, CSS-in-JS, or Pages Router
+- No CSS-in-JS or Pages Router
 - No /admin link in public nav or footer — ever

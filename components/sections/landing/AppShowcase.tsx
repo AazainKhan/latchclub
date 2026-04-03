@@ -1,12 +1,11 @@
 "use client"
 
-import { useRef } from "react"
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion"
+import { useRef, useEffect } from "react"
+import { motion, useReducedMotion } from "framer-motion"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 const fadeUp = {
   hidden: { opacity: 0, y: 80 },
@@ -37,37 +36,59 @@ const deals: DealItem[] = [
 export default function AppShowcase() {
   const prefersReducedMotion = useReducedMotion()
   const sectionRef = useRef<HTMLElement>(null)
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
-
-  const phoneScale = useTransform(
-    scrollYProgress,
-    [0, 0.4],
-    prefersReducedMotion ? [1, 1] : [0.85, 1]
-  )
-
-  const phoneOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.25],
-    prefersReducedMotion ? [1, 1] : [0, 1]
-  )
-
   const variants = prefersReducedMotion ? noAnimation : fadeUp
+
+  /* ── GSAP scroll-linked animations ── */
+  useEffect(() => {
+    if (prefersReducedMotion) return
+
+    const timer = setTimeout(() => {
+      if (!sectionRef.current) return
+
+      const ctx = gsap.context(() => {
+        /* Phone mockup scales up from 0.7 to 1 — dramatic reveal */
+        gsap.from(".phone-mockup", {
+          scale: 0.7,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".app-showcase-section",
+            start: "top 80%",
+            end: "top 20%",
+            scrub: 1,
+          },
+        })
+
+        /* Background "SAVINGS" text — slow horizontal drift */
+        gsap.to(".savings-bg-text", {
+          x: -100,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".app-showcase-section",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+      }, sectionRef.current)
+
+      return () => ctx.revert()
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [prefersReducedMotion])
 
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#162028] py-20 md:py-32"
+      className="app-showcase-section relative overflow-hidden bg-[#162028] py-20 md:py-32"
     >
-      {/* Giant background text */}
+      {/* Giant background text — GSAP horizontal drift */}
       <div
         className="pointer-events-none absolute inset-0 flex select-none items-center justify-center"
         aria-hidden="true"
       >
-        <div className="flex flex-col items-center leading-none">
+        <div className="savings-bg-text flex flex-col items-center leading-none">
           <span
             className="block text-[8rem] font-medium uppercase text-white/[0.03] md:text-[14rem] lg:text-[18rem]"
             style={{ letterSpacing: "-0.04em" }}
@@ -86,11 +107,8 @@ export default function AppShowcase() {
       {/* Foreground content */}
       <div className="relative z-10 mx-auto max-w-6xl px-6">
         <div className="flex flex-col items-center text-center">
-          {/* Phone mockup with scroll-driven scale */}
-          <motion.div
-            style={{ scale: phoneScale, opacity: phoneOpacity }}
-            className="flex justify-center"
-          >
+          {/* Phone mockup — GSAP scroll-driven scale */}
+          <div className="phone-mockup flex justify-center">
             <div
               className="relative w-full max-w-[300px] overflow-hidden rounded-[3rem] border-[10px] border-white/20 bg-white shadow-2xl"
               style={{ aspectRatio: "9/19.5" }}
@@ -191,7 +209,7 @@ export default function AppShowcase() {
                 <div className="h-1 w-8 rounded-full bg-neutral-100" />
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Text below phone */}
           <motion.div

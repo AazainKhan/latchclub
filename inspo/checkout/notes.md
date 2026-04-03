@@ -261,6 +261,5 @@ Standard entrance: `opacity: 0` + `translateY(8rem)` as initial state, animating
 - **Full dark mode** — Latchclub is a consumer deals platform, not enterprise fintech. Dark mode would feel wrong for the friendly, accessible brand.
 - **Uppercase everything** — Works for Checkout.com's authority/enterprise positioning. Latchclub should use uppercase sparingly (section labels only, per DESIGN.md).
 - **Custom monospaced font** — Too technical. Stick with a clean sans-serif for Latchclub.
-- **GSAP** — CLAUDE.md explicitly prohibits it. Use Framer Motion equivalents.
 - **8rem (128px) entrance offsets on all elements** — Too dramatic for a consumer landing page. Use 24px as specified in CLAUDE.md, reserve larger offsets for hero only.
 - **13,000px page length** — Latchclub should be much shorter and more focused. Every section earns its place.

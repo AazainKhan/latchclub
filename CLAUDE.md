@@ -19,7 +19,6 @@
 - **Vercel** — deployment target
 
 ### Do NOT use:
-- GSAP (overkill, licensing)
 - Pages Router
 - Any CSS-in-JS (styled-components, emotion)
 - Raw HTML `<button>` or `<input>` — always use shadcn/ui primitives

@@ -1,8 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion, useReducedMotion, useScroll, useTransform, MotionValue } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 const EASE = [0.23, 1, 0.32, 1] as const
 
@@ -138,92 +142,6 @@ const dealCards: DealCard[] = [
   },
 ]
 
-/* Scroll-linked animated counter for stats */
-function useScrollCounter(
-  scrollY: MotionValue<number>,
-  target: number,
-  scrollStart: number,
-  scrollEnd: number,
-  prefersReducedMotion: boolean | null
-) {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setCount(target)
-      return
-    }
-
-    const unsubscribe = scrollY.on("change", (latest) => {
-      if (latest <= scrollStart) {
-        setCount(0)
-      } else if (latest >= scrollEnd) {
-        setCount(target)
-      } else {
-        const progress = (latest - scrollStart) / (scrollEnd - scrollStart)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setCount(Math.round(eased * target))
-      }
-    })
-
-    return unsubscribe
-  }, [scrollY, target, scrollStart, scrollEnd, prefersReducedMotion])
-
-  return count
-}
-
-/* Floating deal card with deeper per-card parallax */
-function FloatingDealCard({
-  card,
-  prefersReducedMotion,
-  parallaxY,
-}: {
-  card: DealCard
-  prefersReducedMotion: boolean | null
-  parallaxY: MotionValue<number>
-}) {
-  const style: Record<string, string | undefined> = {
-    top: card.top,
-    bottom: card.bottom,
-    left: card.left,
-    right: card.right,
-  }
-
-  return (
-    <motion.div
-      className="absolute hidden lg:block"
-      style={{ ...style, y: prefersReducedMotion ? 0 : parallaxY }}
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 1.2 + card.delay * 0.3, ease: EASE }}
-    >
-      <motion.div
-        style={{ rotate: card.rotate }}
-        animate={
-          prefersReducedMotion
-            ? {}
-            : { y: [0, -8, 0] }
-        }
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: card.delay,
-        }}
-      >
-        <div className="rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm p-4 max-w-[160px]">
-          <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">{card.category}</p>
-          <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">{card.name}</p>
-          <p className="text-[11px] text-white/40 mt-0.5">{card.description}</p>
-          <span className="inline-block mt-2 text-[10px] font-medium bg-teal-300/20 text-teal-300 px-2 py-0.5 rounded-full">
-            {card.badge}
-          </span>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
-}
-
 /* Stats data */
 interface StatItem {
   value: number
@@ -241,54 +159,179 @@ const stats: StatItem[] = [
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion()
   const heroRef = useRef<HTMLElement>(null)
+  const stat1Ref = useRef<HTMLParagraphElement>(null)
+  const stat2Ref = useRef<HTMLParagraphElement>(null)
+  const stat3Ref = useRef<HTMLParagraphElement>(null)
 
-  /* Global scroll for progress bar + hero parallax */
-  const { scrollY, scrollYProgress } = useScroll()
+  const [statValues, setStatValues] = useState([0, 0, 0])
 
-  /* Hero content parallax — moves up faster as you scroll away */
-  const heroY = useTransform(scrollY, [0, 800], [0, -200])
-  const heroOpacity = useTransform(scrollY, [0, 600], [1, 0])
+  /* ── GSAP scroll-linked animations ── */
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setStatValues([135, 9378, 0])
+      return
+    }
 
-  /* Grid background shift on scroll */
-  const gridY = useTransform(scrollY, [0, 800], [0, -60])
+    // Wait for DOM to be ready
+    const timer = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        /* 1. Hero content scrub-out: moves up and fades as user scrolls past */
+        gsap.to(".hero-content", {
+          y: -200,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
 
-  /* Deeper parallax per floating card */
-  const cardParallaxValues = dealCards.map((card) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useTransform(scrollY, [0, 800], [0, card.parallaxSpeed])
-  )
+        /* 2. Floating cards parallax scrub: each at different speed */
+        gsap.to(".deal-card-0", {
+          y: dealCards[0].parallaxSpeed,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+        gsap.to(".deal-card-1", {
+          y: dealCards[1].parallaxSpeed,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+        gsap.to(".deal-card-2", {
+          y: dealCards[2].parallaxSpeed,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+        gsap.to(".deal-card-3", {
+          y: dealCards[3].parallaxSpeed,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+        gsap.to(".deal-card-4", {
+          y: dealCards[4].parallaxSpeed,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
 
-  /* Scroll-linked stat counters */
-  const stat1 = useScrollCounter(scrollY, 135, 100, 500, prefersReducedMotion)
-  const stat2 = useScrollCounter(scrollY, 9378, 100, 500, prefersReducedMotion)
-  const stat3 = useScrollCounter(scrollY, 0, 100, 500, prefersReducedMotion)
-  const statValues = [stat1, stat2, stat3]
+        /* 3. Stats counter scrub: numbers count up tied to scroll */
+        const counter1 = { val: 0 }
+        gsap.to(counter1, {
+          val: 135,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-stats",
+            start: "top 80%",
+            end: "top 40%",
+            scrub: 1,
+          },
+          onUpdate: () => {
+            setStatValues((prev) => [Math.round(counter1.val), prev[1], prev[2]])
+          },
+        })
 
-  /* Scroll indicator line animation */
-  const scrollLineHeight = useTransform(scrollY, [0, 200], [0, 48])
+        const counter2 = { val: 0 }
+        gsap.to(counter2, {
+          val: 9378,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-stats",
+            start: "top 80%",
+            end: "top 40%",
+            scrub: 1,
+          },
+          onUpdate: () => {
+            setStatValues((prev) => [prev[0], Math.round(counter2.val), prev[2]])
+          },
+        })
+
+        /* counter3 stays at 0 — "Dominant Players" is always 0 */
+
+        /* 4. Grid background shift on scroll */
+        gsap.to(".hero-grid", {
+          y: -60,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+
+        /* 5. Scroll indicator line grows with scroll */
+        gsap.to(".scroll-line-fill", {
+          height: 48,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".hero-section",
+            start: "top top",
+            end: "200px top",
+            scrub: 1,
+          },
+        })
+      }, heroRef.current!)
+
+      return () => ctx.revert()
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [prefersReducedMotion])
 
   const itemVariants = prefersReducedMotion ? noAnimation : blurUp
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
   return (
     <>
-      {/* Scroll progress indicator — fixed top bar */}
-      <motion.div
-        style={{ scaleX: scrollYProgress }}
-        className="fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]"
-      />
+      {/* Scroll progress indicator — fixed top bar (kept lightweight with GSAP) */}
+      <div className="hero-progress-bar fixed top-0 left-0 right-0 h-[2px] bg-teal-300 origin-left z-[100]" style={{ transform: "scaleX(0)" }} ref={(el) => {
+        if (!el || prefersReducedMotion) return
+        gsap.to(el, {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: document.documentElement,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.3,
+          },
+        })
+      }} />
 
       <section
         ref={heroRef}
         id="hero"
-        className="relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
+        className="hero-section relative flex min-h-screen items-center justify-center px-4 md:px-6 overflow-hidden"
         style={{ backgroundColor: "#162028" }}
       >
         {/* Animated grid background */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{ y: prefersReducedMotion ? 0 : gridY }}
-        >
+        <div className="hero-grid absolute inset-0 pointer-events-none">
           <div
             className="absolute inset-0"
             style={{
@@ -299,7 +342,7 @@ export default function Hero() {
               backgroundSize: "60px 60px",
             }}
           />
-        </motion.div>
+        </div>
 
         {/* Teal glow orbs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -334,24 +377,49 @@ export default function Hero() {
           }}
         />
 
-        {/* Floating deal cards with deeper parallax */}
+        {/* Floating deal cards — GSAP parallax via className targeting */}
         {dealCards.map((card, index) => (
-          <FloatingDealCard
+          <motion.div
             key={card.name}
-            card={card}
-            prefersReducedMotion={prefersReducedMotion}
-            parallaxY={cardParallaxValues[index]}
-          />
+            className={`deal-card-${index} absolute hidden lg:block`}
+            style={{
+              top: card.top,
+              bottom: card.bottom,
+              left: card.left,
+              right: card.right,
+            }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.2 + card.delay * 0.3, ease: EASE }}
+          >
+            <motion.div
+              style={{ rotate: card.rotate }}
+              animate={
+                prefersReducedMotion
+                  ? {}
+                  : { y: [0, -8, 0] }
+              }
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: card.delay,
+              }}
+            >
+              <div className="rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm p-4 max-w-[160px]">
+                <p className="text-[11px] tracking-[0.08em] uppercase text-white/40">{card.category}</p>
+                <p className="text-sm font-medium text-white mt-1 tracking-[-0.01em]">{card.name}</p>
+                <p className="text-[11px] text-white/40 mt-0.5">{card.description}</p>
+                <span className="inline-block mt-2 text-[10px] font-medium bg-teal-300/20 text-teal-300 px-2 py-0.5 rounded-full">
+                  {card.badge}
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
         ))}
 
-        {/* Main content — parallax out on scroll */}
-        <motion.div
-          style={{
-            y: prefersReducedMotion ? 0 : heroY,
-            opacity: prefersReducedMotion ? 1 : heroOpacity,
-          }}
-          className="relative z-10 mx-auto w-full max-w-6xl"
-        >
+        {/* Main content — GSAP scrub-out on scroll */}
+        <div className="hero-content relative z-10 mx-auto w-full max-w-6xl">
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -463,25 +531,27 @@ export default function Hero() {
               <Button
                 variant="ghost"
                 className="h-12 px-8 text-white/60 hover:text-white hover:bg-white/5 text-sm tracking-[-0.01em]"
-                render={<a href="/deck" target="_blank" rel="noopener noreferrer" />}
               >
-                Investor Deck
-                <span className="ml-2">&nearr;</span>
+                View Pricing
+                <span className="ml-2">&darr;</span>
               </Button>
             </motion.div>
           </motion.div>
 
-          {/* Stats — bottom right, scroll-linked counters */}
+          {/* Stats — bottom right, GSAP scroll-linked counters */}
           <motion.div
             variants={itemVariants}
             initial="hidden"
             animate="visible"
-            className="mt-24 md:mt-32 flex justify-end"
+            className="hero-stats mt-24 md:mt-32 flex justify-end"
           >
             <div className="flex gap-12 md:gap-16">
               {stats.map((stat, index) => (
                 <div key={stat.label} className="text-right">
-                  <p className="text-3xl font-medium text-teal-300 tracking-[-0.02em]">
+                  <p
+                    ref={index === 0 ? stat1Ref : index === 1 ? stat2Ref : stat3Ref}
+                    className="text-3xl font-medium text-teal-300 tracking-[-0.02em]"
+                  >
                     {stat.prefix ?? ""}
                     {index === 2
                       ? statValues[index]
@@ -495,7 +565,7 @@ export default function Hero() {
               ))}
             </div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll indicator — bottom left */}
         <motion.div
@@ -505,9 +575,9 @@ export default function Hero() {
           transition={{ delay: 2, duration: 0.5 }}
         >
           <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
-            <motion.div
-              className="absolute bottom-0 left-0 w-full bg-teal-300"
-              style={{ height: prefersReducedMotion ? 48 : scrollLineHeight }}
+            <div
+              className="scroll-line-fill absolute bottom-0 left-0 w-full bg-teal-300"
+              style={{ height: prefersReducedMotion ? 48 : 0 }}
             />
           </div>
           <span className="text-[11px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">

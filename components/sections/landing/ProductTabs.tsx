@@ -1,7 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 const container = {
   hidden: {},
@@ -105,15 +109,75 @@ const contentVariantReduced = {
 export default function ProductTabs() {
   const [activeTab, setActiveTab] = useState("dining")
   const prefersReduced = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
   const variants = prefersReduced ? noAnimation : blurUp
   const containerVariants = prefersReduced ? noAnimation : container
-  const activeContent = contentVariant
-  const reducedContent = contentVariantReduced
 
   const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0]
 
+  /* Track whether tab change was from scroll (to avoid scroll-fighting) */
+  const isScrollDriven = useRef(false)
+
+  const setTabFromScroll = useCallback((tabId: string) => {
+    isScrollDriven.current = true
+    setActiveTab(tabId)
+    /* Reset after animation settles */
+    setTimeout(() => { isScrollDriven.current = false }, 600)
+  }, [])
+
+  /* ── GSAP pin + scroll-driven tab cycling ── */
+  useEffect(() => {
+    if (prefersReduced) return
+
+    const timer = setTimeout(() => {
+      if (!sectionRef.current) return
+
+      const ctx = gsap.context(() => {
+        /* Pin the section for 200% of its height, giving room for 3 tabs */
+        ScrollTrigger.create({
+          trigger: ".product-tabs-section",
+          start: "top top",
+          end: "+=200%",
+          pin: true,
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress
+            /* Divide scroll range into 3 equal parts for the 3 tabs */
+            if (progress < 0.33) {
+              setTabFromScroll("dining")
+            } else if (progress < 0.66) {
+              setTabFromScroll("wellness")
+            } else {
+              setTabFromScroll("experiences")
+            }
+          },
+        })
+
+        /* Progress bar at bottom of pinned section */
+        gsap.fromTo(
+          ".tabs-progress-bar",
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".product-tabs-section",
+              start: "top top",
+              end: "+=200%",
+              scrub: 1,
+            },
+          }
+        )
+      }, sectionRef.current)
+
+      return () => ctx.revert()
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [prefersReduced, setTabFromScroll])
+
   return (
-    <section className="bg-carbon py-20 md:py-28">
+    <section ref={sectionRef} className="product-tabs-section bg-carbon py-20 md:py-28 relative">
       <div className="mx-auto max-w-6xl px-6">
         {/* Header */}
         <motion.div
@@ -159,7 +223,11 @@ export default function ProductTabs() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (!isScrollDriven.current) {
+                    setActiveTab(tab.id)
+                  }
+                }}
                 className="relative rounded-full px-5 py-2 text-xs font-medium uppercase transition-colors"
                 style={{ letterSpacing: "0.1em" }}
               >
@@ -193,7 +261,7 @@ export default function ProductTabs() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentTab.id}
-              variants={prefersReduced ? reducedContent : activeContent}
+              variants={prefersReduced ? contentVariantReduced : contentVariant}
               initial="enter"
               animate="center"
               exit="exit"
@@ -242,6 +310,11 @@ export default function ProductTabs() {
             </motion.div>
           </AnimatePresence>
         </div>
+      </div>
+
+      {/* Scroll progress bar at bottom of pinned section */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
+        <div className="tabs-progress-bar h-full bg-teal-300 origin-left" style={{ transform: "scaleX(0)" }} />
       </div>
     </section>
   )
