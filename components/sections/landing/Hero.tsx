@@ -50,20 +50,6 @@ const rightCol2Cards: MarqueeCard[] = [
   { category: "Experience", name: "Hot Docs Cinema", description: "Movie Night", badge: "BOGO", gradient: "from-[#15222e] to-[#0b1620]" },
 ]
 
-/* Stats data */
-interface StatItem {
-  value: number
-  prefix?: string
-  suffix?: string
-  label: string
-}
-
-const stats: StatItem[] = [
-  { value: 135, prefix: "$", suffix: "B", label: "Total Market" },
-  { value: 9378, label: "Toronto Merchants" },
-  { value: 0, label: "Dominant Players" },
-]
-
 /* Marquee card component */
 function MarqueeCardItem({ card }: { card: MarqueeCard }) {
   return (
@@ -105,14 +91,8 @@ export default function Hero() {
       const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
       if (isReduced) {
-        gsap.set([".hero-eyebrow", ".hero-heading", ".hero-subtext", ".hero-actions", ".hero-stats .stat-item", ".scroll-indicator"], { opacity: 1, y: 0, filter: "none" })
+        gsap.set([".hero-eyebrow", ".hero-heading", ".hero-subtext", ".hero-actions", ".scroll-indicator"], { opacity: 1, y: 0, filter: "none" })
         gsap.set(".marquee-wrap", { opacity: 1 })
-        document.querySelectorAll(".stat-number").forEach((el) => {
-          const target = parseFloat(el.getAttribute("data-value") || "0")
-          const prefix = el.getAttribute("data-prefix") || ""
-          const suffix = el.getAttribute("data-suffix") || ""
-          el.textContent = `${prefix}${target >= 1000 ? Math.round(target).toLocaleString() : Math.round(target)}${suffix}`
-        })
         return
       }
 
@@ -201,22 +181,6 @@ export default function Hero() {
       scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
     })
 
-    // Stats scroll-linked counters
-    section.querySelectorAll(".stat-number").forEach((el) => {
-      const target = parseFloat(el.getAttribute("data-value") || "0")
-      const prefix = el.getAttribute("data-prefix") || ""
-      const suffix = el.getAttribute("data-suffix") || ""
-      const proxy = { val: 0 }
-      gsap.to(proxy, {
-        val: target,
-        ease: "none",
-        scrollTrigger: { trigger: section.querySelector(".hero-stats")!, start: "top 85%", end: "top 45%", scrub: 1 },
-        onUpdate: () => {
-          el.textContent = `${prefix}${target >= 1000 ? Math.round(proxy.val).toLocaleString() : Math.round(proxy.val)}${suffix}`
-        },
-      })
-    })
-
     const scrollFill = section.querySelector(".scroll-line-fill")
     if (scrollFill) {
       gsap.to(scrollFill, {
@@ -243,7 +207,7 @@ export default function Hero() {
       <section
         ref={container}
         id="hero"
-        className="hero-section relative min-h-screen overflow-hidden"
+        className="hero-section relative h-[85dvh] max-h-[900px] overflow-hidden"
         style={{ backgroundColor: "#162028" }}
       >
         {/* Grid background */}
@@ -267,20 +231,18 @@ export default function Hero() {
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, opacity: 0.03 }} />
 
         {/* ═══ MAIN LAYOUT: marquee columns | center content | marquee columns ═══ */}
-        <div className="relative z-10 flex min-h-screen">
+        <div className="relative z-10 flex h-full">
 
           {/* LEFT MARQUEE COLUMNS (2 columns) */}
-          <div className="marquee-wrap marquee-left hidden lg:flex gap-4 w-[470px] shrink-0 overflow-hidden relative">
-            {/* Gradient mask top/bottom */}
-            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 15%, transparent 85%, #162028 100%)" }} />
+          <div className="marquee-wrap marquee-left hidden xl:flex gap-4 w-[240px] shrink-0 overflow-hidden relative">
+            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 12%, transparent 88%, #162028 100%)" }} />
             <MarqueeColumn cards={leftCol1Cards} className="marquee-up pt-12" />
-            <MarqueeColumn cards={leftCol2Cards} className="marquee-down pt-24" />
           </div>
 
           {/* CENTER CONTENT */}
-          <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 py-24 md:py-0">
+          <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 py-16 md:py-0">
             {/* Eyebrow */}
-            <span className="hero-eyebrow mb-8 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400">
+            <span className="hero-eyebrow mb-6 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal-300" />
@@ -314,29 +276,16 @@ export default function Hero() {
               </Button>
             </div>
 
-            {/* Stats */}
-            <div className="hero-stats mt-16 md:mt-24 flex gap-10 md:gap-14">
-              {stats.map((stat) => (
-                <div key={stat.label} className="stat-item text-center">
-                  <p
-                    className="stat-number text-2xl md:text-3xl font-medium text-teal-300 tracking-[-0.02em]"
-                    data-value={stat.value}
-                    data-prefix={stat.prefix || ""}
-                    data-suffix={stat.suffix || ""}
-                  >
-                    {stat.prefix ?? ""}0{stat.suffix ?? ""}
-                  </p>
-                  <p className="text-[10px] tracking-[0.1em] uppercase text-neutral-400 mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
+            {/* Social proof line */}
+            <p className="mt-8 text-xs tracking-wide text-white/30">
+              Join 1,200+ Canadians already on the waitlist
+            </p>
           </div>
 
           {/* RIGHT MARQUEE COLUMNS (2 columns) */}
-          <div className="marquee-wrap marquee-right hidden lg:flex gap-4 w-[470px] shrink-0 overflow-hidden relative">
-            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 15%, transparent 85%, #162028 100%)" }} />
+          <div className="marquee-wrap marquee-right hidden xl:flex gap-4 w-[240px] shrink-0 overflow-hidden relative">
+            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 12%, transparent 88%, #162028 100%)" }} />
             <MarqueeColumn cards={rightCol1Cards} className="marquee-down pt-8" />
-            <MarqueeColumn cards={rightCol2Cards} className="marquee-up pt-20" />
           </div>
         </div>
 
