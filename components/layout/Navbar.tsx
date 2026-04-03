@@ -24,22 +24,34 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
 
+  const [bannerVisible, setBannerVisible] = useState(true)
+
   useEffect(() => {
     function handleScroll() {
-      // Switch from transparent/dark mode to solid/light mode
-      // once user scrolls past ~90% of the viewport height (the hero)
       setScrolled(window.scrollY > window.innerHeight * 0.9)
+      // Once scrolled past 40px (banner height), navbar goes to top
+      setBannerVisible(window.scrollY < 10 && !!document.querySelector('[data-banner]'))
     }
 
     handleScroll()
+    // Also observe banner removal
+    const observer = new MutationObserver(() => {
+      setBannerVisible(!!document.querySelector('[data-banner]'))
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+
     window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      observer.disconnect()
+    }
   }, [])
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-500",
+        "fixed left-0 right-0 z-50 h-16 transition-all duration-500",
+        bannerVisible ? "top-10" : "top-0",
         scrolled
           ? "bg-white/80 backdrop-blur-md border-b border-mist"
           : "bg-transparent border-b border-transparent"

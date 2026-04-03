@@ -1,6 +1,6 @@
 "use client"
 
-import { gsap, ScrollTrigger } from "@/lib/gsap"
+import { gsap } from "@/lib/gsap"
 import { useGSAP } from "@gsap/react"
 import { useRef } from "react"
 import WaitlistForm from "@/components/shared/WaitlistForm"
@@ -11,20 +11,12 @@ export default function FooterCTA() {
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
-    gsap.from(".cta-eyebrow", {
-      y: 40,
-      opacity: 0,
-      duration: 0.6,
-      ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 75%" },
-    })
-
     gsap.from(".cta-heading", {
       y: 60,
       opacity: 0,
       duration: 0.8,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 70%" },
+      scrollTrigger: { trigger: ".cta-section", start: "top 75%" },
     })
 
     gsap.from(".cta-sub", {
@@ -32,15 +24,7 @@ export default function FooterCTA() {
       opacity: 0,
       duration: 0.7,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 65%" },
-    })
-
-    gsap.from(".cta-buttons", {
-      y: 30,
-      opacity: 0,
-      duration: 0.6,
-      ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 60%" },
+      scrollTrigger: { trigger: ".cta-section", start: "top 70%" },
     })
 
     gsap.from(".cta-form", {
@@ -48,7 +32,7 @@ export default function FooterCTA() {
       opacity: 0,
       duration: 0.6,
       ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 55%" },
+      scrollTrigger: { trigger: ".cta-section", start: "top 65%" },
     })
   }, { scope: container })
 
@@ -67,14 +51,6 @@ export default function FooterCTA() {
       </span>
 
       <div className="mx-auto max-w-2xl text-center relative">
-        {/* Eyebrow */}
-        <p
-          className="cta-eyebrow text-teal-300 font-mono text-xs uppercase mb-4"
-          style={{ letterSpacing: "0.1em", fontSize: "11px" }}
-        >
-          Join LatchClub
-        </p>
-
         {/* Headline */}
         <h2
           className="cta-heading text-3xl md:text-5xl font-medium text-white"
@@ -89,39 +65,15 @@ export default function FooterCTA() {
 
         {/* Sub */}
         <p
-          className="cta-sub text-base text-neutral-400 mt-4 max-w-[60ch] mx-auto"
+          className="cta-sub text-base text-neutral-400 mt-4 max-w-[55ch] mx-auto"
           style={{ lineHeight: 1.7 }}
         >
-          Be among the first to experience LatchClub when we launch in Toronto.
-          Early access members get priority placement, founding member pricing,
-          and first access to every new merchant.
+          Join the waitlist and be among the first to experience LatchClub
+          when we launch in Toronto.
         </p>
 
-        {/* Buttons */}
-        <div
-          className="cta-buttons flex flex-col sm:flex-row items-center justify-center gap-3 mt-8"
-        >
-          <a
-            href="#waitlist"
-            className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium bg-teal-300 text-carbon hover:bg-teal-300/90 transition-opacity"
-          >
-            Get Early Access
-            <span className="ml-1" aria-hidden="true">&rarr;</span>
-          </a>
-          <a
-            href="mailto:invest@latchclub.ca"
-            className="inline-flex items-center justify-center h-11 px-8 rounded-lg text-sm font-medium border border-white/20 text-white hover:bg-white/5 transition-opacity bg-transparent"
-          >
-            Investor Enquiries
-            <span className="ml-1" aria-hidden="true">&#8599;</span>
-          </a>
-        </div>
-
-        {/* Waitlist Form */}
-        <div
-          className="cta-form mt-10 flex justify-center"
-          id="waitlist"
-        >
+        {/* Waitlist Form — single clear CTA */}
+        <div className="cta-form mt-8 flex justify-center" id="waitlist">
           <WaitlistForm variant="dark" />
         </div>
       </div>

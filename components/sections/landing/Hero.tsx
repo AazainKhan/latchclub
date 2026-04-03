@@ -234,9 +234,10 @@ export default function Hero() {
         <div className="relative z-10 flex h-full">
 
           {/* LEFT MARQUEE COLUMNS (2 columns) */}
-          <div className="marquee-wrap marquee-left hidden xl:flex gap-4 w-[240px] shrink-0 overflow-hidden relative">
+          <div className="marquee-wrap marquee-left hidden lg:flex gap-3 w-[460px] shrink-0 overflow-hidden relative">
             <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 12%, transparent 88%, #162028 100%)" }} />
             <MarqueeColumn cards={leftCol1Cards} className="marquee-up pt-12" />
+            <MarqueeColumn cards={leftCol2Cards} className="marquee-down pt-24" />
           </div>
 
           {/* CENTER CONTENT */}
@@ -283,9 +284,10 @@ export default function Hero() {
           </div>
 
           {/* RIGHT MARQUEE COLUMNS (2 columns) */}
-          <div className="marquee-wrap marquee-right hidden xl:flex gap-4 w-[240px] shrink-0 overflow-hidden relative">
+          <div className="marquee-wrap marquee-right hidden lg:flex gap-3 w-[460px] shrink-0 overflow-hidden relative">
             <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(to bottom, #162028 0%, transparent 12%, transparent 88%, #162028 100%)" }} />
             <MarqueeColumn cards={rightCol1Cards} className="marquee-down pt-8" />
+            <MarqueeColumn cards={rightCol2Cards} className="marquee-up pt-20" />
           </div>
         </div>
 
