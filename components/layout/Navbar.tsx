@@ -13,6 +13,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import ThemeToggle from "@/components/shared/ThemeToggle"
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -75,20 +76,25 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTA — always teal */}
-        <Button
-          size="sm"
-          className="hidden md:inline-flex bg-teal-300 text-white hover:bg-teal-300/90"
-          onClick={() => {
-            document
-              .getElementById("hero")
-              ?.scrollIntoView({ behavior: "smooth" })
-          }}
-        >
-          Join Waitlist
-        </Button>
+        {/* Desktop actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            size="sm"
+            className="bg-teal-300 text-white hover:bg-teal-300/90"
+            onClick={() => {
+              document
+                .getElementById("hero")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }}
+          >
+            Join Waitlist
+          </Button>
+        </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile actions */}
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
         <Sheet>
           <SheetTrigger
             render={
@@ -143,6 +149,7 @@ export default function Navbar() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </nav>
     </header>
   )

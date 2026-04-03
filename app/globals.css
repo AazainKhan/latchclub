@@ -35,8 +35,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
   --font-heading: var(--font-geist-sans);
 
   /* Brand color tokens — use as bg-teal-300, text-carbon, bg-bone, etc. */
@@ -83,6 +83,27 @@
   --input: #D2DBDE;
   --ring: #03A493;
   --radius: 0.625rem;
+}
+
+.dark {
+  --background: #0f1419;
+  --foreground: #ffffff;
+  --card: #162028;
+  --card-foreground: #ffffff;
+  --popover: #162028;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #162028;
+  --secondary: #1e2a32;
+  --secondary-foreground: #ffffff;
+  --muted: #1e2a32;
+  --muted-foreground: #A8B5BA;
+  --accent: #03A493;
+  --accent-foreground: #ffffff;
+  --destructive: #BF5454;
+  --border: #2a3a44;
+  --input: #2a3a44;
+  --ring: #03A493;
 }
 
 @layer base {
