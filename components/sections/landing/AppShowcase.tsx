@@ -5,13 +5,14 @@ import { UtensilsCrossed, Flower2, Ticket } from "lucide-react"
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.12 } },
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+const blurUp = {
+  hidden: { opacity: 0, filter: "blur(6px)", y: 20 },
   visible: {
     opacity: 1,
+    filter: "blur(0px)",
     y: 0,
     transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
   },
@@ -26,37 +27,33 @@ interface CategoryCard {
   icon: React.ReactNode
   title: string
   description: string
-  dealCount: string
-  accentColor: string
+  dotColor: string
 }
 
 const categories: CategoryCard[] = [
   {
-    icon: <UtensilsCrossed className="h-6 w-6 text-teal-300" />,
+    icon: <UtensilsCrossed className="h-5 w-5 text-teal-300" />,
     title: "Dining",
-    description: "2-for-1 meals at 200+ restaurants",
-    dealCount: "48 deals",
-    accentColor: "bg-teal-300",
+    description: "200+ restaurant deals with 2-for-1 meals across your city.",
+    dotColor: "bg-teal-300",
   },
   {
-    icon: <Flower2 className="h-6 w-6 text-neutral-400" />,
+    icon: <Flower2 className="h-5 w-5 text-neutral-400" />,
     title: "Wellness",
-    description: "50% off spas, fitness & wellness",
-    dealCount: "36 deals",
-    accentColor: "bg-neutral-200",
+    description: "50% off at 150+ spas, studios, and wellness spots.",
+    dotColor: "bg-neutral-200",
   },
   {
-    icon: <Ticket className="h-6 w-6 text-neutral-500" />,
+    icon: <Ticket className="h-5 w-5 text-neutral-500" />,
     title: "Experiences",
-    description: "Exclusive rates on activities & events",
-    dealCount: "27 deals",
-    accentColor: "bg-neutral-400",
+    description: "Exclusive rates on 100+ activities, tours, and events.",
+    dotColor: "bg-neutral-400",
   },
 ]
 
 export default function AppShowcase() {
   const prefersReducedMotion = useReducedMotion()
-  const variants = prefersReducedMotion ? noAnimation : fadeUp
+  const variants = prefersReducedMotion ? noAnimation : blurUp
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
   return (
@@ -71,37 +68,51 @@ export default function AppShowcase() {
         >
           <motion.p
             variants={variants}
-            className="text-[11px] uppercase tracking-[0.1em] text-neutral-300"
+            className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.1em] text-neutral-300"
           >
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-300" />
             App Preview
           </motion.p>
           <motion.h2
             variants={variants}
-            className="mx-auto mt-4 max-w-lg text-3xl font-medium tracking-tight text-carbon md:text-4xl"
+            className="mx-auto mt-4 max-w-lg text-3xl font-medium md:text-4xl"
             style={{ letterSpacing: "-0.02em" }}
           >
-            Your city&#39;s best deals, in your pocket.
+            <span className="text-neutral-200">Your city&rsquo;s best deals,</span>{" "}
+            <span className="text-carbon">in your pocket.</span>
           </motion.h2>
         </motion.div>
+
+        <motion.hr
+          variants={variants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          className="mt-10 mb-12 border-t border-mist"
+        />
 
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
-          className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3"
+          className="grid grid-cols-1 gap-6 md:grid-cols-3"
         >
           {categories.map((category) => (
             <motion.div
               key={category.title}
               variants={variants}
-              className="overflow-hidden rounded-xl border border-mist bg-white"
+              className="overflow-hidden rounded-xl border border-mist bg-bone"
             >
-              <div className={`h-[3px] ${category.accentColor}`} />
-              <div className="p-6">
-                <div className="mb-4">{category.icon}</div>
+              <div className="p-8">
+                <div className="flex items-center gap-2.5 pb-5 border-b border-mist">
+                  {category.icon}
+                  <span
+                    className={`inline-block h-1.5 w-1.5 rounded-full ${category.dotColor}`}
+                  />
+                </div>
                 <h3
-                  className="text-lg font-medium text-carbon"
+                  className="mt-5 text-lg font-medium text-carbon"
                   style={{ letterSpacing: "-0.02em" }}
                 >
                   {category.title}
@@ -109,9 +120,6 @@ export default function AppShowcase() {
                 <p className="mt-2 text-sm leading-relaxed text-neutral-300">
                   {category.description}
                 </p>
-                <span className="mt-4 inline-block rounded-full border border-mist bg-bone px-3 py-1 text-xs text-neutral-300">
-                  {category.dealCount}
-                </span>
               </div>
             </motion.div>
           ))}

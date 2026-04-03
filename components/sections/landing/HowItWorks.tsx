@@ -4,13 +4,14 @@ import { motion, useReducedMotion } from "framer-motion"
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.12 } },
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+const blurUp = {
+  hidden: { opacity: 0, filter: "blur(6px)", y: 20 },
   visible: {
     opacity: 1,
+    filter: "blur(0px)",
     y: 0,
     transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
   },
@@ -50,7 +51,7 @@ const steps: Step[] = [
 
 export default function HowItWorks() {
   const prefersReducedMotion = useReducedMotion()
-  const variants = prefersReducedMotion ? noAnimation : fadeUp
+  const variants = prefersReducedMotion ? noAnimation : blurUp
   const containerVariants = prefersReducedMotion ? noAnimation : container
 
   return (
@@ -65,16 +66,18 @@ export default function HowItWorks() {
         >
           <motion.p
             variants={variants}
-            className="text-[11px] uppercase tracking-[0.1em] text-neutral-300"
+            className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.1em] text-neutral-300"
           >
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-300" />
             How It Works
           </motion.p>
           <motion.h2
             variants={variants}
-            className="mt-4 text-3xl font-medium tracking-tight text-carbon md:text-4xl"
+            className="mt-4 text-3xl font-medium md:text-4xl"
             style={{ letterSpacing: "-0.02em" }}
           >
-            Three steps to saving.
+            <span className="text-neutral-200">Three steps</span>{" "}
+            <span className="text-carbon">to saving.</span>
           </motion.h2>
         </motion.div>
 
@@ -83,18 +86,25 @@ export default function HowItWorks() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
-          className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3"
+          className="mt-12 grid grid-cols-1 gap-0 md:grid-cols-3"
         >
-          {steps.map((step) => (
-            <motion.div key={step.number} variants={variants}>
-              <p
-                className="text-5xl font-medium text-neutral-100 md:text-6xl"
-                style={{ letterSpacing: "-0.04em" }}
-              >
-                {step.number}
-              </p>
+          {steps.map((step, index) => (
+            <motion.div
+              key={step.number}
+              variants={variants}
+              className={index > 0 ? "border-t border-mist pt-8 mt-8 md:border-t-0 md:pt-0 md:mt-0 md:border-l md:pl-8" : ""}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-300" />
+                <p
+                  className="text-6xl font-medium text-neutral-100 md:text-7xl"
+                  style={{ letterSpacing: "-0.04em" }}
+                >
+                  {step.number}
+                </p>
+              </div>
               <h3
-                className="mt-4 text-lg font-medium text-carbon"
+                className="mt-4 text-xl font-medium tracking-tight text-carbon"
                 style={{ letterSpacing: "-0.02em" }}
               >
                 {step.title}

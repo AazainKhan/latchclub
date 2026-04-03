@@ -1,7 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Check } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 
 interface PricingFeature {
@@ -15,7 +14,7 @@ interface PricingTier {
   features: PricingFeature[]
   cta: string
   featured: boolean
-  badge?: string
+  popular?: boolean
   buttonVariant: "default" | "outline"
 }
 
@@ -37,7 +36,7 @@ const tiers: PricingTier[] = [
     name: "Member",
     price: "$15",
     description: "Unlock the full Latchclub experience.",
-    badge: "Popular",
+    popular: true,
     features: [
       { text: "Unlimited deals" },
       { text: "All categories" },
@@ -73,31 +72,47 @@ const container = {
 }
 
 const cardVariant = {
-  hidden: { opacity: 0, scale: 0.95 },
+  hidden: { opacity: 0, scale: 0.96, filter: "blur(4px)" },
   visible: {
     opacity: 1,
     scale: 1,
+    filter: "blur(0px)",
     transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
   },
 }
 
+const cardVariantReduced = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.3 },
+  },
+}
+
 export default function Pricing() {
+  const prefersReduced = useReducedMotion()
+  const activeCardVariant = prefersReduced ? cardVariantReduced : cardVariant
+
   return (
-    <section id="pricing" className="py-16 md:py-24 px-6">
+    <section id="pricing" className="py-24 md:py-32 px-6">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <p
-            className="text-xs uppercase text-neutral-300 mb-4"
-            style={{ letterSpacing: "0.1em", fontSize: "11px" }}
-          >
-            Pricing
-          </p>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-300" />
+            <p
+              className="text-xs uppercase text-neutral-300"
+              style={{ letterSpacing: "0.1em", fontSize: "11px" }}
+            >
+              Pricing
+            </p>
+          </div>
           <h2
-            className="text-3xl md:text-4xl font-medium text-carbon"
+            className="text-3xl md:text-4xl font-medium"
             style={{ letterSpacing: "-0.02em" }}
           >
-            Simple, transparent pricing.
+            <span className="text-neutral-200">Simple, transparent </span>
+            <span className="text-carbon">pricing.</span>
           </h2>
           <p
             className="text-lg text-neutral-300 mt-4 max-w-[65ch] mx-auto"
@@ -106,6 +121,9 @@ export default function Pricing() {
             Start free. Upgrade when you&apos;re ready.
           </p>
         </div>
+
+        {/* Horizontal rule */}
+        <div className="border-t border-mist mb-12 md:mb-16" />
 
         {/* Cards */}
         <motion.div
@@ -118,26 +136,27 @@ export default function Pricing() {
           {tiers.map((tier) => (
             <motion.div
               key={tier.name}
-              variants={cardVariant}
+              variants={activeCardVariant}
               className={`
-                rounded-xl bg-white p-6 md:p-8 flex flex-col
+                rounded-xl p-8 md:p-10 flex flex-col
                 ${tier.featured
-                  ? "border-2 border-carbon order-first md:order-none"
-                  : "border border-mist"
+                  ? "bg-white border-2 border-carbon order-first md:order-none"
+                  : "bg-bone border border-mist"
                 }
               `}
             >
-              {/* Tier name + badge */}
-              <div className="flex items-center gap-2 mb-4">
+              {/* Tier name + popular indicator */}
+              <div className="flex items-center gap-2.5 mb-4">
                 <h3
                   className="text-lg font-medium text-carbon"
                   style={{ letterSpacing: "-0.02em" }}
                 >
                   {tier.name}
                 </h3>
-                {tier.badge && (
-                  <span className="bg-teal-50 text-teal-500 text-xs px-2 py-0.5 rounded-full font-medium">
-                    {tier.badge}
+                {tier.popular && (
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-300" />
+                    <span className="text-xs text-neutral-300">Popular</span>
                   </span>
                 )}
               </div>
@@ -145,8 +164,8 @@ export default function Pricing() {
               {/* Price */}
               <div className="flex items-baseline gap-1 mb-2">
                 <span
-                  className="text-4xl font-medium text-carbon"
-                  style={{ letterSpacing: "-0.03em" }}
+                  className="text-5xl font-medium text-carbon"
+                  style={{ letterSpacing: "-0.04em" }}
                 >
                   {tier.price}
                 </span>
@@ -155,7 +174,7 @@ export default function Pricing() {
 
               {/* Description */}
               <p
-                className="text-sm text-neutral-300 mb-6"
+                className="text-sm text-neutral-300 mb-8"
                 style={{ lineHeight: 1.7 }}
               >
                 {tier.description}
@@ -165,7 +184,7 @@ export default function Pricing() {
               <ul className="flex flex-col gap-3 mb-8 flex-1">
                 {tier.features.map((feature) => (
                   <li key={feature.text} className="flex items-start gap-2.5">
-                    <Check className="size-4 text-teal-300 mt-0.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-300 mt-2 shrink-0" />
                     <span
                       className="text-sm text-carbon"
                       style={{ lineHeight: 1.7 }}
@@ -179,7 +198,7 @@ export default function Pricing() {
               {/* CTA */}
               <Button
                 variant={tier.buttonVariant}
-                className={`w-full h-10 ${
+                className={`w-full h-11 transition-opacity hover:opacity-90 ${
                   tier.featured ? "bg-carbon text-white" : ""
                 }`}
               >
