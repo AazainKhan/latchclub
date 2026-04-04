@@ -1,193 +1,247 @@
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
-import { LayoutGrid, Search, Check } from "lucide-react"
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-const blurUp = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.7, ease: [0.23, 1, 0.32, 1] as const },
-  },
-}
-
-const noAnimation = {
-  hidden: {},
-  visible: {},
-}
+import { useRef } from "react"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 
 interface Step {
   number: string
   title: string
   description: string
-  icon: React.ReactNode
 }
 
 const steps: Step[] = [
   {
     number: "01",
-    title: "Pick your plan",
+    title: "Subscribe",
     description:
-      "Choose the membership tier that fits your lifestyle. Start free or go all-in.",
-    icon: <LayoutGrid className="h-5 w-5 text-teal-300" />,
+      "Choose monthly or annual. From $5.99/mo. Cancel anytime.",
   },
   {
     number: "02",
-    title: "Browse & save",
+    title: "Browse & Save",
     description:
-      "Discover deals across dining, wellness, and experiences in your city.",
-    icon: <Search className="h-5 w-5 text-teal-300" />,
+      "200+ restaurants, spas, fitness spots. All in one place.",
   },
   {
     number: "03",
-    title: "Experience more",
+    title: "Redeem",
     description:
-      "Redeem offers instantly. No codes, no hassle. Just show your phone.",
-    icon: <Check className="h-5 w-5 text-teal-300" />,
+      "Show your phone. No codes, no hassle. Savings applied instantly.",
   },
 ]
 
 export default function HowItWorks() {
-  const prefersReducedMotion = useReducedMotion()
-  const variants = prefersReducedMotion ? noAnimation : blurUp
-  const containerVariants = prefersReducedMotion ? noAnimation : container
+  const container = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      const isReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+
+      if (isReduced) {
+        // Show first step, set progress to 0
+        gsap.set(".hiw-step", { opacity: 1, y: 0 })
+        return
+      }
+
+      const section = container.current
+      if (!section) return
+
+      const stepEls = section.querySelectorAll(".hiw-step")
+      const progressFill = section.querySelector(".hiw-progress-fill")
+      const stepIndicators = section.querySelectorAll(".hiw-step-dot")
+
+      // Entrance animation
+      gsap.from(".hiw-label", {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+      })
+
+      gsap.from(".hiw-heading", {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        delay: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+          toggleActions: "play none none none",
+        },
+      })
+
+      // Pin the section and cycle through steps on scroll
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "+=300%",
+        pin: true,
+        scrub: 1,
+        onUpdate: (self) => {
+          const progress = self.progress // 0 to 1
+          const activeIndex = Math.min(
+            Math.floor(progress * steps.length),
+            steps.length - 1
+          )
+
+          // Update progress bar
+          if (progressFill) {
+            gsap.set(progressFill, {
+              scaleX: progress,
+            })
+          }
+
+          // Update step visibility
+          stepEls.forEach((el, i) => {
+            const htmlEl = el as HTMLElement
+            if (i === activeIndex) {
+              gsap.to(htmlEl, {
+                opacity: 1,
+                y: 0,
+                duration: 0.3,
+                ease: "power3.out",
+                overwrite: true,
+              })
+            } else if (i < activeIndex) {
+              gsap.to(htmlEl, {
+                opacity: 0,
+                y: -24,
+                duration: 0.3,
+                ease: "power3.out",
+                overwrite: true,
+              })
+            } else {
+              gsap.to(htmlEl, {
+                opacity: 0,
+                y: 24,
+                duration: 0.3,
+                ease: "power3.out",
+                overwrite: true,
+              })
+            }
+          })
+
+          // Update step indicators
+          stepIndicators.forEach((dot, i) => {
+            const htmlDot = dot as HTMLElement
+            if (i <= activeIndex) {
+              htmlDot.classList.add("bg-teal-300")
+              htmlDot.classList.remove("bg-white/20")
+            } else {
+              htmlDot.classList.remove("bg-teal-300")
+              htmlDot.classList.add("bg-white/20")
+            }
+          })
+        },
+      })
+
+      // Set initial state: first step visible, others hidden below
+      gsap.set(stepEls[0], { opacity: 1, y: 0 })
+      stepEls.forEach((el, i) => {
+        if (i > 0) gsap.set(el, { opacity: 0, y: 24 })
+      })
+    },
+    { scope: container }
+  )
 
   return (
-    <section className="bg-teal-50 py-24 md:py-32">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Section header */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="text-center"
+    <section
+      ref={container}
+      className="relative bg-carbon text-white overflow-hidden"
+      style={{ minHeight: "100dvh" }}
+    >
+      <div className="flex flex-col justify-center items-center h-dvh px-6">
+        {/* Section label */}
+        <p className="hiw-label text-[11px] uppercase tracking-[0.1em] text-white/40 mb-4">
+          How It Works
+        </p>
+
+        {/* Heading */}
+        <h2
+          className="hiw-heading text-center font-medium mb-16 md:mb-24"
+          style={{
+            fontSize: "clamp(2rem, 4vw, 3rem)",
+            letterSpacing: "-0.03em",
+            lineHeight: 1.1,
+          }}
         >
-          <motion.p
-            variants={variants}
-            className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.1em] text-neutral-300"
-          >
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-300" />
-            How It Works
-          </motion.p>
-          <motion.h2
-            variants={variants}
-            className="mt-4 text-3xl font-medium md:text-5xl"
-            style={{ letterSpacing: "-0.03em", lineHeight: "1.1" }}
-          >
-            <span className="text-neutral-200">Three steps</span>{" "}
-            <span className="text-carbon">to saving.</span>
-          </motion.h2>
-        </motion.div>
+          Three steps to saving.
+        </h2>
 
-        {/* Desktop: horizontal connected step cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="relative mt-20 hidden md:block"
-        >
-          {/* Connecting line — sits behind the cards at icon center height */}
-          <div
-            className="pointer-events-none absolute left-0 right-0 border-t border-teal-100"
-            style={{ top: 24 }}
-          />
-
-          <div className="grid grid-cols-3 gap-8">
-            {steps.map((step) => (
-              <motion.div key={step.number} variants={variants} className="relative">
-                {/* Icon circle — sits on the connecting line */}
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-teal-100 bg-teal-50">
-                  {step.icon}
-                </div>
-
-                {/* Card body */}
-                <div className="mt-6 rounded-xl border border-teal-100 bg-white p-6">
-                  {/* Large decorative number */}
-                  <p
-                    className="text-6xl font-medium text-teal-100"
-                    style={{ letterSpacing: "-0.04em", lineHeight: "1" }}
-                  >
-                    {step.number}
-                  </p>
-
-                  {/* Title */}
-                  <h3
-                    className="mt-4 text-xl font-medium text-carbon"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
-                    {step.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="mt-2 text-base leading-relaxed text-neutral-300">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Mobile: vertical connected step cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          className="relative mt-12 md:hidden"
-        >
-          {/* Vertical connecting line */}
-          <div
-            className="pointer-events-none absolute bottom-0 left-6 top-0 w-px bg-teal-100"
-            style={{ transform: "translateX(-0.5px)" }}
-          />
-
-          <div className="space-y-8">
-            {steps.map((step) => (
-              <motion.div
-                key={step.number}
-                variants={variants}
-                className="relative flex gap-6"
+        {/* Steps — absolutely positioned to crossfade */}
+        <div className="relative w-full max-w-2xl mx-auto" style={{ minHeight: "200px" }}>
+          {steps.map((step, i) => (
+            <div
+              key={step.number}
+              className={`hiw-step ${i === 0 ? "" : "absolute inset-0"} flex flex-col items-center text-center`}
+              style={i > 0 ? { position: "absolute", top: 0, left: 0, right: 0 } : {}}
+            >
+              {/* Large step number */}
+              <span
+                className="text-teal-300 font-medium"
+                style={{
+                  fontSize: "clamp(4rem, 10vw, 8rem)",
+                  letterSpacing: "-0.04em",
+                  lineHeight: 1,
+                }}
               >
-                {/* Icon circle — on the vertical line */}
-                <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-teal-100 bg-teal-50">
-                  {step.icon}
-                </div>
+                {step.number}
+              </span>
 
-                {/* Card body */}
-                <div className="flex-1 rounded-xl border border-teal-100 bg-white p-6">
-                  {/* Decorative number */}
-                  <p
-                    className="text-5xl font-medium text-teal-100"
-                    style={{ letterSpacing: "-0.04em", lineHeight: "1" }}
-                  >
-                    {step.number}
-                  </p>
+              {/* Title */}
+              <h3
+                className="mt-4 font-medium text-white"
+                style={{
+                  fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.15,
+                }}
+              >
+                {step.title}
+              </h3>
 
-                  <h3
-                    className="mt-3 text-lg font-medium text-carbon"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
-                    {step.title}
-                  </h3>
+              {/* Description */}
+              <p
+                className="mt-4 text-white/50 max-w-md"
+                style={{
+                  fontSize: "clamp(1rem, 1.5vw, 1.125rem)",
+                  lineHeight: 1.7,
+                }}
+              >
+                {step.description}
+              </p>
+            </div>
+          ))}
+        </div>
 
-                  <p className="mt-1.5 text-sm leading-relaxed text-neutral-300">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        {/* Step indicator dots */}
+        <div className="flex items-center gap-3 mt-16">
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={`hiw-step-dot w-2 h-2 rounded-full transition-colors duration-300 ${
+                i === 0 ? "bg-teal-300" : "bg-white/20"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Progress bar at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/5">
+          <div
+            className="hiw-progress-fill h-full bg-teal-300 origin-left"
+            style={{ transform: "scaleX(0)" }}
+          />
+        </div>
       </div>
     </section>
   )

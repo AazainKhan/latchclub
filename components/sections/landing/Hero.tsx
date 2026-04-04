@@ -91,7 +91,7 @@ export default function Hero() {
       const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
       if (isReduced) {
-        gsap.set([".hero-eyebrow", ".hero-heading", ".hero-subtext", ".hero-actions", ".scroll-indicator"], { opacity: 1, y: 0, filter: "none" })
+        gsap.set([".hero-heading", ".hero-subtext", ".hero-actions", ".scroll-indicator"], { opacity: 1, y: 0, filter: "none" })
         gsap.set(".marquee-wrap", { opacity: 1 })
         return
       }
@@ -135,9 +135,8 @@ export default function Hero() {
       // Animate heading words (not chars — chars break layout wrapping)
       const headingWords = container.current?.querySelectorAll(".hero-heading span, .hero-heading em")
 
-      tl.from(".hero-eyebrow", { y: 30, opacity: 0, duration: 0.8 })
       if (headingWords && headingWords.length > 0) {
-        tl.from(headingWords, { y: 50, opacity: 0, filter: "blur(6px)", stagger: 0.08, duration: 0.7 }, "-=0.4")
+        tl.from(headingWords, { y: 50, opacity: 0, filter: "blur(6px)", stagger: 0.08, duration: 0.7 })
       } else {
         tl.from(".hero-heading", { y: 50, opacity: 0, filter: "blur(6px)", duration: 0.8 }, "-=0.4")
       }
@@ -242,15 +241,6 @@ export default function Hero() {
 
           {/* CENTER CONTENT */}
           <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 py-16 md:py-0">
-            {/* Eyebrow */}
-            <span className="hero-eyebrow mb-6 inline-flex items-center gap-2 text-[11px] tracking-[0.1em] uppercase text-neutral-400">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-teal-300 opacity-60" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal-300" />
-              </span>
-              Toronto, Canada &middot; Launching 2026
-            </span>
-
             {/* Heading */}
             <h1 className="hero-heading font-medium tracking-[-0.03em] max-w-3xl" style={{ fontSize: "clamp(2.75rem, 6vw, 5rem)", lineHeight: 1.0 }}>
               <span className="text-white">The membership that </span>
@@ -296,7 +286,6 @@ export default function Hero() {
           <div className="relative w-[1px] h-12 bg-white/10 overflow-hidden">
             <div className="scroll-line-fill absolute bottom-0 left-0 w-full bg-teal-300" style={{ height: 0 }} />
           </div>
-          <span className="text-[10px] tracking-[0.1em] uppercase text-neutral-400 pb-0.5">Scroll to explore</span>
         </div>
 
         {/* Bottom gradient */}
