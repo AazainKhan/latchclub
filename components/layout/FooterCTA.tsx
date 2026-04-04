@@ -1,6 +1,6 @@
 "use client"
 
-import { gsap } from "@/lib/gsap"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useGSAP } from "@gsap/react"
 import { useRef } from "react"
 import WaitlistForm from "@/components/shared/WaitlistForm"
@@ -8,6 +8,7 @@ import WaitlistForm from "@/components/shared/WaitlistForm"
 export default function FooterCTA() {
   const container = useRef<HTMLElement>(null)
 
+  // Entrance animations
   useGSAP(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
@@ -36,6 +37,48 @@ export default function FooterCTA() {
     })
   }, { scope: container })
 
+  // Scroll-scrubbed background text scale + foreground parallax
+  useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (!container.current) return
+
+    const bgText = container.current.querySelector(".cta-bg-text")
+    if (bgText) {
+      gsap.fromTo(bgText,
+        { scale: 0.8, opacity: 0.01 },
+        {
+          scale: 1.3,
+          opacity: 0.04,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+          },
+        }
+      )
+    }
+
+    // Parallax on the foreground content
+    const content = container.current.querySelector(".cta-content")
+    if (content) {
+      gsap.fromTo(content,
+        { y: 40 },
+        {
+          y: -20,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+          },
+        }
+      )
+    }
+  }, { scope: container })
+
   return (
     <section
       className="cta-section bg-carbon py-24 md:py-32 px-6 relative overflow-hidden"
@@ -43,14 +86,14 @@ export default function FooterCTA() {
     >
       {/* Giant faint background text */}
       <span
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-medium text-white/[0.02] pointer-events-none select-none whitespace-nowrap"
+        className="cta-bg-text absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-medium text-white/[0.02] pointer-events-none select-none whitespace-nowrap"
         style={{ fontSize: "clamp(12rem, 20vw, 18rem)", lineHeight: 1, letterSpacing: "-0.04em" }}
         aria-hidden="true"
       >
         LATCH
       </span>
 
-      <div className="mx-auto max-w-2xl text-center relative">
+      <div className="cta-content mx-auto max-w-2xl text-center relative">
         {/* Headline */}
         <h2
           className="cta-heading text-3xl md:text-5xl font-medium text-white"

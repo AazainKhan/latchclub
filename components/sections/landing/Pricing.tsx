@@ -84,8 +84,18 @@ export default function Pricing() {
   const container = useRef<HTMLElement>(null)
 
   useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
+    if (isReduced) {
+      gsap.set(".pricing-eyebrow, .pricing-heading, .pricing-sub, .pricing-card", {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      })
+      return
+    }
+
+    // Header reveals (non-scrubbed, entrance)
     gsap.from(".pricing-eyebrow", {
       y: 40,
       opacity: 0,
@@ -110,16 +120,34 @@ export default function Pricing() {
       scrollTrigger: { trigger: ".pricing-section", start: "top 65%" },
     })
 
-    // Cards stagger in
-    gsap.from(".pricing-card", {
-      y: 80,
-      opacity: 0,
-      scale: 0.95,
-      stagger: 0.12,
-      duration: 0.7,
-      ease: "power3.out",
-      scrollTrigger: { trigger: ".pricing-cards-grid", start: "top 80%" },
+    // Scrubbed card stagger
+    const cardTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: container.current?.querySelector(".pricing-cards-grid") || ".pricing-section",
+        start: "top 80%",
+        end: "top 20%",
+        scrub: 0.8,
+      },
     })
+
+    const cards = container.current?.querySelectorAll(".pricing-card")
+    if (cards) {
+      cards.forEach((card, i) => {
+        const isFeatured = card.classList.contains("pricing-featured")
+        cardTl.fromTo(
+          card,
+          { y: 60, opacity: 0, scale: isFeatured ? 0.88 : 0.9 },
+          {
+            y: isFeatured ? -8 : 0,
+            opacity: 1,
+            scale: isFeatured ? 1.02 : 1,
+            duration: 0.4,
+            ease: "none",
+          },
+          i * 0.15
+        )
+      })
+    }
   }, { scope: container })
 
   return (
@@ -161,7 +189,7 @@ export default function Pricing() {
               className={`
                 pricing-card relative rounded-xl flex flex-col overflow-hidden transition-transform duration-150 ease-out
                 ${tier.featured
-                  ? "bg-carbon dark:bg-[#0a0f14] text-white border-2 border-carbon dark:border-teal-300/30 p-8 order-first md:order-none"
+                  ? "pricing-featured bg-carbon dark:bg-[#0a0f14] text-white border-2 border-carbon dark:border-teal-300/30 p-8 order-first md:order-none"
                   : "bg-white dark:bg-[#1E2F3A] border border-mist dark:border-white/10 p-8 hover:-translate-y-1"
                 }
               `}

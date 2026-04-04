@@ -37,26 +37,76 @@ export default function MerchantValue() {
       ).matches
 
       if (isReduced) {
-        gsap.set(".mv-reveal", { opacity: 1, y: 0 })
+        gsap.set(".mv-heading, .mv-row, .mv-competitors", {
+          opacity: 1,
+          y: 0,
+        })
+        // Set the ROI value to its final text
+        const roiEl = container.current?.querySelector(".mv-roi-value")
+        if (roiEl) {
+          roiEl.textContent = "$6,640 · 3.3×"
+        }
         return
       }
 
       const section = container.current
       if (!section) return
 
-      const reveals = section.querySelectorAll(".mv-reveal")
-      gsap.from(reveals, {
-        y: 60,
-        opacity: 0,
-        stagger: 0.08,
-        duration: 0.6,
-        ease: "power3.out",
+      // Scrubbed timeline: row-by-row reveal + ROI count-up
+      const mvTl = gsap.timeline({
         scrollTrigger: {
-          trigger: section,
-          start: "top 70%",
-          toggleActions: "play none none none",
+          trigger: container.current,
+          start: "top 60%",
+          end: "bottom 40%",
+          scrub: 1,
         },
       })
+
+      // Header (section label + heading)
+      mvTl.fromTo(
+        ".mv-heading",
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.15, ease: "none" }
+      )
+
+      // Table rows one by one
+      const rows = container.current?.querySelectorAll(".mv-row")
+      if (rows) {
+        rows.forEach((row, i) => {
+          mvTl.fromTo(
+            row,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.12, ease: "none" },
+            0.15 + i * 0.12
+          )
+        })
+      }
+
+      // ROI count-up on the highlight row value
+      const roiEl = container.current?.querySelector(".mv-roi-value")
+      if (roiEl) {
+        const proxy = { val: 0 }
+        mvTl.to(
+          proxy,
+          {
+            val: 6640,
+            duration: 0.2,
+            ease: "none",
+            onUpdate: () => {
+              roiEl.textContent = `$${Math.round(proxy.val).toLocaleString()} · 3.3×`
+            },
+          },
+          0.6
+        )
+      }
+
+      // Competitors line
+      mvTl.fromTo(
+        ".mv-competitors",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.15, ease: "none" },
+        0.8
+      )
     },
     { scope: container }
   )
@@ -67,29 +117,29 @@ export default function MerchantValue() {
       className="bg-carbon py-16 md:py-24"
     >
       <div className="mx-auto max-w-3xl px-6">
-        {/* Section label */}
-        <p className="mv-reveal text-[11px] uppercase tracking-[0.1em] text-white/40 mb-4 text-center">
-          For Merchants
-        </p>
-
-        {/* Heading */}
-        <h2
-          className="mv-reveal text-center font-medium text-white mb-12 md:mb-16"
-          style={{
-            fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.1,
-          }}
-        >
-          The math that sells itself.
-        </h2>
+        {/* Section label + Heading — grouped under mv-heading for scrub */}
+        <div className="mv-heading">
+          <p className="text-[11px] uppercase tracking-[0.1em] text-white/40 mb-4 text-center">
+            For Merchants
+          </p>
+          <h2
+            className="text-center font-medium text-white mb-12 md:mb-16"
+            style={{
+              fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+            }}
+          >
+            The math that sells itself.
+          </h2>
+        </div>
 
         {/* ROI Table */}
-        <div className="mv-reveal overflow-hidden rounded-xl border border-white/10" style={{ borderWidth: "0.5px" }}>
+        <div className="overflow-hidden rounded-xl border border-white/10" style={{ borderWidth: "0.5px" }}>
           {roiRows.map((row, i) => (
             <div
               key={i}
-              className={`flex items-center justify-between px-6 py-5 ${
+              className={`mv-row flex items-center justify-between px-6 py-5 ${
                 row.highlight
                   ? "bg-teal-300/10"
                   : i % 2 === 0
@@ -107,7 +157,7 @@ export default function MerchantValue() {
               </span>
               <span
                 className={`text-sm font-medium ${
-                  row.highlight ? "text-teal-300" : "text-white"
+                  row.highlight ? "mv-roi-value text-teal-300" : "text-white"
                 }`}
                 style={{ letterSpacing: "-0.01em" }}
               >
@@ -118,7 +168,7 @@ export default function MerchantValue() {
         </div>
 
         {/* Comparison line */}
-        <div className="mv-reveal mt-8 text-center">
+        <div className="mv-competitors mt-8 text-center">
           <p className="text-xs text-white/30 mb-3">vs.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             {competitors.map((comp, i) => (

@@ -50,14 +50,19 @@ export default function RevenueStreams() {
       ).matches
 
       if (isReduced) {
-        gsap.set(".rs-reveal", { opacity: 1, y: 0 })
+        gsap.set(".rs-header-reveal, .rs-card", {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          scale: 1,
+        })
         return
       }
 
       const section = container.current
       if (!section) return
 
-      // Header reveals
+      // Header reveals (non-scrubbed, entrance)
       gsap.from(".rs-header-reveal", {
         y: 60,
         opacity: 0,
@@ -71,25 +76,33 @@ export default function RevenueStreams() {
         },
       })
 
-      // Cards stagger in
-      gsap.from(".rs-card", {
-        y: 60,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.7,
-        ease: "power3.out",
+      // Scrubbed cards rise from depth with perspective + rotateX
+      const rsTl = gsap.timeline({
         scrollTrigger: {
-          trigger: ".rs-cards-grid",
-          start: "top 75%",
-          toggleActions: "play none none none",
+          trigger: container.current?.querySelector(".rs-cards-grid") || ".rs-section",
+          start: "top 80%",
+          end: "top 20%",
+          scrub: 1,
         },
       })
+
+      const rsCards = container.current?.querySelectorAll(".rs-card")
+      if (rsCards) {
+        rsCards.forEach((card, i) => {
+          rsTl.fromTo(
+            card,
+            { y: 100, opacity: 0, rotateX: 8, scale: 0.9 },
+            { y: 0, opacity: 1, rotateX: 0, scale: 1, duration: 0.35, ease: "none" },
+            i * 0.15
+          )
+        })
+      }
     },
     { scope: container }
   )
 
   return (
-    <section ref={container} className="bg-carbon py-20 md:py-28 px-6">
+    <section ref={container} className="rs-section bg-carbon py-20 md:py-28 px-6">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-12 md:mb-16">
@@ -123,8 +136,8 @@ export default function RevenueStreams() {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="rs-cards-grid grid grid-cols-1 md:grid-cols-3 gap-px">
+        {/* Cards — perspective wrapper for rotateX scrub */}
+        <div className="rs-cards-grid grid grid-cols-1 md:grid-cols-3 gap-px" style={{ perspective: "800px" }}>
           {streams.map((stream) => (
             <div
               key={stream.number}

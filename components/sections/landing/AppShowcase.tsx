@@ -256,7 +256,7 @@ export default function AppShowcase() {
     textRefs.current[index] = el
   }, [])
 
-  /* ── Text crossfade on screen change ── */
+  /* ── Text crossfade + screen content settle on screen change ── */
   useEffect(() => {
     const prev = prevScreenRef.current
     if (prev === activeScreen) return
@@ -281,10 +281,13 @@ export default function AppShowcase() {
       )
     }
 
+    /* Screen content settle effect */
+    gsap.fromTo(".phone-screen-content", { y: 8 }, { y: 0, duration: 0.4, ease: "power2.out" })
+
     prevScreenRef.current = activeScreen
   }, [activeScreen])
 
-  /* ── GSAP scroll-pin + phone rotation ── */
+  /* ── GSAP scroll-pin + 3-phase phone rotation ── */
   useGSAP(
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
@@ -302,17 +305,37 @@ export default function AppShowcase() {
         },
       })
 
-      /* Phone rotates from -8deg to +8deg over scroll */
-      gsap.to(".phone-3d", {
-        rotateY: 8,
-        ease: "none",
+      /* 3-phase phone rotation timeline */
+      const phoneTl = gsap.timeline({
         scrollTrigger: {
           trigger: ".app-showcase-section",
           start: "top top",
           end: "+=300%",
-          scrub: 1,
+          scrub: 1.2,
         },
       })
+
+      phoneTl
+        .to(".phone-3d", { rotateY: 0, rotateX: 2, scale: 1.05, z: 40, duration: 1, ease: "none" })
+        .to(".phone-3d", { rotateY: 4, rotateX: -2, scale: 1.08, z: 60, duration: 1, ease: "none" })
+        .to(".phone-3d", { rotateY: 8, rotateX: 4, scale: 1.0, z: 20, duration: 1, ease: "none" })
+
+      /* Glow overlay scrubbed tween */
+      gsap.fromTo(
+        ".phone-glow",
+        { opacity: 0.3, scale: 1 },
+        {
+          opacity: 0.6,
+          scale: 1.4,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".app-showcase-section",
+            start: "top top",
+            end: "+=300%",
+            scrub: 1.2,
+          },
+        }
+      )
 
       /* Subtle phone entrance */
       gsap.from(".phone-3d-wrapper", {
@@ -413,11 +436,22 @@ export default function AppShowcase() {
 
         {/* Right side — 3D Phone */}
         <div className="mt-12 lg:mt-0 lg:w-[50%] flex items-center justify-center">
-          <div className="phone-3d-wrapper" style={{ perspective: "1200px" }}>
+          <div className="phone-3d-wrapper relative" style={{ perspective: "1000px" }}>
+            {/* Glow overlay behind the phone */}
+            <div
+              className="phone-glow absolute inset-0 -z-10 rounded-full"
+              style={{
+                background: "radial-gradient(circle, rgba(3,164,147,0.12) 0%, transparent 70%)",
+                width: "150%",
+                height: "150%",
+                left: "-25%",
+                top: "-25%",
+              }}
+            />
             <div
               className="phone-3d"
               style={{
-                transform: "rotateY(-8deg) rotateX(4deg)",
+                transform: "rotateY(-8deg) rotateX(4deg) scale(0.92) translateZ(0px)",
                 transformStyle: "preserve-3d",
               }}
             >
@@ -433,7 +467,7 @@ export default function AppShowcase() {
                 <div className="absolute top-2 left-1/2 z-20 h-[24px] w-[80px] -translate-x-1/2 rounded-full bg-black sm:h-[28px] sm:w-[90px]" />
 
                 {/* Screen content area */}
-                <div className="relative h-full w-full overflow-hidden bg-white pt-0">
+                <div className="phone-screen-content relative h-full w-full overflow-hidden bg-white pt-0">
                   <ActiveScreenComponent />
                 </div>
 

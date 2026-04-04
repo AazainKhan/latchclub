@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef } from "react"
-import { gsap } from "@/lib/gsap"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useGSAP } from "@gsap/react"
 
 const categories = [
@@ -32,13 +32,29 @@ export default function CategoryTicker() {
           totalWidth += (item as HTMLElement).offsetWidth
       })
 
-      gsap.to(track, {
+      const tickerTween = gsap.to(track, {
         x: -totalWidth,
         duration: 25,
         ease: "none",
         repeat: -1,
         modifiers: {
           x: gsap.utils.unitize((x: number) => x % totalWidth),
+        },
+      })
+
+      // Scroll-velocity modulation: speed up ticker when user scrolls fast
+      ScrollTrigger.create({
+        trigger: document.body,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          const velocity = Math.abs(self.getVelocity())
+          const newScale = Math.min(1 + velocity / 3000, 3)
+          gsap.to(tickerTween, {
+            timeScale: newScale,
+            duration: 0.3,
+            overwrite: true,
+          })
         },
       })
     },

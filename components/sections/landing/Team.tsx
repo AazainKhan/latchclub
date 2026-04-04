@@ -48,14 +48,15 @@ export default function Team() {
       ).matches
 
       if (isReduced) {
-        gsap.set(".team-reveal", { opacity: 1, y: 0 })
+        gsap.set(".team-header-reveal", { opacity: 1, y: 0 })
+        gsap.set(".team-card", { opacity: 1, y: 0 })
         return
       }
 
       const section = container.current
       if (!section) return
 
-      // Header reveals
+      // Header reveals (keep as entrance)
       gsap.from(".team-header-reveal", {
         y: 60,
         opacity: 0,
@@ -69,19 +70,27 @@ export default function Team() {
         },
       })
 
-      // Cards stagger in
-      gsap.from(".team-card", {
-        y: 60,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.7,
-        ease: "power3.out",
+      // Cards — scroll-scrubbed stagger
+      const teamTl = gsap.timeline({
         scrollTrigger: {
-          trigger: ".team-cards-grid",
-          start: "top 75%",
-          toggleActions: "play none none none",
+          trigger: container.current?.querySelector(".team-cards-grid") || container.current,
+          start: "top 80%",
+          end: "top 30%",
+          scrub: 0.8,
         },
       })
+
+      const teamCards = container.current?.querySelectorAll(".team-card")
+      if (teamCards) {
+        teamCards.forEach((card, i) => {
+          teamTl.fromTo(
+            card,
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.3, ease: "none" },
+            i * 0.12
+          )
+        })
+      }
     },
     { scope: container }
   )

@@ -68,14 +68,18 @@ export default function Roadmap() {
       ).matches
 
       if (isReduced) {
-        gsap.set(".rm-reveal", { opacity: 1, y: 0 })
+        gsap.set(".rm-header-reveal, .rm-phase, .rm-progress-line", {
+          opacity: 1,
+          y: 0,
+          scaleX: 1,
+        })
         return
       }
 
       const section = container.current
       if (!section) return
 
-      // Header reveals
+      // Header reveals (non-scrubbed, entrance)
       gsap.from(".rm-header-reveal", {
         y: 60,
         opacity: 0,
@@ -89,25 +93,44 @@ export default function Roadmap() {
         },
       })
 
-      // Phase cards stagger in
-      gsap.from(".rm-phase", {
-        y: 60,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.7,
-        ease: "power3.out",
+      // Scrubbed timeline: progress line fill + phase card reveals
+      const rmTl = gsap.timeline({
         scrollTrigger: {
-          trigger: ".rm-phases-grid",
-          start: "top 75%",
-          toggleActions: "play none none none",
+          trigger: container.current?.querySelector(".rm-phases-grid") || ".rm-section",
+          start: "top 70%",
+          end: "bottom 30%",
+          scrub: 1,
         },
       })
+
+      // Progress line fills left to right
+      const line = container.current?.querySelector(".rm-progress-line")
+      if (line) {
+        rmTl.fromTo(
+          line,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 1, ease: "none" }
+        )
+      }
+
+      // Each phase card reveals as line reaches it
+      const phaseEls = container.current?.querySelectorAll(".rm-phase")
+      if (phaseEls) {
+        phaseEls.forEach((phase, i) => {
+          rmTl.fromTo(
+            phase,
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.25, ease: "none" },
+            i * 0.25
+          )
+        })
+      }
     },
     { scope: container }
   )
 
   return (
-    <section ref={container} className="bg-bone py-20 md:py-28 px-6">
+    <section ref={container} className="rm-section bg-bone py-20 md:py-28 px-6">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-12 md:mb-16">
@@ -138,9 +161,15 @@ export default function Roadmap() {
 
         {/* Timeline */}
         <div className="rm-phases-grid relative">
-          {/* Connecting line (desktop only) */}
+          {/* Connecting line (desktop only) — background track */}
           <div
             className="hidden md:block absolute top-0 left-0 right-0 h-px bg-teal-300/20"
+            aria-hidden="true"
+          />
+          {/* Progress line that fills via scrub */}
+          <div
+            className="rm-progress-line hidden md:block absolute top-0 left-0 right-0 h-px bg-teal-300"
+            style={{ transformOrigin: "left", transform: "scaleX(0)" }}
             aria-hidden="true"
           />
 
