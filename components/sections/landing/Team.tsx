@@ -1,8 +1,8 @@
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
-
-const EASE = [0.23, 1, 0.32, 1] as const
+import { useRef } from "react"
+import { gsap } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 
 interface TeamMember {
   initials: string
@@ -16,118 +16,106 @@ const team: TeamMember[] = [
     initials: "NK",
     name: "Nikhil Karani",
     role: "CO-FOUNDER & CEO",
-    bio: "Vision, strategic direction, driving growth. Capital markets background spanning equity financings, M&A advisory, and go-public mandates.",
+    bio: "Vision, strategic direction, driving growth. Capital markets background.",
   },
   {
     initials: "DF",
     name: "Dwayne Fernandes",
     role: "CO-FOUNDER & COO",
-    bio: "Operations and merchant partnerships. Leading supply-side growth, merchant acquisition, and the founding partner program.",
+    bio: "Operations and merchant partnerships. Supply-side growth.",
   },
   {
     initials: "LF",
     name: "Liam Fernandes",
     role: "CO-FOUNDER & CFO",
-    bio: "Financial strategy. FP&A, risk management, and the financial architecture underpinning all three revenue streams.",
+    bio: "Financial strategy. FP&A, risk management.",
   },
   {
     initials: "AK",
     name: "Aazain Khan",
     role: "CO-FOUNDER & CTO",
-    bio: "Product and technology. App development, payment infrastructure, analytics, and the loyalty engine.",
+    bio: "Product and technology. App development, payment infrastructure.",
   },
 ]
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 32 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: EASE },
-  },
-}
-
-const cardVariantReduced = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.3 },
-  },
-}
-
-const headerStagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: EASE },
-  },
-}
-
-const fadeUpReduced = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.3 },
-  },
-}
-
 export default function Team() {
-  const prefersReduced = useReducedMotion()
-  const activeCard = prefersReduced ? cardVariantReduced : cardVariant
-  const activeFade = prefersReduced ? fadeUpReduced : fadeUp
+  const container = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      const isReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+
+      if (isReduced) {
+        gsap.set(".team-reveal", { opacity: 1, y: 0 })
+        return
+      }
+
+      const section = container.current
+      if (!section) return
+
+      // Header reveals
+      gsap.from(".team-header-reveal", {
+        y: 60,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 75%",
+          toggleActions: "play none none none",
+        },
+      })
+
+      // Cards stagger in
+      gsap.from(".team-card", {
+        y: 60,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".team-cards-grid",
+          start: "top 75%",
+          toggleActions: "play none none none",
+        },
+      })
+    },
+    { scope: container }
+  )
 
   return (
-    <section className="bg-carbon text-white py-20 md:py-28 px-6">
+    <section ref={container} className="bg-carbon text-white py-20 md:py-28 px-6">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <motion.div
-          className="mb-12 md:mb-16"
-          variants={prefersReduced ? { hidden: {}, visible: {} } : headerStagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-        >
-          <motion.p
-            className="font-mono text-xs uppercase text-teal-300 mb-4"
-            style={{ letterSpacing: "0.1em", fontSize: "11px" }}
-            variants={activeFade}
+        <div className="mb-12 md:mb-16">
+          <p
+            className="team-header-reveal font-mono text-[11px] uppercase text-teal-300 mb-4"
+            style={{ letterSpacing: "0.1em" }}
           >
             Management Team
-          </motion.p>
-          <motion.h2
-            className="text-3xl md:text-5xl font-medium text-white"
-            style={{ letterSpacing: "-0.03em", lineHeight: 1.1 }}
-            variants={activeFade}
+          </p>
+          <h2
+            className="team-header-reveal font-medium text-white"
+            style={{
+              fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+            }}
           >
             Built to{" "}
             <span className="italic text-teal-300">execute.</span>
-          </motion.h2>
-        </motion.div>
+          </h2>
+        </div>
 
         {/* Cards */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0.5"
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
+        <div className="team-cards-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px">
           {team.map((member) => (
-            <motion.div
+            <div
               key={member.initials}
-              variants={activeCard}
-              className="group relative bg-[#1E2F3A] p-8 overflow-hidden"
+              className="team-card group relative bg-[#1E2F3A] p-8 overflow-hidden"
             >
               {/* Hover border — teal top line scales in */}
               <span
@@ -136,9 +124,7 @@ export default function Team() {
               />
 
               {/* Avatar */}
-              <div
-                className="w-16 h-16 rounded-full bg-[#243641] border-2 border-teal-300/30 flex items-center justify-center mb-6"
-              >
+              <div className="w-14 h-14 rounded-full bg-[#243641] border-2 border-teal-300/30 flex items-center justify-center mb-6">
                 <span
                   className="font-mono text-sm text-teal-300"
                   style={{ letterSpacing: "0.05em" }}
@@ -149,7 +135,7 @@ export default function Team() {
 
               {/* Name */}
               <p
-                className="text-lg font-medium text-white mb-1"
+                className="text-base font-medium text-white mb-1"
                 style={{ letterSpacing: "-0.02em" }}
               >
                 {member.name}
@@ -165,14 +151,14 @@ export default function Team() {
 
               {/* Bio */}
               <p
-                className="text-sm text-neutral-400 leading-relaxed"
+                className="text-sm text-neutral-400"
                 style={{ lineHeight: 1.7 }}
               >
                 {member.bio}
               </p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

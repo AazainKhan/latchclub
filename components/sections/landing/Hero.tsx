@@ -240,9 +240,9 @@ export default function Hero() {
           </div>
 
           {/* CENTER CONTENT */}
-          <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 py-16 md:py-0">
+          <div className="hero-content flex-1 flex flex-col justify-center items-center text-center px-6 pt-24 pb-16 md:pt-28 md:pb-0">
             {/* Heading */}
-            <h1 className="hero-heading font-medium tracking-[-0.03em] max-w-3xl" style={{ fontSize: "clamp(2.75rem, 6vw, 5rem)", lineHeight: 1.0 }}>
+            <h1 className="hero-heading font-medium tracking-[-0.03em] max-w-2xl" style={{ fontSize: "clamp(2.25rem, 5vw, 3.75rem)", lineHeight: 1.05 }}>
               <span className="text-white">The membership that </span>
               <em className="text-teal-300 italic">pays</em>
               <br />

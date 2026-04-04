@@ -1,33 +1,8 @@
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
-
-const EASE = [0.23, 1, 0.32, 1] as const
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-const blurUp = {
-  hidden: { opacity: 0, filter: "blur(6px)", y: 80 },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    y: 0,
-    transition: { duration: 0.7, ease: EASE },
-  },
-}
-
-const blurUpReduced = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
-}
-
-const sectionHeader = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
+import { useRef } from "react"
+import { gsap } from "@/lib/gsap"
+import { useGSAP } from "@gsap/react"
 
 interface RoadmapPhase {
   quarter: string
@@ -53,10 +28,10 @@ const phases: RoadmapPhase[] = [
     title: "Beta Launch",
     active: false,
     items: [
-      "50+ founding merchants live",
-      "Beta with 14-day free trials",
-      "Gather user feedback",
-      "Iterate product",
+      "50+ founding merchants",
+      "Beta with free trials",
+      "User feedback",
+      "Iterate",
     ],
   },
   {
@@ -66,8 +41,8 @@ const phases: RoadmapPhase[] = [
     items: [
       "Paid subscriptions live",
       "2,500 subscribers",
-      "Toronto neighbourhood coverage",
-      "Loyalty engine live",
+      "Toronto coverage",
+      "Loyalty engine",
     ],
   },
   {
@@ -77,62 +52,92 @@ const phases: RoadmapPhase[] = [
     items: [
       "5,000+ subscribers",
       "200+ merchants",
-      "Expand to Canada-wide",
-      "Phase 2 verticals live",
+      "Canada-wide",
+      "Phase 2 verticals",
     ],
   },
 ]
 
 export default function Roadmap() {
-  const prefersReduced = useReducedMotion()
-  const itemVariant = prefersReduced ? blurUpReduced : blurUp
-  const containerVariant = prefersReduced ? { hidden: {}, visible: {} } : container
-  const headerVariant = prefersReduced ? { hidden: {}, visible: {} } : sectionHeader
+  const container = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      const isReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+
+      if (isReduced) {
+        gsap.set(".rm-reveal", { opacity: 1, y: 0 })
+        return
+      }
+
+      const section = container.current
+      if (!section) return
+
+      // Header reveals
+      gsap.from(".rm-header-reveal", {
+        y: 60,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 75%",
+          toggleActions: "play none none none",
+        },
+      })
+
+      // Phase cards stagger in
+      gsap.from(".rm-phase", {
+        y: 60,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".rm-phases-grid",
+          start: "top 75%",
+          toggleActions: "play none none none",
+        },
+      })
+    },
+    { scope: container }
+  )
 
   return (
-    <section className="bg-carbon py-20 md:py-28 px-6">
+    <section ref={container} className="bg-bone py-20 md:py-28 px-6">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
-        <motion.div
-          className="mb-12 md:mb-16"
-          variants={headerVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-        >
-          <motion.div
-            className="flex items-center gap-2 mb-4"
-            variants={itemVariant}
-          >
+        <div className="mb-12 md:mb-16">
+          <div className="rm-header-reveal flex items-center gap-2 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-teal-300" />
             <p
-              className="text-xs uppercase text-neutral-400"
-              style={{ letterSpacing: "0.1em", fontSize: "11px" }}
+              className="text-[11px] uppercase text-neutral-300"
+              style={{ letterSpacing: "0.1em" }}
             >
               The Roadmap
             </p>
-          </motion.div>
-          <motion.h2
-            className="text-3xl md:text-5xl font-medium text-white"
-            style={{ letterSpacing: "-0.03em", lineHeight: 1.1 }}
-            variants={itemVariant}
+          </div>
+          <h2
+            className="rm-header-reveal font-medium text-carbon"
+            style={{
+              fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+            }}
           >
             Toronto first.{" "}
-            <em className="not-italic text-teal-300" style={{ fontStyle: "italic" }}>
+            <span className="italic" style={{ color: "#03A493" }}>
               Dominate,
-            </em>{" "}
+            </span>{" "}
             then expand.
-          </motion.h2>
-        </motion.div>
+          </h2>
+        </div>
 
         {/* Timeline */}
-        <motion.div
-          className="relative"
-          variants={containerVariant}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
+        <div className="rm-phases-grid relative">
           {/* Connecting line (desktop only) */}
           <div
             className="hidden md:block absolute top-0 left-0 right-0 h-px bg-teal-300/20"
@@ -141,12 +146,15 @@ export default function Roadmap() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-px">
             {phases.map((phase) => (
-              <motion.div
+              <div
                 key={phase.quarter}
-                variants={itemVariant}
-                className={`bg-[#1E2F3A] p-6 md:p-8 relative ${
-                  phase.active ? "border-l-2 border-teal-300" : "border-l-2 border-transparent"
-                }`}
+                className="rm-phase bg-white p-6 md:p-8 relative rounded-xl"
+                style={{
+                  border: "0.5px solid #D2DBDE",
+                  borderLeft: phase.active
+                    ? "2px solid #03A493"
+                    : "0.5px solid #D2DBDE",
+                }}
               >
                 {/* Active indicator dot on the connecting line */}
                 {phase.active && (
@@ -158,15 +166,15 @@ export default function Roadmap() {
 
                 {/* Quarter */}
                 <p
-                  className="text-teal-300 font-mono text-xs mb-3"
-                  style={{ letterSpacing: "0.08em" }}
+                  className="font-mono text-xs mb-3"
+                  style={{ letterSpacing: "0.08em", color: "#03A493" }}
                 >
                   {phase.quarter}
                 </p>
 
                 {/* Title */}
                 <h3
-                  className="font-medium text-white text-lg mb-4"
+                  className="font-medium text-carbon text-lg mb-4"
                   style={{ letterSpacing: "-0.02em" }}
                 >
                   {phase.title}
@@ -190,16 +198,16 @@ export default function Roadmap() {
                 {/* Active badge */}
                 {phase.active && (
                   <span
-                    className="inline-block mt-6 text-xs uppercase bg-teal-300/10 text-teal-300 px-2.5 py-1 rounded-full"
-                    style={{ letterSpacing: "0.08em", fontSize: "10px" }}
+                    className="inline-block mt-6 text-[10px] uppercase bg-teal-300/10 text-teal-300 px-2.5 py-1 rounded-full"
+                    style={{ letterSpacing: "0.08em" }}
                   >
                     Active
                   </span>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
