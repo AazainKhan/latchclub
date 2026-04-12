@@ -1,11 +1,27 @@
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import Hero from "@/components/sections/Hero";
+import { AppWalkthrough } from "@/components/sections/AppWalkthrough";
+import { Features } from "@/components/sections/Features";
+import { Pricing } from "@/components/sections/Pricing";
+import { Industries } from "@/components/sections/Industries";
+import { FAQ } from "@/components/sections/FAQ";
+import { WaitlistCTA } from "@/components/sections/WaitlistCTA";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-carbon text-bone">
-      <div className="flex items-center justify-center min-h-screen">
-        <h1 className="text-4xl font-normal tracking-tight">
-          <span className="text-teal-400">latch</span>club
-        </h1>
-      </div>
-    </main>
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <AppWalkthrough />
+        <Features />
+        <Pricing />
+        <Industries />
+        <FAQ />
+        <WaitlistCTA />
+      </main>
+      <Footer />
+    </>
   );
 }
