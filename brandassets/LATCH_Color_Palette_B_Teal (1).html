@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LATCH — Color Palette B · Teal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f2f2f0;
+    font-family: 'DM Sans', sans-serif;
+    padding: 60px 40px 80px;
+    color: #0f2028;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    border-bottom: 1px solid #d4d8da;
+    padding-bottom: 24px;
+  }
+  .header-left h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .header-left p { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #7a8e96; margin-top: 4px; font-weight: 500; }
+  .header-right { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #aab4b8; }
+  .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #7a8e96; font-weight: 600; margin-bottom: 16px; }
+  .section-desc { font-size: 13px; color: #5c7078; margin-bottom: 24px; line-height: 1.5; max-width: 620px; }
+  .divider { height: 1px; background: #d4d8da; margin: 48px 0; }
+
+  /* PRIMARY */
+  .primary-row {
+    display: flex; gap: 0; margin-bottom: 48px;
+    border-radius: 6px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  }
+  .primary-swatch {
+    flex: 1; height: 180px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px 20px; position: relative;
+  }
+  .primary-swatch .swatch-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .primary-swatch .swatch-hex { font-size: 11px; font-weight: 400; opacity: 0.6; letter-spacing: 0.5px; }
+  .primary-swatch .swatch-role {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    opacity: 0.4; position: absolute; top: 14px; left: 20px; font-weight: 600;
+  }
+
+  /* EXTENDED */
+  .ext-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 48px; }
+  .ext-swatch {
+    height: 90px; border-radius: 4px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 10px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .ext-swatch .s-label { font-size: 10px; font-weight: 600; margin-bottom: 1px; }
+  .ext-swatch .s-hex { font-size: 9px; opacity: 0.5; letter-spacing: 0.3px; }
+
+  /* GRADIENTS */
+  .grad-row { display: flex; gap: 16px; margin-bottom: 48px; }
+  .grad-swatch {
+    flex: 1; height: 80px; border-radius: 5px;
+    display: flex; align-items: flex-end; padding: 10px 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .grad-swatch .g-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; }
+
+  /* TYPE */
+  .type-row { display: flex; gap: 32px; margin-bottom: 48px; }
+  .type-card {
+    flex: 1; border-radius: 6px; padding: 36px 32px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  .type-card .t-headline { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .type-card .t-sub { font-size: 13px; font-weight: 400; opacity: 0.5; }
+
+  /* USAGE */
+  .usage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+  .usage-card {
+    background: #fff; border-radius: 6px; padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03); border: 1px solid #e4e8ea;
+  }
+  .usage-card .u-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .usage-card .u-colors { display: flex; gap: 8px; margin-bottom: 14px; }
+  .usage-card .u-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.04); }
+  .usage-card .u-text { font-size: 12px; color: #5c7078; line-height: 1.5; }
+
+  /* RATIO */
+  .ratio-section { margin-bottom: 48px; }
+  .ratio-bar {
+    display: flex; height: 40px; border-radius: 4px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 10px;
+  }
+  .ratio-bar div { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .ratio-legend { display: flex; gap: 24px; font-size: 10px; color: #7a8e96; letter-spacing: 0.5px; }
+
+  .footer { text-align: center; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #aab4b8; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>LATCH — Color System B</h1>
+    <p>Brand Palette · Teal & Carbon</p>
+  </div>
+  <div class="header-right">Option B · March 2026</div>
+</div>
+
+<!-- ═══ PRIMARY ═══ -->
+<div class="section-label">Primary Palette</div>
+<div class="section-desc">
+  Anchored on #03A493 — a confident, approachable teal. Carbon provides weight without going full black. Mist is the breathing room. Bone is the canvas.
+</div>
+<div class="primary-row">
+  <div class="primary-swatch" style="background:#03A493; color:#f0faf8;">
+    <span class="swatch-role">Brand</span>
+    <span class="swatch-name">Teal</span>
+    <span class="swatch-hex">#03A493</span>
+  </div>
+  <div class="primary-swatch" style="background:#162028; color:#b8ccd4;">
+    <span class="swatch-role">Text</span>
+    <span class="swatch-name">Carbon</span>
+    <span class="swatch-hex">#162028</span>
+  </div>
+  <div class="primary-swatch" style="background:#D2DBDE; color:#162028;">
+    <span class="swatch-role">Neutral</span>
+    <span class="swatch-name">Mist</span>
+    <span class="swatch-hex">#D2DBDE</span>
+  </div>
+  <div class="primary-swatch" style="background:#F5F7F7; color:#162028; border-right:1px solid #e4e8ea;">
+    <span class="swatch-role">Canvas</span>
+    <span class="swatch-name">Bone</span>
+    <span class="swatch-hex">#F5F7F7</span>
+  </div>
+</div>
+
+<!-- ═══ TEAL SCALE ═══ -->
+<div class="section-label">Teal Scale — Light to Deep</div>
+<div class="ext-grid">
+  <div class="ext-swatch" style="background:#E6F5F3; color:#0a5048;">
+    <span class="s-label">Teal 50</span>
+    <span class="s-hex">#E6F5F3</span>
+  </div>
+  <div class="ext-swatch" style="background:#B0DFD8; color:#08443e;">
+    <span class="s-label">Teal 100</span>
+    <span class="s-hex">#B0DFD8</span>
+  </div>
+  <div class="ext-swatch" style="background:#5CC4B6; color:#063832;">
+    <span class="s-label">Teal 200</span>
+    <span class="s-hex">#5CC4B6</span>
+  </div>
+  <div class="ext-swatch" style="background:#03A493; color:#f0faf8;">
+    <span class="s-label">Teal 300</span>
+    <span class="s-hex">#03A493</span>
+  </div>
+  <div class="ext-swatch" style="background:#028476; color:#e0f4f0;">
+    <span class="s-label">Teal 400</span>
+    <span class="s-hex">#028476</span>
+  </div>
+  <div class="ext-swatch" style="background:#016458; color:#c0e8e2;">
+    <span class="s-label">Teal 500</span>
+    <span class="s-hex">#016458</span>
+  </div>
+</div>
+
+<!-- ═══ NEUTRAL SCALE ═══ -->
+<div class="section-label">Neutral Scale — Light to Deep</div>
+<div class="ext-grid">
+  <div class="ext-swatch" style="background:#EEF0F1; color:#34444c;">
+    <span class="s-label">Neutral 50</span>
+    <span class="s-hex">#EEF0F1</span>
+  </div>
+  <div class="ext-swatch" style="background:#D2DBDE; color:#243038;">
+    <span class="s-label">Neutral 100</span>
+    <span class="s-hex">#D2DBDE</span>
+  </div>
+  <div class="ext-swatch" style="background:#A8B6BC; color:#162028;">
+    <span class="s-label">Neutral 200</span>
+    <span class="s-hex">#A8B6BC</span>
+  </div>
+  <div class="ext-swatch" style="background:#7A8E96; color:#0e181e;">
+    <span class="s-label">Neutral 300</span>
+    <span class="s-hex">#7A8E96</span>
+  </div>
+  <div class="ext-swatch" style="background:#4A5C66; color:#dce4e8;">
+    <span class="s-label">Neutral 400</span>
+    <span class="s-hex">#4A5C66</span>
+  </div>
+  <div class="ext-swatch" style="background:#2A3840; color:#b8c8d0;">
+    <span class="s-label">Neutral 500</span>
+    <span class="s-hex">#2A3840</span>
+  </div>
+</div>
+
+<!-- ═══ ACCENT / SEMANTIC ═══ -->
+<div class="section-label">Accent & Semantic</div>
+<div class="section-desc">
+  Accent is a deeper teal for buttons and CTAs — distinguishable from the brand tone. Semantic colors stay muted to not compete with the teal identity.
+</div>
+<div class="ext-grid" style="grid-template-columns: repeat(4, 1fr);">
+  <div class="ext-swatch" style="background:#028476; color:#e8f6f2; height:100px;">
+    <span class="s-label">CTA</span>
+    <span class="s-hex">#028476</span>
+  </div>
+  <div class="ext-swatch" style="background:#3DA87C; color:#f0f8f4; height:100px;">
+    <span class="s-label">Success</span>
+    <span class="s-hex">#3DA87C</span>
+  </div>
+  <div class="ext-swatch" style="background:#C8944E; color:#fcf6ee; height:100px;">
+    <span class="s-label">Warning</span>
+    <span class="s-hex">#C8944E</span>
+  </div>
+  <div class="ext-swatch" style="background:#BF5454; color:#fcf0f0; height:100px;">
+    <span class="s-label">Error</span>
+    <span class="s-hex">#BF5454</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ GRADIENTS ═══ -->
+<div class="section-label">Approved Gradients</div>
+<div class="grad-row">
+  <div class="grad-swatch" style="background: linear-gradient(105deg, #F5F7F7 0%, #E6F5F3 100%); color:#0a5048;">
+    <span class="g-label">Bone → Teal 50</span>
+  </div>
+  <div class="grad-swatch" style="background: linear-gradient(105deg, #E6F5F3 0%, #D2DBDE 100%); color:#162028;">
+    <span class="g-label">Teal 50 → Mist</span>
+  </div>
+  <div class="grad-swatch" style="background: linear-gradient(110deg, #162028 0%, #0a3832 100%); color:#5CC4B6;">
+    <span class="g-label">Carbon → Deep Teal</span>
+  </div>
+  <div class="grad-swatch" style="background: linear-gradient(105deg, #03A493 0%, #028476 100%); color:#e8f8f4;">
+    <span class="g-label">Teal 300 → 400</span>
+  </div>
+  <div class="grad-swatch" style="background: linear-gradient(110deg, #0e1418 0%, #162028 100%); color:#A8B6BC;">
+    <span class="g-label">Void → Carbon</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ TYPE PREVIEW ═══ -->
+<div class="section-label">Type on Background</div>
+<div class="type-row">
+  <div class="type-card" style="background:#F5F7F7; color:#162028; border:1px solid #dce0e2;">
+    <span class="t-headline">Memberships Compound.</span>
+    <span class="t-sub">Carbon on Bone — primary</span>
+  </div>
+  <div class="type-card" style="background:#162028; color:#03A493;">
+    <span class="t-headline">Memberships Compound.</span>
+    <span class="t-sub">Teal on Carbon — dark mode hero</span>
+  </div>
+</div>
+<div class="type-row">
+  <div class="type-card" style="background:linear-gradient(105deg, #E6F5F3, #D2DBDE); color:#162028;">
+    <span class="t-headline">Memberships Compound.</span>
+    <span class="t-sub">Carbon on gradient — banner</span>
+  </div>
+  <div class="type-card" style="background:#03A493; color:#F5F7F7;">
+    <span class="t-headline">Memberships Compound.</span>
+    <span class="t-sub">Bone on Teal — CTA blocks</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ RATIO ═══ -->
+<div class="section-label">Usage Ratio — 60 / 30 / 10</div>
+<div class="ratio-section">
+  <div class="ratio-bar">
+    <div style="width:60%; background:#F5F7F7; color:#4A5C66; border-right:1px solid #dce0e2;">60% Canvas</div>
+    <div style="width:30%; background:#D2DBDE; color:#2A3840;">30% Mist</div>
+    <div style="width:10%; background:#03A493; color:#f0faf8;">10%</div>
+  </div>
+  <div class="ratio-legend">
+    <span>Bone — backgrounds, whitespace, cards</span>
+    <span>Mist — borders, fills, secondary surfaces</span>
+    <span>Teal — CTAs, highlights, brand moments</span>
+  </div>
+</div>
+
+<!-- ═══ CONTEXT ═══ -->
+<div class="section-label">Application Guide</div>
+<div class="usage-grid">
+  <div class="usage-card">
+    <div class="u-title">App UI</div>
+    <div class="u-colors">
+      <div class="u-dot" style="background:#F5F7F7;"></div>
+      <div class="u-dot" style="background:#D2DBDE;"></div>
+      <div class="u-dot" style="background:#162028;"></div>
+      <div class="u-dot" style="background:#03A493;"></div>
+    </div>
+    <div class="u-text">Bone canvas, Mist for cards and dividers, Carbon text, Teal for buttons and active states only.</div>
+  </div>
+  <div class="usage-card">
+    <div class="u-title">Marketing / Social</div>
+    <div class="u-colors">
+      <div class="u-dot" style="background:#E6F5F3;"></div>
+      <div class="u-dot" style="background:#03A493;"></div>
+      <div class="u-dot" style="background:#162028;"></div>
+    </div>
+    <div class="u-text">Teal 50 backgrounds. Brand teal for accent lines and icons. Carbon for headlines. Let the teal breathe — don't flood it.</div>
+  </div>
+  <div class="usage-card">
+    <div class="u-title">Investor / Print</div>
+    <div class="u-colors">
+      <div class="u-dot" style="background:#162028;"></div>
+      <div class="u-dot" style="background:#03A493;"></div>
+      <div class="u-dot" style="background:#F5F7F7;"></div>
+    </div>
+    <div class="u-text">Carbon backgrounds for authority. Teal for accent bars and metrics. Bone for data sections and contrast panels.</div>
+  </div>
+</div>
+
+<div class="footer">LATCH · Brand Identity Option B · 2026</div>
+
+</body>
+</html>
