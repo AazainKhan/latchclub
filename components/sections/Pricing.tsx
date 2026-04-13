@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 const plans = [
   {
     tier: "Student / Senior",
-    price: "$5.99",
-    annual: "$49.99/yr · Save 30%",
+    price: "$50",
+    period: "/yr",
+    trial: "Free 30-day trial",
     description: "Full access, discounted rate. ID verified.",
     features: [
       "Full merchant directory",
@@ -23,8 +24,9 @@ const plans = [
   },
   {
     tier: "General",
-    price: "$9.99",
-    annual: "$89.99/yr · Save 25%",
+    price: "$90",
+    period: "/yr",
+    trial: "Free 30-day trial",
     description: "For everyday explorers across the city.",
     features: [
       "Full merchant directory",
@@ -37,8 +39,9 @@ const plans = [
   },
   {
     tier: "Premium",
-    price: "$14.99",
-    annual: "$129.99/yr · Save 28%",
+    price: "$130",
+    period: "/yr",
+    trial: "Free 30-day trial",
     description: "Power users who want it all, first.",
     badge: "Most Popular",
     features: [
@@ -52,12 +55,13 @@ const plans = [
   },
   {
     tier: "Traveler",
-    price: "$49.99",
-    annual: "No annual — flexible",
-    description: "For tourists and visitors. High ARPU, no lock-in.",
+    price: "$20",
+    period: "/mo",
+    trial: "Free 3-day trial",
+    description: "For tourists and visitors.",
     features: [
       "Location-based discovery",
-      "Cross-city access",
+      "Local equivalent offers",
       "Curated local guides",
       "No commitment required",
     ],
@@ -69,56 +73,13 @@ const plans = [
 export function Pricing() {
   const sectionRef = useRef<HTMLElement>(null);
 
+  // No GSAP entrance animation for pricing cards — the hover micro-animations
+  // are the main interaction. Entrance animations caused cards to disappear
+  // when navigating via anchor links due to GSAP timing conflicts with
+  // ScrollTrigger pinned sections.
   useGSAP(
     () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // Heading entrance
-        gsap.fromTo(
-          ".pricing-label",
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1, y: 0, duration: 0.5, ease: "power2.out",
-            scrollTrigger: { trigger: ".pricing-label", start: "top 88%", once: true },
-          }
-        );
-
-        gsap.fromTo(
-          ".pricing-heading",
-          { opacity: 0, y: 25 },
-          {
-            opacity: 1, y: 0, duration: 0.6, ease: "power2.out",
-            scrollTrigger: { trigger: ".pricing-heading", start: "top 88%", once: true },
-          }
-        );
-
-        gsap.fromTo(
-          ".pricing-sub",
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1, y: 0, duration: 0.5, ease: "power2.out",
-            scrollTrigger: { trigger: ".pricing-sub", start: "top 90%", once: true },
-          }
-        );
-
-        // Staggered card reveal
-        gsap.fromTo(
-          ".pricing-card",
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            stagger: 0.12,
-            duration: 0.7,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: ".pricing-grid",
-              start: "top 82%",
-              once: true,
-            },
-          }
-        );
-      });
+      // Intentionally empty — kept for potential future use
     },
     { scope: sectionRef }
   );
@@ -176,7 +137,7 @@ export function Pricing() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="py-16 md:py-24 bg-bone"
+      className="py-16 md:py-24 bg-background"
     >
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Header */}
@@ -184,12 +145,11 @@ export function Pricing() {
           <p className="pricing-label text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">
             Consumer Pricing
           </p>
-          <h2 className="pricing-heading text-3xl md:text-5xl font-normal tracking-tight text-carbon">
+          <h2 className="pricing-heading text-3xl md:text-5xl font-heading font-medium tracking-tight text-foreground">
             Plans for every <em className="italic text-teal-400">lifestyle.</em>
           </h2>
-          <p className="pricing-sub text-carbon/50 mt-4 max-w-2xl mx-auto text-base" style={{ lineHeight: 1.7 }}>
-            Monthly subscribers get 1 coupon per merchant per month. Annual
-            subscribers get all 3 upfront.
+          <p className="pricing-sub text-muted-foreground mt-4 max-w-2xl mx-auto text-base" style={{ lineHeight: 1.7 }}>
+            Annual subscribers get 3 coupon per merchant per year
           </p>
         </div>
 
@@ -205,7 +165,7 @@ export function Pricing() {
                 "pricing-card relative rounded-2xl border p-6 md:p-7 flex flex-col cursor-default",
                 plan.featured
                   ? "bg-carbon text-bone border-carbon shadow-xl shadow-carbon/20"
-                  : "bg-white text-carbon border-carbon/10 shadow-sm"
+                  : "bg-card text-foreground border-border shadow-sm"
               )}
               style={{ willChange: "transform, box-shadow" }}
             >
@@ -236,28 +196,28 @@ export function Pricing() {
                 <span
                   className={cn(
                     "text-base ml-0.5",
-                    plan.featured ? "text-bone/60" : "text-carbon/40"
+                    plan.featured ? "text-bone/60" : "text-muted-foreground"
                   )}
                 >
-                  /mo
+                  {plan.period}
                 </span>
               </div>
 
-              {/* Annual pricing */}
+              {/* Trial badge */}
               <p
                 className={cn(
                   "text-sm mb-4",
-                  plan.featured ? "text-bone/50" : "text-carbon/40"
+                  plan.featured ? "text-teal-300" : "text-teal-400"
                 )}
               >
-                {plan.annual}
+                {plan.trial}
               </p>
 
               {/* Description */}
               <p
                 className={cn(
                   "text-sm leading-relaxed mb-6",
-                  plan.featured ? "text-bone/70" : "text-carbon/60"
+                  plan.featured ? "text-bone/70" : "text-muted-foreground"
                 )}
               >
                 {plan.description}
@@ -276,7 +236,7 @@ export function Pricing() {
                     <span
                       className={cn(
                         "text-sm",
-                        plan.featured ? "text-bone/80" : "text-carbon/70"
+                        plan.featured ? "text-bone/80" : "text-muted-foreground"
                       )}
                     >
                       {feature}
@@ -290,8 +250,8 @@ export function Pricing() {
                 className={cn(
                   "w-full rounded-xl h-11 font-normal text-sm",
                   plan.featured
-                    ? "bg-teal-400 hover:bg-teal-300 text-carbon"
-                    : "bg-transparent border border-carbon/15 text-carbon hover:bg-carbon/5"
+                    ? "bg-teal-400 hover:bg-teal-300 text-foreground"
+                    : "bg-transparent border border-border text-foreground hover:bg-muted"
                 )}
               >
                 {plan.cta}

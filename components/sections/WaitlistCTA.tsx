@@ -73,7 +73,7 @@ export function WaitlistCTA() {
       className="py-20 md:py-28 bg-carbon"
     >
       <div className="max-w-2xl mx-auto px-4 md:px-6 text-center">
-        <h2 className="waitlist-heading text-3xl md:text-5xl font-normal tracking-tight text-bone">
+        <h2 className="waitlist-heading text-3xl md:text-5xl font-heading font-medium tracking-tight text-bone">
           Ready to <em className="italic text-teal-300">unlock</em> your city?
         </h2>
 

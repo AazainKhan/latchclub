@@ -1,23 +1,27 @@
 import Link from "next/link";
+import { Instagram, Linkedin } from "lucide-react";
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Industries", href: "#industries" },
-    { label: "FAQ", href: "#faq" },
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Industries", href: "/#industries" },
+    { label: "FAQ", href: "/#faq" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Press", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Investors", href: "/investors" },
+    { label: "Contact", href: "/contact" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "#" },
     { label: "Terms of Service", href: "#" },
   ],
 };
+
+const socials = [
+  { icon: Instagram, href: "https://www.instagram.com/latch.club?igsh=cGpnd3RqczNyODU2", label: "Instagram" },
+  { icon: Linkedin, href: "https://linkedin.com/company/latchclub/", label: "LinkedIn" },
+];
 
 export function Footer() {
   return (
@@ -34,10 +38,28 @@ export function Footer() {
                 club
               </span>
             </Link>
-            <p className="text-sm text-bone/50 leading-relaxed max-w-xs">
+            <p className="text-sm text-bone/50 leading-relaxed max-w-xs mb-5">
               The membership that pays for itself. Premier deals on dining,
               wellness, fitness, and lifestyle experiences.
             </p>
+            {/* Social icons */}
+            <div className="flex items-center gap-3">
+              {socials.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-bone/40 hover:text-teal-400 hover:border-teal-400/30 transition-colors"
+                    aria-label={social.label}
+                  >
+                    <Icon size={15} />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
           {/* Link Columns */}
@@ -67,7 +89,6 @@ export function Footer() {
           <p className="text-xs text-bone/40">
             &copy; {new Date().getFullYear()} LatchClub. All rights reserved.
           </p>
-          <p className="text-xs text-bone/40">Designed in Canada</p>
         </div>
       </div>
     </footer>

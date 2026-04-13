@@ -23,6 +23,7 @@
   /* Font families */
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-heading: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -108,6 +109,18 @@ html {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Aurora background color variables — must be outside @layer to avoid specificity issues */
+:root {
+  --white: #fff;
+  --black: #000;
+  --transparent: transparent;
+  --blue-300: #80CFC5;
+  --blue-400: #4DBCAE;
+  --blue-500: #03A493;
+  --indigo-300: #B3E2DC;
+  --violet-200: #E6F5F3;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -118,4 +131,18 @@ html {
   html {
     @apply font-sans;
   }
+}
+
+/* Aurora animation */
+@keyframes aurora {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
+}
+
+@theme {
+  --animate-aurora: aurora 60s linear infinite;
 }

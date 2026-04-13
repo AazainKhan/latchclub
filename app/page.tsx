@@ -7,10 +7,12 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Industries } from "@/components/sections/Industries";
 import { FAQ } from "@/components/sections/FAQ";
 import { WaitlistCTA } from "@/components/sections/WaitlistCTA";
+import { HashScrollHandler } from "@/components/shared/HashScrollHandler";
 
 export default function Home() {
   return (
     <>
+      <HashScrollHandler />
       <Navbar />
       <main>
         <Hero />

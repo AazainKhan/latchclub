@@ -14,7 +14,7 @@ const faqs = [
   {
     question: "What is LatchClub?",
     answer:
-      "LatchClub is a premium membership that gives you access to buy-one-get-one-free and exclusive deals at the best dining, wellness, fitness, and lifestyle spots across your city.",
+      "LatchClub is a premium membership that gives you access to exclusive deals at the best dining, wellness, fitness, and lifestyle spots across your city.",
   },
   {
     question: "How does the membership work?",
@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "Which cities are available?",
     answer:
-      "We're launching first in Toronto, with plans to expand to Vancouver, Montreal, Calgary, and other major Canadian cities. Join the waitlist to be first in your city.",
+      "We're launching first in Toronto, with plans to expand across North America. Join the waitlist to be the first in your city.",
   },
   {
     question: "Can I cancel anytime?",
@@ -34,12 +34,12 @@ const faqs = [
   {
     question: "How much money can I save?",
     answer:
-      "Most members save 10–20x their membership cost within the first month. With BOGO deals at premium restaurants and experiences, just one or two uses typically pays for itself.",
+      "Most members earn up to 5-10x their membership value within the first year. With exclusive deals at premium restaurants and experiences, just three or four uses typically makes the memebership pay for itself.",
   },
   {
     question: "Is there a free trial?",
     answer:
-      "We offer a 7-day free trial on all plans so you can explore the full range of deals before committing. No credit card required to start.",
+      "We offer a 30-day free trial for our student/senior, general, and premium plans so you can explore the full range of deals before committing.",
   },
   {
     question: "What types of deals are offered?",
@@ -49,7 +49,7 @@ const faqs = [
   {
     question: "How is LatchClub different from coupon apps?",
     answer:
-      "LatchClub offers curated BOGO deals at premium merchants — not generic discount codes. Every partner is hand-picked for quality, and redemption is instant through the app with no clipping or codes.",
+      "LatchClub offers curated deals at premium merchants — not generic discount codes, all on one platform. Every redemption is instant through the app with no clipping or codes.",
   },
 ];
 
@@ -95,14 +95,14 @@ export function FAQ() {
     <section
       ref={sectionRef}
       id="faq"
-      className="py-12 md:py-16 bg-bone"
+      className="py-12 md:py-16 bg-background"
     >
       <div className="max-w-2xl mx-auto px-4 md:px-6">
         <div className="text-center mb-8 md:mb-10">
           <p className="faq-label text-xs uppercase tracking-[0.2em] text-teal-400 mb-2">
             Support
           </p>
-          <h2 className="faq-heading text-2xl md:text-3xl font-normal tracking-tight text-carbon">
+          <h2 className="faq-heading text-2xl md:text-3xl font-heading font-medium tracking-tight text-foreground">
             Frequently Asked Questions
           </h2>
         </div>
@@ -112,12 +112,12 @@ export function FAQ() {
             <AccordionItem
               key={i}
               value={i}
-              className="faq-item border border-carbon/10 rounded-lg px-5 bg-white data-[open]:shadow-sm"
+              className="faq-item border border-border rounded-lg px-5 bg-card data-[open]:shadow-sm"
             >
-              <AccordionTrigger className="text-left text-sm font-normal text-carbon hover:text-teal-400 py-4">
+              <AccordionTrigger className="text-left text-sm font-normal text-foreground hover:text-teal-400 py-4">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-carbon/60 text-sm leading-relaxed pb-4">
+              <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

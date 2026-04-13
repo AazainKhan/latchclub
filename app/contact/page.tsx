@@ -27,17 +27,14 @@ export default function ContactPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-carbon min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
+      <main className="bg-background min-h-screen pt-24 md:pt-32 pb-16 md:pb-24">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           {/* Header */}
           <div className="max-w-2xl mb-14 md:mb-20">
-            <p className="text-xs uppercase tracking-[0.2em] text-teal-300 mb-3">
-              Contact
-            </p>
-            <h1 className="text-4xl md:text-5xl font-normal tracking-tight text-bone mb-5">
+            <h1 className="text-4xl md:text-5xl font-normal tracking-tight text-foreground mb-5">
               Get in touch
             </h1>
-            <p className="text-bone/50 text-base md:text-lg leading-relaxed">
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
               Have a question about LatchClub, want to partner with us, or just
               want to say hello? We&apos;d love to hear from you.
             </p>
@@ -48,12 +45,12 @@ export default function ContactPage() {
             <div className="lg:col-span-3">
               {submitted ? (
                 <div className="flex items-start gap-4 p-6 bg-teal-300/10 rounded-2xl border border-teal-300/20">
-                  <CheckCircle size={24} className="text-teal-300 shrink-0 mt-0.5" />
+                  <CheckCircle size={24} className="text-teal-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-bone font-medium mb-1">
+                    <p className="text-foreground font-medium mb-1">
                       Message sent!
                     </p>
-                    <p className="text-bone/50 text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       Thanks for reaching out. We&apos;ll get back to you
                       within 1–2 business days.
                     </p>
@@ -63,7 +60,7 @@ export default function ContactPage() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-bone/40 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
                         Name
                       </label>
                       <Input
@@ -72,11 +69,11 @@ export default function ContactPage() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-carbon-light border-white/10 text-bone placeholder:text-bone/25 px-4"
+                        className="h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-bone/40 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
                         Email
                       </label>
                       <Input
@@ -85,13 +82,13 @@ export default function ContactPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-carbon-light border-white/10 text-bone placeholder:text-bone/25 px-4"
+                        className="h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs text-bone/40 uppercase tracking-wider mb-2 block">
+                    <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
                       Message
                     </label>
                     <textarea
@@ -100,7 +97,7 @@ export default function ContactPage() {
                       onChange={(e) => setMessage(e.target.value)}
                       required
                       rows={6}
-                      className="w-full rounded-xl bg-carbon-light border border-white/10 text-bone placeholder:text-bone/25 px-4 py-3 text-sm resize-none focus:outline-none focus:border-teal-400/40 focus:ring-2 focus:ring-teal-400/20 transition-colors"
+                      className="w-full rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground px-4 py-3 text-sm resize-none focus:outline-none focus:border-teal-400/40 focus:ring-2 focus:ring-teal-400/20 transition-colors"
                     />
                   </div>
 
@@ -117,28 +114,20 @@ export default function ContactPage() {
 
             {/* Right: Info cards */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="rounded-2xl border border-white/10 bg-carbon-light p-6">
+              <div className="rounded-2xl border border-border bg-card p-6">
                 <div className="w-10 h-10 rounded-xl bg-teal-300/10 flex items-center justify-center mb-4">
-                  <Mail size={18} className="text-teal-300" />
+                  <Mail size={18} className="text-teal-400" />
                 </div>
-                <p className="text-bone font-medium text-sm mb-1">Email us</p>
-                <p className="text-bone/40 text-sm">hello@latchclub.com</p>
+                <p className="text-foreground font-medium text-sm mb-1">Email us</p>
+                <p className="text-muted-foreground text-sm">corporate@latchclub.ca</p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-carbon-light p-6">
+              <div className="rounded-2xl border border-border bg-card p-6">
                 <div className="w-10 h-10 rounded-xl bg-teal-300/10 flex items-center justify-center mb-4">
-                  <MapPin size={18} className="text-teal-300" />
+                  <MapPin size={18} className="text-teal-400" />
                 </div>
-                <p className="text-bone font-medium text-sm mb-1">Based in</p>
-                <p className="text-bone/40 text-sm">Toronto, Canada</p>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-carbon-light p-6">
-                <div className="w-10 h-10 rounded-xl bg-teal-300/10 flex items-center justify-center mb-4">
-                  <Clock size={18} className="text-teal-300" />
-                </div>
-                <p className="text-bone font-medium text-sm mb-1">Response time</p>
-                <p className="text-bone/40 text-sm">1–2 business days</p>
+                <p className="text-foreground font-medium text-sm mb-1">Based in</p>
+                <p className="text-muted-foreground text-sm">Toronto, Canada</p>
               </div>
             </div>
           </div>

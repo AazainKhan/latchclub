@@ -26,7 +26,7 @@ interface IndustryCard {
 
 const industries: IndustryCard[] = [
   { icon: Utensils, name: "Dining", tagline: "From brunch to fine dining", deals: "120+ deals", gradient: "from-orange-500 to-orange-600" },
-  { icon: Heart, name: "Wellness", tagline: "Spas, salons & self-care", deals: "80+ deals", gradient: "from-pink-500 to-rose-600" },
+  { icon: Heart, name: "Wellness", tagline: "Spas, salons, self-care & pet care", deals: "80+ deals", gradient: "from-pink-500 to-rose-600" },
   { icon: Dumbbell, name: "Fitness", tagline: "Gyms, yoga & sports", deals: "65+ deals", gradient: "from-blue-500 to-blue-600" },
   { icon: Clapperboard, name: "Entertainment", tagline: "Shows, events & nightlife", deals: "50+ deals", gradient: "from-purple-500 to-purple-600" },
   { icon: ShoppingBag, name: "Retail", tagline: "Fashion & specialty stores", deals: "45+ deals", gradient: "from-emerald-500 to-emerald-600" },
@@ -165,9 +165,13 @@ export function Industries() {
     return () => window.removeEventListener("resize", updateRadii);
   }, [render]);
 
-  // Autoplay
-  useEffect(() => {
-    const interval = setInterval(() => {
+  // Autoplay — pauses when user interacts, resumes after 8s idle
+  const autoplayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const userPauseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoplay = useCallback(() => {
+    if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
+    autoplayTimerRef.current = setInterval(() => {
       gsap.to(rotationRef, {
         current: rotationRef.current - ANGLE_INC,
         duration: 0.8,
@@ -175,10 +179,25 @@ export function Industries() {
         overwrite: true,
         onUpdate: render,
       });
-    }, 5000);
-
-    return () => clearInterval(interval);
+    }, 7000);
   }, [render]);
+
+  const pauseAutoplayForUser = useCallback(() => {
+    // Stop autoplay while user is clicking
+    if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
+    autoplayTimerRef.current = null;
+    // Resume after 8s of no interaction
+    if (userPauseRef.current) clearTimeout(userPauseRef.current);
+    userPauseRef.current = setTimeout(startAutoplay, 8000);
+  }, [startAutoplay]);
+
+  useEffect(() => {
+    startAutoplay();
+    return () => {
+      if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
+      if (userPauseRef.current) clearTimeout(userPauseRef.current);
+    };
+  }, [startAutoplay]);
 
   // Swipe
   const touchStartX = useRef(0);
@@ -189,20 +208,22 @@ export function Industries() {
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
       if (diff > 0) goNext(); else goPrev();
+      pauseAutoplayForUser();
     }
   }, [goNext, goPrev]);
 
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen flex flex-col justify-center bg-carbon py-16 md:py-0 overflow-hidden"
+      id="industries"
+      className="relative z-10 min-h-screen flex flex-col justify-center bg-carbon py-20 md:py-16 overflow-hidden"
     >
       {/* Header — above cards */}
       <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-6 text-center mb-8 md:mb-14">
         <p className="industries-label text-xs uppercase tracking-[0.2em] text-teal-300 mb-3">
           Industries
         </p>
-        <h2 className="industries-heading text-3xl md:text-4xl font-normal tracking-tight text-bone">
+        <h2 className="industries-heading text-3xl md:text-4xl font-heading font-medium tracking-tight text-bone">
           Where your membership works
         </h2>
         <p className="industries-sub text-bone/40 mt-4 max-w-xl mx-auto text-base" style={{ lineHeight: 1.7 }}>
@@ -217,11 +238,11 @@ export function Industries() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* The circular orbit area — center pushed down so top card clears header */}
+        {/* The circular orbit area — overflow hidden clips cards that go above */}
         <div
           ref={contentRef}
-          className="relative"
-          style={{ width: "100%", maxWidth: 1000, height: "clamp(350px, 45vw, 500px)" }}
+          className="relative w-full overflow-hidden"
+          style={{ height: "clamp(350px, 45vw, 500px)" }}
         >
           {industries.map((card, i) => {
             const Icon = card.icon;
@@ -237,7 +258,7 @@ export function Industries() {
                   marginLeft: "clamp(-60px, -7.5vw, -90px)",
                   marginTop: "clamp(-80px, -10vw, -130px)",
                 }}
-                onClick={() => goToCard(i)}
+                onClick={() => { goToCard(i); pauseAutoplayForUser(); }}
               >
                 <div
                   className={`aspect-[3/4] rounded-2xl bg-gradient-to-br ${card.gradient} p-4 md:p-5 flex flex-col justify-between overflow-hidden shadow-xl`}
@@ -263,29 +284,28 @@ export function Industries() {
               </div>
             );
           })}
-        </div>
-
-        {/* Active card info + arrows */}
-        <div className="flex flex-col items-center gap-2 mt-4 relative z-50">
-          <p className="text-bone text-xl md:text-2xl font-medium tracking-tight">
-            {activeName}
-          </p>
-          <p className="text-bone/40 text-sm">{activeTagline}</p>
-          <div className="flex items-center gap-4 mt-1">
-            <button
-              onClick={goPrev}
-              className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-bone/50 hover:text-bone hover:border-white/25 transition-colors"
-              aria-label="Previous"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={goNext}
-              className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-bone/50 hover:text-bone hover:border-white/25 transition-colors"
-              aria-label="Next"
-            >
-              <ChevronRight size={18} />
-            </button>
+          {/* Active card info + arrows — absolutely centered under the top card */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50">
+            <p className="text-bone text-xl md:text-2xl font-medium tracking-tight">
+              {activeName}
+            </p>
+            <p className="text-bone/40 text-sm">{activeTagline}</p>
+            <div className="flex items-center gap-4 mt-1">
+              <button
+                onClick={() => { goPrev(); pauseAutoplayForUser(); }}
+                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-bone/50 hover:text-bone hover:border-white/25 transition-colors"
+                aria-label="Previous"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() => { goNext(); pauseAutoplayForUser(); }}
+                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-bone/50 hover:text-bone hover:border-white/25 transition-colors"
+                aria-label="Next"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

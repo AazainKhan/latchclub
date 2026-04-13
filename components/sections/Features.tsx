@@ -103,6 +103,23 @@ export function Features() {
       }
     );
 
+    // Underline animation on "one membership."
+    const underline = document.querySelector(".features-underline");
+    const closing = document.querySelector(".features-closing");
+    let underlineTween: gsap.core.Tween | null = null;
+    if (underline && closing) {
+      underlineTween = gsap.to(underline, {
+        width: "100%",
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: closing,
+          start: "top 60%",
+          once: true,
+        },
+      });
+    }
+
     return () => {
       dimmerTrigger.kill();
       hueScroll.scrollTrigger?.kill();
@@ -111,6 +128,8 @@ export function Features() {
       chromaIn.kill();
       chromaOut.scrollTrigger?.kill();
       chromaOut.kill();
+      underlineTween?.scrollTrigger?.kill();
+      underlineTween?.kill();
     };
   }, []);
 
@@ -167,7 +186,7 @@ export function Features() {
               {feature.word}
             </li>
           ))}
-          {/* Last item in gradient text style matching the sticky heading */}
+          {/* Last item */}
           <li
             className="font-semibold"
             style={{
@@ -184,24 +203,40 @@ export function Features() {
         </ul>
       </div>
 
-      {/* Closing section */}
-      <div
-        className="flex items-center justify-center w-full"
-        style={{ minHeight: "50vh" }}
-      >
+      {/* Closing: "in" + "one membership." — tight stack, centered */}
+      <div className="flex flex-col items-center justify-center w-full py-16 md:py-24 gap-4 md:gap-6">
         <p
           className="font-semibold text-center"
           style={{
             fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
             lineHeight: 1.25,
-            backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 60%, rgba(245,247,247,0.15))",
+            backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 50%, rgba(245,247,247,0.25))",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
           }}
         >
-          one membership.
+          in
         </p>
+        <div className="relative inline-block">
+          <p
+            className="features-closing font-semibold text-center"
+            style={{
+              fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
+              lineHeight: 1.25,
+              backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 60%, rgba(245,247,247,0.15))",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            one membership.
+          </p>
+          <span
+            className="features-underline block h-[3px] md:h-[4px] bg-teal-400 rounded-full mt-2 mx-auto"
+            style={{ width: "0%" }}
+          />
+        </div>
       </div>
     </section>
   );

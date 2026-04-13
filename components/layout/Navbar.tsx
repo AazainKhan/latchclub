@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/sheet";
 
 const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Investors", href: "#" },
+  { label: "Features", href: "/#features" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Investors", href: "/investors" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -53,19 +53,7 @@ export function Navbar() {
       tl.to(bg, { opacity: 1, borderRadius: 9999, duration: 1, ease: "none" }, 0);
     });
 
-    mm.add("(max-width: 767px)", () => {
-      gsap.set(bg, { opacity: 0, borderRadius: 0 });
-      gsap.to(bg, {
-        opacity: 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: document.body,
-          start: "50px top",
-          end: "150px top",
-          scrub: 2,
-        },
-      });
-    });
+    // Mobile: no pill background, just transparent nav
   });
 
   return (
@@ -74,16 +62,16 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 md:px-6 pt-0 md:pt-2"
     >
       <div className="relative w-full max-w-[880px]">
-        {/* Background layer */}
+        {/* Background layer — desktop pill only, hidden on mobile */}
         <div
           ref={bgRef}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none hidden md:block"
           style={{
-            backgroundColor: "rgba(22, 32, 40, 0.82)",
+            backgroundColor: "color-mix(in srgb, var(--background) 85%, transparent)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.03)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)",
             opacity: 0,
             willChange: "opacity, border-radius",
           }}
@@ -91,21 +79,20 @@ export function Navbar() {
 
         {/* Nav content */}
         <nav className="relative z-10 h-14 flex items-center justify-between px-4 md:px-5">
-          <Link href="/" className="flex items-center gap-0 shrink-0">
-            <span className="text-lg tracking-tight text-teal-300 font-normal">
-              latch
-            </span>
-            <span className="text-lg tracking-tight font-medium text-white">
-              club
+          <Link href="/" className="flex items-center gap-1.5 shrink-0">
+            <img src="/logo.png" alt="LatchClub" className="w-6 h-6 dark:invert" />
+            <span className="text-lg tracking-tight">
+              <span className="text-teal-400 font-normal">latch</span><span className="font-medium text-foreground">club</span>
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          {/* Center nav links — absolutely positioned so they're truly centered regardless of logo/CTA widths */}
+          <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
               <a
                 key={link.href + link.label}
                 href={link.href}
-                className="text-[13px] tracking-wide text-white/50 hover:text-white transition-colors"
+                className="text-[13px] tracking-wide text-foreground/50 hover:text-foreground transition-colors"
               >
                 {link.label}
               </a>
@@ -116,7 +103,7 @@ export function Navbar() {
             {mounted && (
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                className="p-2 rounded-full hover:bg-white/10 text-foreground/50 hover:text-foreground transition-colors"
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
@@ -134,7 +121,7 @@ export function Navbar() {
             {mounted && (
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-full hover:bg-white/10 text-white/50 transition-colors"
+                className="p-2 rounded-full hover:bg-white/10 text-foreground/50 transition-colors"
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
@@ -144,7 +131,7 @@ export function Navbar() {
               <SheetTrigger
                 render={
                   <button
-                    className="p-2 rounded-full hover:bg-white/10 text-white transition-colors"
+                    className="p-2 rounded-full hover:bg-white/10 text-foreground transition-colors"
                     aria-label="Open menu"
                   />
                 }
