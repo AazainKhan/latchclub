@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  /* Brand Colors */
+  --color-teal-50: #E6F5F3;
+  --color-teal-100: #B3E2DC;
+  --color-teal-200: #80CFC5;
+  --color-teal-300: #4DBCAE;
+  --color-teal-400: #03A493;
+  --color-teal-500: #027064;
+  --color-carbon: #162028;
+  --color-carbon-light: #1E2D36;
+  --color-carbon-lighter: #2A3F4A;
+  --color-mist: #D2DBDE;
+  --color-mist-dark: #B0BEC4;
+  --color-bone: #F5F7F7;
+  --color-bone-dark: #E8ECEC;
+
+  /* Font families */
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-heading: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --background: #F5F7F7;
+  --foreground: #162028;
+  --muted: #D2DBDE;
+  --muted-foreground: #64748B;
+  --accent: #03A493;
+  --accent-foreground: #FFFFFF;
+  --primary: #03A493;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E6F5F3;
+  --secondary-foreground: #162028;
+  --border: #D2DBDE;
+  --input: #D2DBDE;
+  --ring: #03A493;
+  --card: #FFFFFF;
+  --card-foreground: #162028;
+  --popover: #FFFFFF;
+  --popover-foreground: #162028;
+  --destructive: oklch(0.577 0.245 27.325);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: #162028;
+  --foreground: #F5F7F7;
+  --muted: #2A3F4A;
+  --muted-foreground: #94A3B8;
+  --accent: #03A493;
+  --accent-foreground: #FFFFFF;
+  --primary: #03A493;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1E2D36;
+  --secondary-foreground: #F5F7F7;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #03A493;
+  --card: #1E2D36;
+  --card-foreground: #F5F7F7;
+  --popover: #1E2D36;
+  --popover-foreground: #F5F7F7;
+  --destructive: oklch(0.704 0.191 22.216);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-teal-400);
+  color: white;
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Aurora background color variables — must be outside @layer to avoid specificity issues */
+:root {
+  --white: #fff;
+  --black: #000;
+  --transparent: transparent;
+  --blue-300: #80CFC5;
+  --blue-400: #4DBCAE;
+  --blue-500: #03A493;
+  --indigo-300: #B3E2DC;
+  --violet-200: #E6F5F3;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Aurora animation */
+@keyframes aurora {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
+}
+
+@theme {
+  --animate-aurora: aurora 60s linear infinite;
+}
