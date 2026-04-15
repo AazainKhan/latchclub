@@ -3,158 +3,110 @@
 import { useRef, useEffect } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-const features = [
-  { word: "dine.", hue: 170 },
-  { word: "relax.", hue: 190 },
-  { word: "explore.", hue: 210 },
-  { word: "save.", hue: 150 },
-  { word: "discover.", hue: 230 },
-  { word: "earn.", hue: 140 },
-  { word: "redeem.", hue: 260 },
-  { word: "share.", hue: 280 },
-  { word: "train.", hue: 200 },
-  { word: "unwind.", hue: 300 },
-  { word: "connect.", hue: 320 },
-  { word: "thrive.", hue: 160 },
-  { word: "celebrate.", hue: 340 },
-  { word: "live.", hue: 170 },
+interface Feature {
+  word: string;
+  color: string;
+}
+
+const features: Feature[] = [
+  { word: "dine.", color: "#03A493" },
+  { word: "relax.", color: "#4DBCAE" },
+  { word: "explore.", color: "#6366F1" },
+  { word: "save.", color: "#10B981" },
+  { word: "discover.", color: "#03A493" },
+  { word: "earn.", color: "#F59E0B" },
+  { word: "redeem.", color: "#EC4899" },
+  { word: "share.", color: "#80CFC5" },
+  { word: "train.", color: "#3B82F6" },
+  { word: "unwind.", color: "#A855F7" },
+  { word: "connect.", color: "#03A493" },
+  { word: "thrive.", color: "#10B981" },
+  { word: "celebrate.", color: "#E97451" },
+  { word: "live.", color: "#03A493" },
 ];
+
+const DIM_COLOR = "rgba(245,247,247,0.15)";
+
+function setupWordHighlighting(container: HTMLElement, selector: string) {
+  const items = gsap.utils.toArray<HTMLElement>(container.querySelectorAll(selector));
+  if (!items.length) return [];
+
+  const cleanups: (() => void)[] = [];
+
+  items.forEach((item, i) => {
+    const feature = features[i];
+    if (!feature) return;
+
+    gsap.set(item, { opacity: 0.15, color: DIM_COLOR });
+
+    const st = ScrollTrigger.create({
+      trigger: item,
+      start: "center 70%",
+      end: "center 30%",
+      onEnter: () => gsap.to(item, { opacity: 1, color: feature.color, duration: 0.3, ease: "power2.out", overwrite: true }),
+      onLeave: () => gsap.to(item, { opacity: 0.15, color: DIM_COLOR, duration: 0.3, ease: "power2.out", overwrite: true }),
+      onEnterBack: () => gsap.to(item, { opacity: 1, color: feature.color, duration: 0.3, ease: "power2.out", overwrite: true }),
+      onLeaveBack: () => gsap.to(item, { opacity: 0.15, color: DIM_COLOR, duration: 0.3, ease: "power2.out", overwrite: true }),
+    });
+
+    cleanups.push(() => st.kill());
+  });
+
+  return cleanups;
+}
 
 export function Features() {
   const sectionRef = useRef<HTMLElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const desktopListRef = useRef<HTMLUListElement>(null);
+  const mobileListRef = useRef<HTMLDivElement>(null);
 
+  // Desktop highlighting
   useEffect(() => {
-    if (!listRef.current) return;
+    if (!desktopListRef.current) return;
+    const cleanups = setupWordHighlighting(desktopListRef.current, ".feature-word");
 
-    const items = gsap.utils.toArray<HTMLElement>(
-      listRef.current.querySelectorAll("li")
-    );
-    if (!items.length) return;
-
-    // Start all items dimmed except first
-    gsap.set(items, { opacity: (i) => (i === 0 ? 1 : 0.15) });
-
-    // Dimmer: stagger items brightening and dimming as you scroll through
-    const dimmer = gsap
-      .timeline()
-      .to(items.slice(1), { opacity: 1, stagger: 0.5 })
-      .to(
-        items.slice(0, items.length - 1),
-        { opacity: 0.15, stagger: 0.5 },
-        0
-      );
-
-    const dimmerTrigger = ScrollTrigger.create({
-      trigger: items[0],
-      endTrigger: items[items.length - 1],
-      start: "center center",
-      end: "center center",
-      animation: dimmer,
-      scrub: 0.2,
-    });
-
-    // Hue cycling on the section
-    const hueScroll = gsap.fromTo(
-      sectionRef.current,
-      { "--scroll-hue": 170 },
-      {
-        "--scroll-hue": 340,
-        ease: "none",
-        scrollTrigger: {
-          trigger: items[0],
-          endTrigger: items[items.length - 1],
-          start: "center center",
-          end: "center center",
-          scrub: 0.2,
-        },
-      }
-    );
-
-    // Chroma entry — fade color in
-    const chromaIn = gsap.fromTo(
-      sectionRef.current,
-      { "--chroma": 0 },
-      {
-        "--chroma": 0.25,
-        ease: "none",
-        scrollTrigger: {
-          trigger: items[0],
-          start: "center center+=60",
-          end: "center center",
-          scrub: 0.2,
-        },
-      }
-    );
-
-    // Chroma exit — fade color out
-    const chromaOut = gsap.fromTo(
-      sectionRef.current,
-      { "--chroma": 0.25 },
-      {
-        "--chroma": 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: items[items.length - 2],
-          start: "center center",
-          end: "center center-=60",
-          scrub: 0.2,
-        },
-      }
-    );
-
-    // Underline animation on "one membership."
+    // Underline on "one membership."
     const underline = document.querySelector(".features-underline");
     const closing = document.querySelector(".features-closing");
-    let underlineTween: gsap.core.Tween | null = null;
+    let underlineSt: ScrollTrigger | null = null;
     if (underline && closing) {
-      underlineTween = gsap.to(underline, {
+      const tween = gsap.to(underline, {
         width: "100%",
         duration: 0.8,
         ease: "power2.out",
-        scrollTrigger: {
-          trigger: closing,
-          start: "top 60%",
-          once: true,
-        },
+        scrollTrigger: { trigger: closing, start: "top 60%", once: true },
       });
+      underlineSt = tween.scrollTrigger ?? null;
     }
 
     return () => {
-      dimmerTrigger.kill();
-      hueScroll.scrollTrigger?.kill();
-      hueScroll.kill();
-      chromaIn.scrollTrigger?.kill();
-      chromaIn.kill();
-      chromaOut.scrollTrigger?.kill();
-      chromaOut.kill();
-      underlineTween?.scrollTrigger?.kill();
-      underlineTween?.kill();
+      cleanups.forEach((fn) => fn());
+      underlineSt?.kill();
     };
   }, []);
 
+  // Mobile highlighting
+  useEffect(() => {
+    if (!mobileListRef.current) return;
+    const cleanups = setupWordHighlighting(mobileListRef.current, ".mobile-feature-word");
+    return () => cleanups.forEach((fn) => fn());
+  }, []);
+
+  const gradientText = "linear-gradient(to bottom, rgba(245,247,247,0.9) 50%, rgba(245,247,247,0.25))";
+  const gradientTextFade = "linear-gradient(to bottom, rgba(245,247,247,0.9) 60%, rgba(245,247,247,0.15))";
+
   return (
-    <section
-      ref={sectionRef}
-      id="features"
-      className="bg-carbon"
-      style={
-        {
-          "--scroll-hue": 170,
-          "--chroma": 0,
-        } as React.CSSProperties
-      }
-    >
-      <div className="features-scroll-section flex w-full" style={{ paddingLeft: "clamp(2rem, 8vw, 5rem)" }}>
-        {/* Sticky "you can" */}
+    <section ref={sectionRef} id="features" className="bg-carbon">
+      {/* Desktop: sticky "you can" + scrolling words */}
+      <div className="hidden md:flex w-full" style={{ paddingLeft: "clamp(2rem, 8vw, 5rem)" }}>
         <h2
-          className="sticky font-semibold text-bone/80 whitespace-nowrap shrink-0"
+          className="sticky font-heading font-medium whitespace-nowrap shrink-0"
           style={{
             top: "calc(50% - 0.55lh)",
             fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
             lineHeight: 1.25,
             height: "fit-content",
-            backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 50%, rgba(245,247,247,0.25))",
+            backgroundImage: gradientText,
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
@@ -163,36 +115,22 @@ export function Features() {
           you can&nbsp;
         </h2>
 
-        {/* Scrolling feature words */}
-        <ul
-          ref={listRef}
-          className="list-none m-0 p-0"
-          style={{ "--count": features.length } as React.CSSProperties}
-        >
-          {features.map((feature, i) => (
+        <ul ref={desktopListRef} className="list-none m-0 p-0">
+          {features.map((f) => (
             <li
-              key={feature.word}
-              className="font-semibold"
-              style={
-                {
-                  "--i": i,
-                  fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
-                  lineHeight: 1.25,
-                  color: `oklch(75% var(--chroma, 0) ${feature.hue})`,
-                  scrollSnapAlign: "center",
-                } as React.CSSProperties
-              }
+              key={f.word}
+              className="feature-word font-heading font-medium"
+              style={{ fontSize: "clamp(2.5rem, 7vw, 5.5rem)", lineHeight: 1.25, scrollSnapAlign: "center" }}
             >
-              {feature.word}
+              {f.word}
             </li>
           ))}
-          {/* Last item */}
           <li
-            className="font-semibold"
+            className="font-heading font-medium"
             style={{
               fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
               lineHeight: 1.25,
-              backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 50%, rgba(245,247,247,0.25))",
+              backgroundImage: gradientText,
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
@@ -203,14 +141,55 @@ export function Features() {
         </ul>
       </div>
 
-      {/* Closing: "in" + "one membership." — tight stack, centered */}
+      {/* Mobile: centered vertical list */}
+      <div ref={mobileListRef} className="md:hidden px-6 py-20">
+        <p
+          className="font-heading font-medium text-center mb-6"
+          style={{
+            fontSize: "clamp(2rem, 10vw, 3.5rem)",
+            lineHeight: 1.2,
+            backgroundImage: gradientText,
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          you can
+        </p>
+        <div className="space-y-3 text-center">
+          {features.map((f) => (
+            <p
+              key={f.word}
+              className="mobile-feature-word font-heading font-medium"
+              style={{ fontSize: "clamp(2rem, 10vw, 3.5rem)", lineHeight: 1.2 }}
+            >
+              {f.word}
+            </p>
+          ))}
+          <p
+            className="font-heading font-medium"
+            style={{
+              fontSize: "clamp(2rem, 10vw, 3.5rem)",
+              lineHeight: 1.2,
+              backgroundImage: gradientText,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            do it all.
+          </p>
+        </div>
+      </div>
+
+      {/* Closing: "in" + "one membership." */}
       <div className="flex flex-col items-center justify-center w-full py-16 md:py-24 gap-4 md:gap-6">
         <p
-          className="font-semibold text-center"
+          className="font-heading font-medium text-center"
           style={{
             fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
             lineHeight: 1.25,
-            backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 50%, rgba(245,247,247,0.25))",
+            backgroundImage: gradientText,
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
@@ -220,11 +199,11 @@ export function Features() {
         </p>
         <div className="relative inline-block">
           <p
-            className="features-closing font-semibold text-center"
+            className="features-closing font-heading font-medium text-center"
             style={{
               fontSize: "clamp(2.5rem, 7vw, 5.5rem)",
               lineHeight: 1.25,
-              backgroundImage: "linear-gradient(to bottom, rgba(245,247,247,0.9) 60%, rgba(245,247,247,0.15))",
+              backgroundImage: gradientTextFade,
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
