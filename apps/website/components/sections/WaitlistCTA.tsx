@@ -12,7 +12,24 @@ export function WaitlistCTA() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [alreadySignedUp, setAlreadySignedUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [touched, setTouched] = useState<{ name?: boolean; email?: boolean }>({});
+
+  const validate = (fields: { name: string; email: string }) => {
+    const e: { name?: string; email?: string } = {};
+    if (!fields.name.trim() || fields.name.trim().length < 2)
+      e.name = "Please enter your name";
+    if (!fields.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))
+      e.email = "Please enter a valid email";
+    return e;
+  };
+
+  const handleBlur = (field: "name" | "email") => {
+    setTouched((t) => ({ ...t, [field]: true }));
+    setErrors(validate({ name, email }));
+  };
 
   useGSAP(
     () => {
@@ -49,7 +66,10 @@ export function WaitlistCTA() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !name) return;
+    setTouched({ name: true, email: true });
+    const errs = validate({ name, email });
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
 
     setLoading(true);
     try {
@@ -58,7 +78,9 @@ export function WaitlistCTA() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ first_name: name, email }),
       });
-      if (res.ok) setSubmitted(true);
+      const data = await res.json();
+      if (data.alreadySignedUp) setAlreadySignedUp(true);
+      else if (res.ok) setSubmitted(true);
     } catch {
       // silent
     } finally {
@@ -89,27 +111,44 @@ export function WaitlistCTA() {
               You&apos;re on the list! We&apos;ll be in touch soon.
             </p>
           </div>
+        ) : alreadySignedUp ? (
+          <div className="mt-10 flex items-center justify-center gap-3 p-4 bg-teal-300/10 rounded-xl border border-teal-300/20 max-w-md mx-auto">
+            <CheckCircle size={20} className="text-teal-300 shrink-0" />
+            <p className="text-bone/70 text-sm">
+              You&apos;re already on the list — see you at launch! 🎉
+            </p>
+          </div>
         ) : (
           <form
             onSubmit={handleSubmit}
             className="waitlist-form mt-10 flex flex-col gap-3 max-w-sm mx-auto"
           >
-            <Input
-              type="text"
-              placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="h-12 rounded-full bg-carbon-light border-white/10 text-bone placeholder:text-bone/30 px-5 w-full"
-            />
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="h-12 rounded-full bg-carbon-light border-white/10 text-bone placeholder:text-bone/30 px-5 w-full"
-            />
+            <div className="flex flex-col gap-1">
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => { setName(e.target.value); if (touched.name) setErrors(validate({ name: e.target.value, email })); }}
+                onBlur={() => handleBlur("name")}
+                className={`h-12 rounded-full bg-carbon-light border-white/10 text-bone placeholder:text-bone/30 px-5 w-full transition-colors ${touched.name && errors.name ? "border-red-400/60" : ""}`}
+              />
+              {touched.name && errors.name && (
+                <p className="text-red-400 text-xs pl-4">{errors.name}</p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); if (touched.email) setErrors(validate({ name, email: e.target.value })); }}
+                onBlur={() => handleBlur("email")}
+                className={`h-12 rounded-full bg-carbon-light border-white/10 text-bone placeholder:text-bone/30 px-5 w-full transition-colors ${touched.email && errors.email ? "border-red-400/60" : ""}`}
+              />
+              {touched.email && errors.email && (
+                <p className="text-red-400 text-xs pl-4">{errors.email}</p>
+              )}
+            </div>
             <Button
               type="submit"
               disabled={loading}

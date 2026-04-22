@@ -39,10 +39,12 @@ function setupWordHighlighting(container: HTMLElement, selector: string) {
 
     gsap.set(item, { opacity: 0.15, color: DIM_COLOR });
 
+    // Each word "owns" the zone from its center to the next word's center.
+    // Use top/bottom of element as trigger so there's no gap between words.
     const st = ScrollTrigger.create({
       trigger: item,
-      start: "center 70%",
-      end: "center 30%",
+      start: "top 50%",
+      end: "bottom 50%",
       onEnter: () => gsap.to(item, { opacity: 1, color: feature.color, duration: 0.3, ease: "power2.out", overwrite: true }),
       onLeave: () => gsap.to(item, { opacity: 0.15, color: DIM_COLOR, duration: 0.3, ease: "power2.out", overwrite: true }),
       onEnterBack: () => gsap.to(item, { opacity: 1, color: feature.color, duration: 0.3, ease: "power2.out", overwrite: true }),
