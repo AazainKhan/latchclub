@@ -1,6 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-export const supabaseServer = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+let client: SupabaseClient | null = null;
+
+export function getSupabaseServer(): SupabaseClient {
+  if (!client) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");
+    }
+    client = createClient(url, key);
+  }
+  return client;
+}
