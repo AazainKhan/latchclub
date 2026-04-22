@@ -237,19 +237,21 @@ function MobileWalkthrough({ screens }: { screens: Screen[] }) {
   const screen = screens[activeIdx];
 
   return (
-    <div
-      className="md:hidden py-12 px-4"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="md:hidden py-12 px-4">
       <div className="text-center mb-8">
         <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">How It Works</p>
         <h2 className="text-2xl font-heading font-medium tracking-tight text-foreground">One app. Five steps.</h2>
       </div>
 
-      {/* Phone with sliding screens */}
+      {/* Phone with sliding screens — touch handlers scoped to phone only */}
       <div className="flex justify-center mb-6">
-        <div ref={phoneRef} className="relative" style={{ width: 220, height: 440 }}>
+        <div
+          ref={phoneRef}
+          className="relative"
+          style={{ width: 220, height: 440 }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Phone frame */}
           <div className="absolute inset-0 rounded-[2.4rem] border-[8px] border-[#1a1a1a] shadow-xl z-20 pointer-events-none">
             <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[70px] h-[22px] bg-[#1a1a1a] rounded-full z-30" />

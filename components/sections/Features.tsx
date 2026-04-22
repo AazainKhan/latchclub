@@ -27,7 +27,7 @@ const features: Feature[] = [
 
 const DIM_COLOR = "rgba(245,247,247,0.15)";
 
-function setupWordHighlighting(container: HTMLElement, selector: string) {
+function setupDesktopHighlighting(container: HTMLElement, selector: string) {
   const items = gsap.utils.toArray<HTMLElement>(container.querySelectorAll(selector));
   if (!items.length) return [];
 
@@ -39,8 +39,6 @@ function setupWordHighlighting(container: HTMLElement, selector: string) {
 
     gsap.set(item, { opacity: 0.15, color: DIM_COLOR });
 
-    // Each word "owns" the zone from its center to the next word's center.
-    // Use top/bottom of element as trigger so there's no gap between words.
     const st = ScrollTrigger.create({
       trigger: item,
       start: "top 50%",
@@ -57,6 +55,36 @@ function setupWordHighlighting(container: HTMLElement, selector: string) {
   return cleanups;
 }
 
+// Mobile: words accumulate — highlight and stay highlighted as you scroll down,
+// dim one-by-one as you scroll back up. Uses gsap.set (instant) to avoid
+// animation queuing during fast scroll, which was causing jitter.
+function setupMobileHighlighting(container: HTMLElement, selector: string) {
+  const items = gsap.utils.toArray<HTMLElement>(container.querySelectorAll(selector));
+  if (!items.length) return [];
+
+  const cleanups: (() => void)[] = [];
+
+  items.forEach((item, i) => {
+    const feature = features[i];
+    if (!feature) return;
+
+    gsap.set(item, { opacity: 0.15, color: DIM_COLOR });
+
+    const st = ScrollTrigger.create({
+      trigger: item,
+      start: "top 75%",
+      onEnter: () => gsap.set(item, { opacity: 1, color: feature.color }),
+      onEnterBack: () => gsap.set(item, { opacity: 1, color: feature.color }),
+      onLeaveBack: () => gsap.set(item, { opacity: 0.15, color: DIM_COLOR }),
+      // onLeave intentionally omitted — word stays highlighted as you scroll past
+    });
+
+    cleanups.push(() => st.kill());
+  });
+
+  return cleanups;
+}
+
 export function Features() {
   const sectionRef = useRef<HTMLElement>(null);
   const desktopListRef = useRef<HTMLUListElement>(null);
@@ -65,7 +93,7 @@ export function Features() {
   // Desktop highlighting
   useEffect(() => {
     if (!desktopListRef.current) return;
-    const cleanups = setupWordHighlighting(desktopListRef.current, ".feature-word");
+    const cleanups = setupDesktopHighlighting(desktopListRef.current, ".feature-word");
 
     // Underline on "one membership."
     const underline = document.querySelector(".features-underline");
@@ -87,10 +115,10 @@ export function Features() {
     };
   }, []);
 
-  // Mobile highlighting
+  // Mobile highlighting — accumulate behavior
   useEffect(() => {
     if (!mobileListRef.current) return;
-    const cleanups = setupWordHighlighting(mobileListRef.current, ".mobile-feature-word");
+    const cleanups = setupMobileHighlighting(mobileListRef.current, ".mobile-feature-word");
     return () => cleanups.forEach((fn) => fn());
   }, []);
 

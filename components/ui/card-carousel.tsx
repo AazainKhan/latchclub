@@ -76,30 +76,31 @@ export const CardCarousel: React.FC<CarouselProps> = ({
     border-radius: 4px;
   }
 
-  /* Navigation arrows — sleek, minimal */
+  /* Navigation arrows */
   .latchclub-carousel .swiper-button-next,
   .latchclub-carousel .swiper-button-prev {
-    color: rgba(245, 247, 247, 0.6);
-    width: 28px;
-    height: 28px;
+    color: rgba(245, 247, 247, 0.9);
+    width: 38px;
+    height: 38px;
     border-radius: 9999px;
-    background: transparent;
-    border: none;
-    transition: color 0.2s ease;
+    background: rgba(245, 247, 247, 0.14);
+    border: 1px solid rgba(245, 247, 247, 0.25);
+    transition: background 0.2s ease, color 0.2s ease;
     top: 42%;
     margin-top: 0;
   }
   .latchclub-carousel .swiper-button-next:hover,
   .latchclub-carousel .swiper-button-prev:hover {
     color: #F5F7F7;
+    background: rgba(245, 247, 247, 0.24);
   }
   .latchclub-carousel .swiper-button-next::after,
   .latchclub-carousel .swiper-button-prev::after {
-    font-size: 18px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 700;
   }
   .latchclub-carousel .swiper-button-disabled {
-    opacity: 0.2;
+    opacity: 0.25;
   }
   `;
 
@@ -126,6 +127,7 @@ export const CardCarousel: React.FC<CarouselProps> = ({
         }}
         pagination={showPagination ? { clickable: true } : false}
         navigation={showNavigation}
+        touchStartPreventDefault={false}
         modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
       >
         {images.map((image, index) => (
