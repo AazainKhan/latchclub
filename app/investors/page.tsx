@@ -32,7 +32,7 @@ export default function InvestorsPage() {
               nativeButton={false}
               render={
                 <a
-                  href="https://drive.google.com/file/d/1ZBK16IhJbzbPh4nC55_6e6geQYw26LBb/view?usp=drive_link"
+                  href="https://drive.google.com/file/d/1Cbij7mkM9sV_xSICPFaW7bi2M6NrOXen/view?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
                 />

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/shared/ThemeProvider";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { Button } from "@/components/ui/button";
@@ -53,7 +53,7 @@ export function Navbar() {
       tl.to(bg, { opacity: 1, borderRadius: 9999, duration: 1, ease: "none" }, 0);
     });
 
-    // Mobile: no pill background, just transparent nav
+    return () => mm.revert();
   });
 
   return (

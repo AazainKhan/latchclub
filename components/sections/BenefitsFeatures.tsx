@@ -24,7 +24,7 @@ interface BentoCard {
 }
 
 const cards: BentoCard[] = [
-  { icon: Utensils, title: "Premier Dining", description: "BOGO at Toronto's best restaurants, from cozy cafés to fine dining experiences.", gridArea: "1 / 1 / 2 / 3" },
+  { icon: Utensils, title: "Premier Dining", description: "Toronto's best restaurants, from cozy cafés to fine dining experiences.", gridArea: "1 / 1 / 2 / 3" },
   { icon: Heart, title: "Wellness & Spa", description: "Massages, facials, and wellness treatments across the city.", gridArea: "1 / 3 / 2 / 4" },
   { icon: Dumbbell, title: "Fitness & Active", description: "Gym passes, yoga, pilates, and sports activities.", gridArea: "2 / 1 / 3 / 2" },
   { icon: Sparkles, title: "Lifestyle", description: "Entertainment, attractions, and unique local experiences.", gridArea: "2 / 2 / 3 / 3" },

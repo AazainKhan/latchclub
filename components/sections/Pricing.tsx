@@ -88,17 +88,24 @@ export function Pricing() {
     const card = e.currentTarget;
     const isFeatured = card.dataset.featured === "true";
 
-    // Lift card up + deepen shadow
+    // Lift card up
     gsap.to(card, {
       y: -8,
       scale: 1.02,
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: true,
+    });
+
+    // Glow/border fires immediately, no lag
+    gsap.to(card, {
       boxShadow: isFeatured
         ? "0 20px 50px rgba(3,164,147,0.15), 0 8px 24px rgba(0,0,0,0.2)"
         : "0 20px 50px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04)",
       borderColor: isFeatured ? "rgba(3,164,147,0.4)" : "rgba(3,164,147,0.2)",
-      duration: 0.3,
-      ease: "power2.out",
-      overwrite: true,
+      duration: 0.12,
+      ease: "power1.out",
+      overwrite: "auto",
     });
 
     // Stagger-pulse the bullet dots
@@ -123,13 +130,19 @@ export function Pricing() {
     gsap.to(card, {
       y: 0,
       scale: 1,
-      boxShadow: isFeatured
-        ? "0 20px 25px -5px rgba(22,32,40,0.2)"
-        : "0 1px 2px rgba(0,0,0,0.05)",
-      borderColor: isFeatured ? "rgb(22,32,40)" : "rgba(22,32,40,0.1)",
       duration: 0.3,
       ease: "power2.out",
       overwrite: true,
+    });
+
+    gsap.to(card, {
+      boxShadow: isFeatured
+        ? "0 20px 25px -5px rgba(22,32,40,0.2)"
+        : "0 1px 2px rgba(0,0,0,0.05)",
+      borderColor: isFeatured ? "rgba(45,212,191,0.25)" : "rgba(22,32,40,0.1)",
+      duration: 0.12,
+      ease: "power1.out",
+      overwrite: "auto",
     });
   }, []);
 
@@ -164,7 +177,7 @@ export function Pricing() {
               className={cn(
                 "pricing-card relative rounded-2xl border p-6 md:p-7 flex flex-col cursor-default",
                 plan.featured
-                  ? "bg-carbon text-bone border-carbon shadow-xl shadow-carbon/20"
+                  ? "bg-carbon text-bone border-teal-400/25 shadow-xl shadow-carbon/20"
                   : "bg-card text-foreground border-border shadow-sm"
               )}
               style={{ willChange: "transform, box-shadow" }}

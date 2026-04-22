@@ -13,15 +13,41 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
+  const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; message?: boolean }>({});
+
+  const validate = (f: { name: string; email: string; message: string }) => {
+    const e: { name?: string; email?: string; message?: string } = {};
+    if (!f.name.trim() || f.name.trim().length < 2) e.name = "Please enter your name";
+    if (!f.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "Please enter a valid email";
+    if (!f.message.trim() || f.message.trim().length < 10) e.message = "Message must be at least 10 characters";
+    return e;
+  };
+
+  const handleBlur = (field: "name" | "email" | "message") => {
+    setTouched((t) => ({ ...t, [field]: true }));
+    setErrors(validate({ name, email, message }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !message) return;
+    setTouched({ name: true, email: true, message: true });
+    const errs = validate({ name, email, message });
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
     setLoading(true);
-    // Simulate submit
-    await new Promise((r) => setTimeout(r, 800));
-    setSubmitted(true);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (res.ok) setSubmitted(true);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,10 +93,13 @@ export default function ContactPage() {
                         type="text"
                         placeholder="Your name"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4"
+                        onChange={(e) => { setName(e.target.value); if (touched.name) setErrors(validate({ name: e.target.value, email, message })); }}
+                        onBlur={() => handleBlur("name")}
+                        className={`h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4 transition-colors ${touched.name && errors.name ? "border-red-400/60" : ""}`}
                       />
+                      {touched.name && errors.name && (
+                        <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+                      )}
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
@@ -80,10 +109,13 @@ export default function ContactPage() {
                         type="email"
                         placeholder="you@email.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4"
+                        onChange={(e) => { setEmail(e.target.value); if (touched.email) setErrors(validate({ name, email: e.target.value, message })); }}
+                        onBlur={() => handleBlur("email")}
+                        className={`h-12 rounded-xl bg-card border-border text-foreground placeholder:text-muted-foreground px-4 transition-colors ${touched.email && errors.email ? "border-red-400/60" : ""}`}
                       />
+                      {touched.email && errors.email && (
+                        <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -94,11 +126,14 @@ export default function ContactPage() {
                     <textarea
                       placeholder="How can we help?"
                       value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      required
+                      onChange={(e) => { setMessage(e.target.value); if (touched.message) setErrors(validate({ name, email, message: e.target.value })); }}
+                      onBlur={() => handleBlur("message")}
                       rows={6}
-                      className="w-full rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground px-4 py-3 text-sm resize-none focus:outline-none focus:border-teal-400/40 focus:ring-2 focus:ring-teal-400/20 transition-colors"
+                      className={`w-full rounded-xl bg-card border text-foreground placeholder:text-muted-foreground px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-teal-400/20 transition-colors ${touched.message && errors.message ? "border-red-400/60" : "border-border focus:border-teal-400/40"}`}
                     />
+                    {touched.message && errors.message && (
+                      <p className="text-red-400 text-xs mt-1">{errors.message}</p>
+                    )}
                   </div>
 
                   <Button
