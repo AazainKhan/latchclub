@@ -6,13 +6,13 @@ import { gsap } from "@/lib/gsap";
 import { CardCarousel } from "@/components/ui/card-carousel";
 
 const industries = [
-  { src: "https://picsum.photos/seed/dining/500/500", alt: "Dining", title: "Dining", description: "From brunch to fine dining" },
-  { src: "https://picsum.photos/seed/wellness/500/500", alt: "Wellness", title: "Wellness", description: "Spas, salons, self-care & pet care" },
-  { src: "https://picsum.photos/seed/fitness/500/500", alt: "Fitness", title: "Fitness", description: "Gyms, yoga & sports" },
-  { src: "https://picsum.photos/seed/entertainment/500/500", alt: "Entertainment", title: "Entertainment", description: "Shows, events & nightlife" },
-  { src: "https://picsum.photos/seed/retail/500/500", alt: "Retail", title: "Retail", description: "Fashion & specialty stores" },
-  { src: "https://picsum.photos/seed/hotels/500/500", alt: "Hotels", title: "Hotels", description: "Stays & resort getaways" },
-  { src: "https://picsum.photos/seed/travel/500/500", alt: "Travel", title: "Travel", description: "Flights, tours & packages" },
+  { src: "/industries/dining.jpeg", alt: "Food and dining", title: "Food & Dining", description: "From brunch to fine dining" },
+  { src: "/industries/wellness.jpeg", alt: "Health and wellness", title: "Health & Wellness", description: "Spas, salons & self-care" },
+  { src: "/industries/pet-care.jpeg", alt: "Pet care", title: "Pet Care", description: "Grooming, daycare & vet" },
+  { src: "/industries/entertainment.jpeg", alt: "Activities and entertainment", title: "Activities & Entertainment", description: "Shows, events & nightlife" },
+  { src: "/industries/retail.jpeg", alt: "Retail", title: "Retail", description: "Fashion & specialty stores" },
+  { src: "/industries/hotels.jpeg", alt: "Hotels", title: "Hotels", description: "Stays & resort getaways" },
+  { src: "/industries/travel.jpeg", alt: "Travel", title: "Travel", description: "Flights, tours & packages" },
 ];
 
 export function Industries() {

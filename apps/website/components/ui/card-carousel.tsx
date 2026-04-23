@@ -170,12 +170,12 @@ export const CardCarousel: React.FC<CarouselProps> = ({
             {images.map((image, index) => (
               <SwiperSlide key={index}>
                 <div className="flex flex-col gap-4">
-                  <div className="rounded-xl overflow-hidden">
+                  <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-bone/5">
                     <Image
                       src={image.src}
-                      width={500}
-                      height={500}
-                      className="size-full"
+                      fill
+                      sizes="300px"
+                      className="object-cover"
                       alt={image.alt}
                     />
                   </div>

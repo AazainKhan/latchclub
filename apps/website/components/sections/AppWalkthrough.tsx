@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -9,15 +10,60 @@ interface Screen {
   label: string;
   title: string;
   description: string;
-  placeholderColor: string;
+  image: string;
+  bg: string;
 }
 
 const screens: Screen[] = [
-  { label: "Discover", title: "Find deals near you.", description: "Browse hundreds of offers by location, category, or mood.", placeholderColor: "#03A493" },
-  { label: "Unlock", title: "Unlock exclusive offers.", description: "Exclusive deals curated for the city’s best spots", placeholderColor: "#E97451" },
-  { label: "Redeem", title: "Show & save instantly.", description: "Flash your membership at checkout. No codes needed.", placeholderColor: "#6366F1" },
-  { label: "Earn", title: "Earn points every time.", description: "Stack loyalty rewards for upgrades and bonus coupons.", placeholderColor: "#EC4899" },
-  { label: "Share", title: "Share with friends.", description: "Invite others and unlock even bigger rewards together.", placeholderColor: "#10B981" },
+  {
+    label: "Join",
+    title: "Your key to the city.",
+    description: "One gold membership. 180 Toronto venues. 3,200 members already inside.",
+    image: "/app-screens/LC-001-welcome.png",
+    bg: "#0F1A22",
+  },
+  {
+    label: "Discover",
+    title: "See what's tonight.",
+    description: "38 live deals across Ossington, Queen West, Kensington and more — refreshed daily.",
+    image: "/app-screens/LC-002-home.png",
+    bg: "#000",
+  },
+  {
+    label: "Explore",
+    title: "Deals on the map.",
+    description: "Walk 12 min average. Gold pins mark premium drops. Toronto, unlocked.",
+    image: "/app-screens/LC-005-map.png",
+    bg: "#0F1A22",
+  },
+  {
+    label: "Unlock",
+    title: "Handpicked offers.",
+    description: "2-for-1 mains. Chef quotes. No fluff. Every venue personally vetted.",
+    image: "/app-screens/LC-003-deal.png",
+    bg: "#000",
+  },
+  {
+    label: "Redeem",
+    title: "One tap at the table.",
+    description: "Show the QR, your server scans, the deal applies. No codes, no friction.",
+    image: "/app-screens/LC-004-qr.png",
+    bg: "#03A493",
+  },
+  {
+    label: "Earn",
+    title: "Every visit pays back.",
+    description: "Points on every redemption. Climb Gold to Platinum. Unlock priority perks.",
+    image: "/app-screens/LC-006-earn.png",
+    bg: "#0B1620",
+  },
+  {
+    label: "Share",
+    title: "Bring the crew.",
+    description: "Give $20, get $20 back when friends join. The club grows on the inside.",
+    image: "/app-screens/LC-007-share.png",
+    bg: "#0B1620",
+  },
 ];
 
 const TOTAL = screens.length;
@@ -100,30 +146,27 @@ export function AppWalkthrough() {
     <section ref={sectionRef} className="relative z-0 bg-background isolate">
       {/* Desktop: centered phone with alternating side text */}
       <div className="hidden md:flex items-center justify-center h-screen relative">
-        <div className="relative z-10" style={{ width: 320, height: 660 }}>
-          {/* Phone frame */}
-          <div className="absolute inset-0 rounded-[3.2rem] border-[10px] border-[#1a1a1a] shadow-2xl shadow-black/20 z-20 pointer-events-none">
-            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-[100px] h-[30px] bg-[#1a1a1a] rounded-full z-30" />
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[110px] h-[4px] bg-white/30 rounded-full z-30" />
-          </div>
-          {/* Screen stack */}
-          <div className="absolute inset-[10px] rounded-[2.2rem] overflow-hidden bg-white">
+        {/* 320 × 694 matches iPhone 393×852 aspect (0.461) + 11px bezel on each side */}
+        <div className="relative z-10" style={{ width: 320, height: 694 }}>
+          {/* Phone bezel — outer shell only; the PNG already contains status bar + Dynamic Island + home indicator */}
+          <div className="absolute inset-0 rounded-[3rem] bg-[#0a0a0a] shadow-2xl shadow-black/40 ring-1 ring-white/5 z-0 pointer-events-none" />
+          {/* Screen stack — 298 × 672 inner, rounded to match physical corner radius */}
+          <div className="absolute inset-[11px] rounded-[2.5rem] overflow-hidden bg-black z-10">
             {screens.map((screen, i) => (
               <div
                 key={screen.label}
-                className="wipe-screen absolute inset-0 flex flex-col items-center justify-center"
-                style={{ zIndex: i + 1, backgroundColor: screen.placeholderColor }}
+                className="wipe-screen absolute inset-0"
+                style={{ zIndex: i + 1, backgroundColor: screen.bg }}
               >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                  <span className="text-white text-xl font-medium">{screen.label.charAt(0)}</span>
-                </div>
-                <p className="text-white font-medium text-base mb-1">{screen.label}</p>
-                <p className="text-white/60 text-[11px] mb-5 px-4 text-center">{screen.description}</p>
-                <div className="w-3/4 space-y-2">
-                  <div className="h-9 rounded-lg bg-white/15" />
-                  <div className="h-9 rounded-lg bg-white/15" />
-                  <div className="h-7 rounded-lg bg-white/15 w-3/4" />
-                </div>
+                <Image
+                  src={screen.image}
+                  alt={`LatchClub — ${screen.label}`}
+                  fill
+                  sizes="320px"
+                  priority={i === 0}
+                  className="object-cover select-none pointer-events-none"
+                  draggable={false}
+                />
               </div>
             ))}
           </div>
@@ -240,7 +283,7 @@ function MobileWalkthrough({ screens }: { screens: Screen[] }) {
     <div className="md:hidden py-12 px-4">
       <div className="text-center mb-8">
         <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">How It Works</p>
-        <h2 className="text-2xl font-heading font-medium tracking-tight text-foreground">One app. Five steps.</h2>
+        <h2 className="text-2xl font-heading font-medium tracking-tight text-foreground">One app. Seven steps.</h2>
       </div>
 
       {/* Phone with sliding screens — touch handlers scoped to phone only */}
@@ -248,33 +291,28 @@ function MobileWalkthrough({ screens }: { screens: Screen[] }) {
         <div
           ref={phoneRef}
           className="relative"
-          style={{ width: 220, height: 440 }}
+          style={{ width: 220, height: 477 }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Phone frame */}
-          <div className="absolute inset-0 rounded-[2.4rem] border-[8px] border-[#1a1a1a] shadow-xl z-20 pointer-events-none">
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[70px] h-[22px] bg-[#1a1a1a] rounded-full z-30" />
-            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-[80px] h-[3px] bg-white/30 rounded-full z-30" />
-          </div>
-          {/* Slide container — overflow hidden clips the sliding */}
-          <div className="absolute inset-[8px] rounded-[1.6rem] overflow-hidden">
-            {screens.map((s, i) => (
+          {/* Phone bezel — PNGs contain chrome, so no fake notch/home indicator */}
+          <div className="absolute inset-0 rounded-[2.3rem] bg-[#0a0a0a] shadow-xl ring-1 ring-white/5 z-0 pointer-events-none" />
+          {/* Slide container — 204 × 461 inner */}
+          <div className="absolute inset-[8px] rounded-[1.8rem] overflow-hidden bg-black z-10">
+            {screens.map((s) => (
               <div
                 key={s.label}
-                className="mobile-slide absolute inset-0 flex flex-col items-center justify-center p-6 will-change-transform"
-                style={{ backgroundColor: s.placeholderColor }}
+                className="mobile-slide absolute inset-0 will-change-transform"
+                style={{ backgroundColor: s.bg }}
               >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                  <span className="text-white text-xl font-medium">{s.label.charAt(0)}</span>
-                </div>
-                <p className="text-white font-medium text-base mb-0.5">{s.label}</p>
-                <p className="text-white/60 text-[11px]">{s.description}</p>
-                <div className="w-full mt-6 space-y-2">
-                  <div className="h-9 rounded-lg bg-white/15" />
-                  <div className="h-9 rounded-lg bg-white/15" />
-                  <div className="h-7 rounded-lg bg-white/15 w-3/4" />
-                </div>
+                <Image
+                  src={s.image}
+                  alt={`LatchClub — ${s.label}`}
+                  fill
+                  sizes="220px"
+                  className="object-cover select-none pointer-events-none"
+                  draggable={false}
+                />
               </div>
             ))}
           </div>
