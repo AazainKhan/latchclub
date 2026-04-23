@@ -32,10 +32,15 @@ export async function POST(request: Request) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       try {
         const { error: emailError } = await resend.emails.send({
-          // Send from the Resend-verified subdomain (send.latchclub.ca) so
-          // SPF + DKIM both align cleanly. Apex @latchclub.ca has mismatched
-          // SPF and duplicate DMARC records that cause mail to get junked.
-          from: "LatchClub <info@send.latchclub.ca>",
+          // Send from the Resend-verified apex latchclub.ca. Resend's DKIM
+          // key at resend._domainkey.latchclub.ca signs every outbound message,
+          // and our DMARC (p=quarantine; adkim=r) passes on DKIM alignment
+          // alone even though apex SPF routes mail via secureserver. Duplicate
+          // DMARC record at GoDaddy is now cleaned up and DKIM alignment is
+          // the authoritative auth signal for EOP.
+          // NOTE: send.latchclub.ca is Resend's bounce subdomain — using it
+          // as From returns a 403 "domain is not verified" from Resend.
+          from: "LatchClub <info@latchclub.ca>",
           to: email,
           subject: "You're on the LatchClub waitlist",
           html: `<!DOCTYPE html>
