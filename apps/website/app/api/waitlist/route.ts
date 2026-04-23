@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { LOGO_PNG_BASE64 } from "@/lib/email-assets";
 
 export async function POST(request: Request) {
   try {
@@ -72,6 +73,17 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
           headers: {
             "List-Unsubscribe": "<mailto:corporate@latchclub.ca?subject=Unsubscribe>",
           },
+          // Inline the logo via Content-ID so it renders even when the
+          // recipient's mail client blocks remote images (iOS Mail, Apple
+          // Mail, Outlook default). Referenced in the HTML as `cid:latchclub-logo`.
+          attachments: [
+            {
+              filename: "logo.png",
+              contentType: "image/png",
+              contentId: "latchclub-logo",
+              content: LOGO_PNG_BASE64,
+            },
+          ],
           html: `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>You're on the LatchClub waitlist</title></head>
@@ -88,7 +100,7 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
         <tr><td align="center" style="padding-bottom:32px;">
           <table cellpadding="0" cellspacing="0"><tr>
             <td style="background-color:#F5F7F7;border-radius:10px;width:36px;height:36px;text-align:center;vertical-align:middle;overflow:hidden;">
-              <img src="https://latchclub.ca/logo.png" width="36" height="36" alt="LatchClub" style="display:block;border-radius:10px;" />
+              <img src="cid:latchclub-logo" width="36" height="36" alt="LatchClub" style="display:block;border-radius:10px;" />
             </td>
             <td style="padding-left:10px;vertical-align:middle;">
               <span style="font-size:20px;font-weight:700;color:#F5F7F7;letter-spacing:-0.3px;">LatchClub</span>
