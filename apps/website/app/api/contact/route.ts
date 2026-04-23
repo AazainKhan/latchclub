@@ -24,8 +24,12 @@ export async function POST(request: Request) {
 
     // Resend SDK v6 returns { data, error } instead of throwing on API errors.
     // We must inspect `error` explicitly or failures silently look like successes.
+    // Send from the Resend-verified subdomain (send.latchclub.ca) so SPF +
+    // DKIM both align cleanly against the subdomain's DNS records. The apex
+    // domain has mismatched SPF and duplicate DMARC records at GoDaddy, which
+    // causes Microsoft EOP to quarantine mail sent from @latchclub.ca.
     const { data, error: emailError } = await resend.emails.send({
-      from: "LatchClub Contact <info@latchclub.ca>",
+      from: "LatchClub Contact <info@send.latchclub.ca>",
       to: "corporate@latchclub.ca",
       replyTo: email,
       subject: `New message from ${name}`,

@@ -32,7 +32,10 @@ export async function POST(request: Request) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       try {
         const { error: emailError } = await resend.emails.send({
-          from: "LatchClub <info@latchclub.ca>",
+          // Send from the Resend-verified subdomain (send.latchclub.ca) so
+          // SPF + DKIM both align cleanly. Apex @latchclub.ca has mismatched
+          // SPF and duplicate DMARC records that cause mail to get junked.
+          from: "LatchClub <info@send.latchclub.ca>",
           to: email,
           subject: "You're on the LatchClub waitlist",
           html: `<!DOCTYPE html>
