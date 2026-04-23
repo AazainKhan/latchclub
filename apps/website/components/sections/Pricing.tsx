@@ -15,11 +15,11 @@ const plans = [
     description: "For everyday explorers across the city.",
     features: [
       "Full merchant directory",
-      "3 coupons/merchant/year",
+      "3 coupons per merchant/year",
       "Loyalty points",
       "Standard support",
     ],
-    cta: "Get Started",
+    cta: "Coming soon",
     featured: false,
   },
   {
@@ -31,11 +31,11 @@ const plans = [
     badge: "Most Popular",
     features: [
       "Everything in General",
-      "Early merchant access",
+      "4 coupons per merchant/year",
       "Exclusive higher-value offers",
       "Priority support",
     ],
-    cta: "Get Started",
+    cta: "Coming soon",
     featured: true,
   },
   {
@@ -46,11 +46,11 @@ const plans = [
     description: "Full access, discounted rate. ID verified.",
     features: [
       "Full merchant directory",
-      "3 coupons/merchant/year",
+      "3 coupons per merchant/year",
       "Loyalty points",
       "Standard support",
     ],
-    cta: "Get Started",
+    cta: "Coming soon",
     featured: false,
   },
   {
@@ -65,7 +65,7 @@ const plans = [
       "Curated local guides",
       "No commitment required",
     ],
-    cta: "Get Started",
+    cta: "Coming soon",
     featured: false,
   },
 ];
@@ -258,13 +258,17 @@ export function Pricing() {
                 ))}
               </ul>
 
-              {/* CTA Button */}
+              {/* CTA Button — disabled "Coming soon" state. Visually muted
+                  so attention stays on the pricing + features, not on a
+                  CTA users can't act on yet. */}
               <Button
+                disabled
+                aria-disabled="true"
                 className={cn(
-                  "w-full rounded-xl h-11 font-normal text-sm",
+                  "w-full rounded-xl h-11 font-normal text-sm cursor-not-allowed",
                   plan.featured
-                    ? "bg-teal-400 hover:bg-teal-300 text-foreground"
-                    : "bg-transparent border border-border text-foreground hover:bg-muted"
+                    ? "bg-bone/10 text-bone/70 border border-bone/15"
+                    : "bg-muted/60 text-muted-foreground border border-border"
                 )}
               >
                 {plan.cta}
