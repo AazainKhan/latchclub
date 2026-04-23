@@ -31,6 +31,25 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       try {
+        // Plain-text alternative. Gmail's spam filter heavily weights
+        // multipart/alternative — HTML-only emails from new domains land in
+        // spam. See Gmail Feb 2024 bulk-sender guidelines.
+        const textBody = `Hey ${first_name},
+
+You're in.
+
+Thanks for joining the LatchClub waitlist. You'll be among the first to unlock exclusive deals at the best local spots in Toronto.
+
+We're building something special for people who want more from their city — better access, better deals, and a smarter way to explore.
+
+— The LatchClub team
+https://latchclub.ca
+
+---
+You're receiving this because you joined the waitlist at latchclub.ca.
+To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchclub.ca.
+`;
+
         const { error: emailError } = await resend.emails.send({
           // Send from the Resend-verified apex latchclub.ca. Resend's DKIM
           // key at resend._domainkey.latchclub.ca signs every outbound message,
@@ -42,11 +61,25 @@ export async function POST(request: Request) {
           // as From returns a 403 "domain is not verified" from Resend.
           from: "LatchClub <info@latchclub.ca>",
           to: email,
+          replyTo: "corporate@latchclub.ca",
           subject: "You're on the LatchClub waitlist",
+          text: textBody,
+          // RFC 2369 List-Unsubscribe header. Gmail's Feb 2024 bulk-sender
+          // guidelines expect this even for transactional mail; without it,
+          // new-domain emails are likely to land in spam. Mailto form is
+          // sufficient for sub-5K/day volume; Gmail will render an
+          // "Unsubscribe" button that opens a pre-filled email to corporate@.
+          headers: {
+            "List-Unsubscribe": "<mailto:corporate@latchclub.ca?subject=Unsubscribe>",
+          },
           html: `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>You're on the LatchClub waitlist</title></head>
 <body style="margin:0;padding:0;background-color:#0f1a22;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <!-- Preheader (hidden, shown as inbox preview text) -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#0f1a22;opacity:0;">
+    Early access to Toronto's best local spots — you're in.
+  </div>
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f1a22;padding:40px 16px;">
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
@@ -80,7 +113,7 @@ export async function POST(request: Request) {
 
               <!-- Headline -->
               <h1 style="margin:0 0 20px;font-size:28px;font-weight:700;color:#F5F7F7;line-height:1.2;letter-spacing:-0.5px;">
-                Hey ${first_name},<br>you're in. 🎉
+                Hey ${first_name},<br>you're in.
               </h1>
 
               <!-- Divider -->
@@ -105,9 +138,17 @@ export async function POST(request: Request) {
 
         <!-- Footer -->
         <tr><td align="center" style="padding-top:28px;">
-          <p style="margin:0 0 6px;font-size:12px;color:#2A3F4A;">© 2026 LatchClub · Toronto, Canada</p>
-          <p style="margin:0;font-size:12px;color:#2A3F4A;">
+          <p style="margin:0 0 6px;font-size:12px;color:#94a9b0;">© 2026 LatchClub · Toronto, Canada</p>
+          <p style="margin:0 0 14px;font-size:12px;color:#94a9b0;">
             <a href="https://latchclub.ca" style="color:#03A493;text-decoration:none;">latchclub.ca</a>
+          </p>
+          <!-- Visible unsubscribe: required to match the List-Unsubscribe header.
+               Gmail flags emails whose header-declared unsubscribe isn't also
+               visible to the user. -->
+          <p style="margin:0;font-size:11px;color:#5a6d75;line-height:1.6;">
+            You're receiving this because you joined our waitlist at latchclub.ca.<br>
+            Don't want these emails?
+            <a href="mailto:corporate@latchclub.ca?subject=Unsubscribe" style="color:#5a6d75;text-decoration:underline;">Unsubscribe</a>
           </p>
         </td></tr>
 
