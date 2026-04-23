@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Image from "next/image"
 import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useGSAP } from "@gsap/react"
 import { Button } from "@/components/ui/button"
@@ -11,56 +12,81 @@ interface MarqueeCard {
   name: string
   description: string
   badge: string
+  image: string
 }
 
 const leftCol1Cards: MarqueeCard[] = [
-  { category: "Dining", name: "Kinka Izakaya", description: "2-for-1 Dinner", badge: "50% OFF" },
-  { category: "Wellness", name: "Scandinave Spa", description: "Day Pass", badge: "$45 OFF" },
-  { category: "Fitness", name: "Barry's Bootcamp", description: "First Month", badge: "40% OFF" },
-  { category: "Travel", name: "Porter Airlines", description: "Weekend Getaway", badge: "$120 OFF" },
-  { category: "Dining", name: "Pai Northern Thai", description: "BOGO Entrées", badge: "2-for-1" },
-  { category: "Experience", name: "Escape Manor", description: "Team Booking", badge: "30% OFF" },
+  { category: "Dining", name: "Kinka Izakaya", description: "2-for-1 Dinner", badge: "50% OFF", image: "kinka-izakaya.jpg" },
+  { category: "Wellness", name: "Scandinave Spa", description: "Day Pass", badge: "$45 OFF", image: "scandinave-spa.jpg" },
+  { category: "Fitness", name: "Barry's Bootcamp", description: "First Month", badge: "40% OFF", image: "barrys-bootcamp.jpg" },
+  { category: "Travel", name: "Porter Airlines", description: "Weekend Getaway", badge: "$120 OFF", image: "porter-airlines.jpg" },
+  { category: "Dining", name: "Pai Northern Thai", description: "BOGO Entrées", badge: "2-for-1", image: "pai-northern-thai.jpg" },
+  { category: "Experience", name: "Escape Manor", description: "Team Booking", badge: "30% OFF", image: "escape-manor.jpg" },
 ]
 
 const leftCol2Cards: MarqueeCard[] = [
-  { category: "Wellness", name: "Hammam Spa", description: "Couples Package", badge: "35% OFF" },
-  { category: "Dining", name: "Alo Restaurant", description: "Tasting Menu", badge: "$50 OFF" },
-  { category: "Fitness", name: "F45 Training", description: "Monthly Pass", badge: "25% OFF" },
-  { category: "Experience", name: "ROM Tickets", description: "Family Pack", badge: "BOGO" },
-  { category: "Dining", name: "Richmond Station", description: "Prix Fixe", badge: "40% OFF" },
-  { category: "Wellness", name: "Body Blitz Spa", description: "Full Day", badge: "$30 OFF" },
+  { category: "Wellness", name: "Hammam Spa", description: "Couples Package", badge: "35% OFF", image: "hammam-spa.jpg" },
+  { category: "Dining", name: "Alo Restaurant", description: "Tasting Menu", badge: "$50 OFF", image: "alo-restaurant.jpg" },
+  { category: "Fitness", name: "F45 Training", description: "Monthly Pass", badge: "25% OFF", image: "f45-training.jpg" },
+  { category: "Experience", name: "ROM Tickets", description: "Family Pack", badge: "BOGO", image: "rom-tickets.jpg" },
+  { category: "Dining", name: "Richmond Station", description: "Prix Fixe", badge: "40% OFF", image: "richmond-station.jpg" },
+  { category: "Wellness", name: "Body Blitz Spa", description: "Full Day", badge: "$30 OFF", image: "body-blitz-spa.jpg" },
 ]
 
 const rightCol1Cards: MarqueeCard[] = [
-  { category: "Experience", name: "CN Tower", description: "EdgeWalk", badge: "20% OFF" },
-  { category: "Dining", name: "Canoe Restaurant", description: "Lunch Special", badge: "2-for-1" },
-  { category: "Fitness", name: "Ride Cycle Club", description: "10-Pack", badge: "30% OFF" },
-  { category: "Wellness", name: "Elmwood Spa", description: "Massage Package", badge: "$40 OFF" },
-  { category: "Dining", name: "Byblos Toronto", description: "Date Night", badge: "35% OFF" },
-  { category: "Experience", name: "Ripley's Aquarium", description: "Annual Pass", badge: "25% OFF" },
+  { category: "Experience", name: "CN Tower", description: "EdgeWalk", badge: "20% OFF", image: "cn-tower.jpg" },
+  { category: "Dining", name: "Canoe Restaurant", description: "Lunch Special", badge: "2-for-1", image: "canoe-restaurant.jpg" },
+  { category: "Fitness", name: "Ride Cycle Club", description: "10-Pack", badge: "30% OFF", image: "ride-cycle-club.jpg" },
+  { category: "Wellness", name: "Elmwood Spa", description: "Massage Package", badge: "$40 OFF", image: "elmwood-spa.jpg" },
+  { category: "Dining", name: "Byblos Toronto", description: "Date Night", badge: "35% OFF", image: "byblos-toronto.jpg" },
+  { category: "Experience", name: "Ripley's Aquarium", description: "Annual Pass", badge: "25% OFF", image: "ripleys-aquarium.jpg" },
 ]
 
 const rightCol2Cards: MarqueeCard[] = [
-  { category: "Fitness", name: "Othership Sauna", description: "Breathwork", badge: "40% OFF" },
-  { category: "Dining", name: "DaiLo", description: "Dim Sum Brunch", badge: "2-for-1" },
-  { category: "Wellness", name: "Float Toronto", description: "Float Session", badge: "$25 OFF" },
-  { category: "Travel", name: "Flair Airlines", description: "Montreal Trip", badge: "$80 OFF" },
-  { category: "Dining", name: "Planta Queen", description: "Lunch Combo", badge: "30% OFF" },
-  { category: "Experience", name: "Hot Docs Cinema", description: "Movie Night", badge: "BOGO" },
+  { category: "Fitness", name: "Othership Sauna", description: "Breathwork", badge: "40% OFF", image: "othership-sauna.jpg" },
+  { category: "Dining", name: "DaiLo", description: "Dim Sum Brunch", badge: "2-for-1", image: "dailo.jpg" },
+  { category: "Wellness", name: "Float Toronto", description: "Float Session", badge: "$25 OFF", image: "float-toronto.jpg" },
+  { category: "Travel", name: "Flair Airlines", description: "Montreal Trip", badge: "$80 OFF", image: "flair-airlines.jpg" },
+  { category: "Dining", name: "Planta Queen", description: "Lunch Combo", badge: "30% OFF", image: "planta-queen.jpg" },
+  { category: "Experience", name: "Hot Docs Cinema", description: "Movie Night", badge: "BOGO", image: "hot-docs-cinema.jpg" },
 ]
 
-/* Marquee card component — theme-aware */
+/* Marquee card component — image background with gradient overlay for text legibility.
+   Images live in /public/marquee/{slug}.jpg. Card bg-card + border provides a graceful
+   fallback if an image is missing (e.g. during image-generation staging). */
 function MarqueeCardItem({ card }: { card: MarqueeCard }) {
   return (
-    <div className="marquee-card w-[220px] h-[280px] rounded-2xl bg-card border border-border p-5 flex flex-col justify-between shrink-0 shadow-sm">
-      <div>
-        <p className="text-[10px] tracking-[0.1em] uppercase text-teal-400">{card.category}</p>
-        <p className="text-sm font-medium text-foreground mt-2 tracking-[-0.01em]">{card.name}</p>
-        <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+    <div className="marquee-card relative w-[220px] h-[280px] rounded-2xl overflow-hidden shrink-0 shadow-sm bg-card border border-border">
+      {card.image && (
+        <>
+          <Image
+            src={`/marquee/${card.image}`}
+            alt=""
+            fill
+            sizes="220px"
+            className="object-cover"
+            onError={(e) => {
+              // Hide broken image during staging before real assets are dropped in.
+              // The card's bg-card + border provides the visual fallback.
+              const img = e.currentTarget as HTMLElement
+              img.style.display = "none"
+              const overlay = img.nextElementSibling as HTMLElement | null
+              if (overlay) overlay.style.display = "none"
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-carbon/85 via-carbon/20 to-carbon/90" />
+        </>
+      )}
+      <div className="relative z-10 h-full p-5 flex flex-col justify-between">
+        <div>
+          <p className="text-[10px] tracking-[0.1em] uppercase text-teal-400">{card.category}</p>
+          <p className="text-sm font-medium text-foreground mt-2 tracking-[-0.01em] drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{card.name}</p>
+          <p className="text-xs text-muted-foreground mt-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{card.description}</p>
+        </div>
+        <span className="inline-block self-start text-[10px] font-medium bg-teal-400/20 text-teal-300 px-2.5 py-1 rounded-full backdrop-blur-sm border border-teal-400/30">
+          {card.badge}
+        </span>
       </div>
-      <span className="inline-block self-start text-[10px] font-medium bg-teal-400/15 text-teal-400 px-2.5 py-1 rounded-full">
-        {card.badge}
-      </span>
     </div>
   )
 }
@@ -211,7 +237,11 @@ export default function Hero() {
             >
               Join the Waitlist <span className="ml-2">&rarr;</span>
             </Button>
-            <Button variant="ghost" className="h-12 px-8 text-muted-foreground hover:text-foreground hover:bg-foreground/5 text-sm">
+            <Button
+              variant="ghost"
+              className="h-12 px-8 text-muted-foreground hover:text-foreground hover:bg-foreground/5 text-sm"
+              onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
+            >
               View Pricing <span className="ml-2">&darr;</span>
             </Button>
           </div>

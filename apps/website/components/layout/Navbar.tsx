@@ -122,7 +122,7 @@ export function Navbar() {
               </button>
             )}
             <Button
-              nativeButton={false} render={<a href="#waitlist" />}
+              nativeButton={false} render={<a href="/#waitlist" />}
               className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full px-5 h-8 text-[13px] font-medium"
             >
               Join the Waitlist
@@ -164,7 +164,7 @@ export function Navbar() {
                     </a>
                   ))}
                   <Button
-                    render={<a href="#waitlist" onClick={() => setOpen(false)} />}
+                    render={<a href="/#waitlist" onClick={() => setOpen(false)} />}
                     className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full h-10 font-medium mt-2"
                   >
                     Join the Waitlist
