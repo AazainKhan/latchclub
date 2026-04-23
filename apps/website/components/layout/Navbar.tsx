@@ -62,7 +62,19 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 md:px-6 pt-0 md:pt-2"
     >
       <div className="relative w-full max-w-[880px]">
-        {/* Background layer — desktop pill only, hidden on mobile */}
+        {/* Mobile background — always visible, edge-to-edge bar so the nav
+            stays readable over any section as the user scrolls. */}
+        <div
+          className="absolute inset-x-[-16px] inset-y-0 pointer-events-none md:hidden"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--background) 80%, transparent)",
+            backdropFilter: "blur(20px) saturate(180%)",
+            WebkitBackdropFilter: "blur(20px) saturate(180%)",
+            borderBottom: "1px solid color-mix(in srgb, var(--border) 60%, transparent)",
+          }}
+        />
+
+        {/* Desktop background layer — scroll-scrubbed pill */}
         <div
           ref={bgRef}
           className="absolute inset-0 pointer-events-none hidden md:block"

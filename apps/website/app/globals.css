@@ -69,9 +69,12 @@
   --destructive: oklch(0.704 0.191 22.216);
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Smooth scrolling — desktop only. On mobile, smooth scroll amplifies
+   jitter when Chrome's auto-hide UI toggles, so let the browser handle it. */
+@media (min-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* Selection color */

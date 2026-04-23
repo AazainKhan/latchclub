@@ -170,7 +170,7 @@ export default function Hero() {
     <section
       ref={container}
       id="hero"
-      className="hero-section relative z-10 h-[100dvh] overflow-hidden bg-background isolate"
+      className="hero-section relative z-10 h-[100svh] overflow-hidden bg-background isolate"
     >
       {/* Teal glow orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

@@ -25,14 +25,17 @@ export async function POST(request: Request) {
       throw dbError;
     }
 
-    // Fire thank-you email without blocking the response
+    // Await the thank-you email so Vercel's serverless runtime doesn't
+    // terminate the function before the request to Resend completes.
+    // (Fire-and-forget promises get killed when the response is returned.)
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
-      resend.emails.send({
-        from: "LatchClub <info@latchclub.ca>",
-        to: email,
-        subject: "You're on the LatchClub waitlist",
-        html: `<!DOCTYPE html>
+      try {
+        const { error: emailError } = await resend.emails.send({
+          from: "LatchClub <info@latchclub.ca>",
+          to: email,
+          subject: "You're on the LatchClub waitlist",
+          html: `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>You're on the LatchClub waitlist</title></head>
 <body style="margin:0;padding:0;background-color:#0f1a22;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -105,11 +108,22 @@ export async function POST(request: Request) {
   </table>
 </body>
 </html>`,
-      }).catch(() => {});
+        });
+        if (emailError) {
+          console.error("[waitlist] resend returned error:", emailError);
+        }
+      } catch (err) {
+        // Don't fail the signup if the email bounces — the user is already
+        // saved in Supabase. Just surface the error in Vercel logs.
+        console.error("[waitlist] resend email failed:", err);
+      }
+    } else {
+      console.warn("[waitlist] RESEND_API_KEY not set — skipping email");
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error("[waitlist] POST handler failed:", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

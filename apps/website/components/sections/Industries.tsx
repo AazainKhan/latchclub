@@ -40,7 +40,7 @@ export function Industries() {
     <section
       ref={sectionRef}
       id="industries"
-      className="relative z-10 min-h-screen flex flex-col justify-center bg-carbon py-20 md:py-16 overflow-hidden"
+      className="relative z-10 min-h-[100svh] flex flex-col justify-center bg-carbon py-20 md:py-16 overflow-hidden"
     >
       <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-6 text-center mb-8 md:mb-14">
         <p className="industries-label text-xs uppercase tracking-[0.2em] text-teal-300 mb-3">
