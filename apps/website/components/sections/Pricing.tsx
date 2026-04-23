@@ -8,23 +8,8 @@ import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    tier: "Student / Senior",
-    price: "$50",
-    period: "/yr",
-    trial: "Free 30-day trial",
-    description: "Full access, discounted rate. ID verified.",
-    features: [
-      "Full merchant directory",
-      "3 coupons/merchant/year",
-      "Loyalty points",
-      "Standard support",
-    ],
-    cta: "Get Started",
-    featured: false,
-  },
-  {
     tier: "General",
-    price: "$90",
+    price: "$89.99",
     period: "/yr",
     trial: "Free 30-day trial",
     description: "For everyday explorers across the city.",
@@ -39,7 +24,7 @@ const plans = [
   },
   {
     tier: "Premium",
-    price: "$130",
+    price: "$129.99",
     period: "/yr",
     trial: "Free 30-day trial",
     description: "Power users who want it all, first.",
@@ -54,8 +39,23 @@ const plans = [
     featured: true,
   },
   {
+    tier: "Student / Senior",
+    price: "$59.99",
+    period: "/yr",
+    trial: "Free 30-day trial",
+    description: "Full access, discounted rate. ID verified.",
+    features: [
+      "Full merchant directory",
+      "3 coupons/merchant/year",
+      "Loyalty points",
+      "Standard support",
+    ],
+    cta: "Get Started",
+    featured: false,
+  },
+  {
     tier: "Traveler",
-    price: "$20",
+    price: "$19.99",
     period: "/mo",
     trial: "Free 3-day trial",
     description: "For tourists and visitors.",

@@ -5,7 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, MapPin, Clock, CheckCircle } from "lucide-react";
+import { Mail, MapPin, Clock, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -13,6 +13,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
   const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; message?: boolean }>({});
 
@@ -36,15 +37,26 @@ export default function ContactPage() {
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setLoading(true);
+    setSubmitError(null);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message }),
       });
-      if (res.ok) setSubmitted(true);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(
+          data?.error ||
+            "Something went wrong. Please try again or email corporate@latchclub.ca directly."
+        );
+      }
     } catch {
-      // silent
+      setSubmitError(
+        "Couldn't reach the server. Please try again or email corporate@latchclub.ca directly."
+      );
     } finally {
       setLoading(false);
     }
@@ -143,6 +155,18 @@ export default function ContactPage() {
                   >
                     {loading ? "Sending..." : "Send Message"}
                   </Button>
+
+                  {submitError && (
+                    <div
+                      role="alert"
+                      className="flex items-start gap-3 p-4 bg-red-400/10 rounded-xl border border-red-400/20"
+                    >
+                      <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
+                      <p className="text-red-400 text-sm leading-relaxed">
+                        {submitError}
+                      </p>
+                    </div>
+                  )}
                 </form>
               )}
             </div>

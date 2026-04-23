@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     }
 
     if (!process.env.RESEND_API_KEY) {
+      console.error("[contact] RESEND_API_KEY missing in environment");
       return NextResponse.json(
         { error: "Email service not configured" },
         { status: 500 }
@@ -21,7 +22,9 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await resend.emails.send({
+    // Resend SDK v6 returns { data, error } instead of throwing on API errors.
+    // We must inspect `error` explicitly or failures silently look like successes.
+    const { data, error: emailError } = await resend.emails.send({
       from: "LatchClub Contact <info@latchclub.ca>",
       to: "corporate@latchclub.ca",
       replyTo: email,
@@ -51,8 +54,18 @@ export async function POST(request: Request) {
       `,
     });
 
+    if (emailError) {
+      console.error("[contact] Resend returned error:", emailError);
+      return NextResponse.json(
+        { error: emailError.message || "Failed to send email" },
+        { status: 502 }
+      );
+    }
+
+    console.log("[contact] email sent:", data?.id);
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error("[contact] handler failed:", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
