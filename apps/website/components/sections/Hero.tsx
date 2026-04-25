@@ -60,6 +60,7 @@ function MarqueeCardItem({ card }: { card: MarqueeCard }) {
             fill
             sizes="220px"
             className="object-cover"
+            style={{ transform: "scale(1.08)" }}
             onError={(e) => {
               const img = e.currentTarget as HTMLElement
               img.style.display = "none"
