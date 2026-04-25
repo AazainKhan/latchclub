@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { LOGO_PNG_BASE64 } from "@/lib/email-assets";
+import { signEmail } from "@/lib/unsubscribe-token";
 
 export async function POST(request: Request) {
   try {
@@ -32,23 +33,27 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       try {
+        const unsubToken = signEmail(email);
+        const unsubUrl = `https://latchclub.ca/api/unsubscribe?email=${encodeURIComponent(
+          email
+        )}&token=${unsubToken}`;
+
         // Plain-text alternative. Gmail's spam filter heavily weights
         // multipart/alternative — HTML-only emails from new domains land in
         // spam. See Gmail Feb 2024 bulk-sender guidelines.
-        const textBody = `Hey ${first_name},
+        const textBody = `Hi ${first_name},
 
-You're in.
+Thanks for joining the LatchClub waitlist. We'll email you once when membership opens in Toronto so you can claim your spot.
 
-Thanks for joining the LatchClub waitlist. You'll be among the first to unlock exclusive deals at the best local spots in Toronto.
-
-We're building something special for people who want more from their city — better access, better deals, and a smarter way to explore.
+That's the only email you'll get from us until launch.
 
 — The LatchClub team
 https://latchclub.ca
 
 ---
-You're receiving this because you joined the waitlist at latchclub.ca.
-To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchclub.ca.
+You signed up at latchclub.ca with this email address.
+Unsubscribe: ${unsubUrl}
+Or email corporate@latchclub.ca and we'll remove you.
 `;
 
         const { error: emailError } = await resend.emails.send({
@@ -65,13 +70,17 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
           replyTo: "corporate@latchclub.ca",
           subject: "You're on the LatchClub waitlist",
           text: textBody,
-          // RFC 2369 List-Unsubscribe header. Gmail's Feb 2024 bulk-sender
-          // guidelines expect this even for transactional mail; without it,
-          // new-domain emails are likely to land in spam. Mailto form is
-          // sufficient for sub-5K/day volume; Gmail will render an
-          // "Unsubscribe" button that opens a pre-filled email to corporate@.
+          // Gmail/Yahoo Feb 2024 bulk-sender requirements:
+          //   - List-Unsubscribe (RFC 2369): URL form first, mailto fallback.
+          //   - List-Unsubscribe-Post (RFC 8058): signals one-click POST is
+          //     supported, which is what gets the "Unsubscribe" button to
+          //     show in the inbox header instead of the spam-flag button.
+          //   - Feedback-ID: helps mailbox providers attribute spam complaints
+          //     to a category rather than the whole sending domain.
           headers: {
-            "List-Unsubscribe": "<mailto:corporate@latchclub.ca?subject=Unsubscribe>",
+            "List-Unsubscribe": `<${unsubUrl}>, <mailto:corporate@latchclub.ca?subject=Unsubscribe>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            "Feedback-ID": "waitlist-welcome:latchclub:resend",
           },
           // Inline the logo via Content-ID so it renders even when the
           // recipient's mail client blocks remote images (iOS Mail, Apple
@@ -90,7 +99,7 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
 <body style="margin:0;padding:0;background-color:#0f1a22;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <!-- Preheader (hidden, shown as inbox preview text) -->
   <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#0f1a22;opacity:0;">
-    Early access to Toronto's best local spots — you're in.
+    Confirming your LatchClub waitlist signup.
   </div>
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f1a22;padding:40px 16px;">
     <tr><td align="center">
@@ -124,8 +133,8 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
               <p style="margin:0 0 20px;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#03A493;">Waitlist Confirmed</p>
 
               <!-- Headline -->
-              <h1 style="margin:0 0 20px;font-size:28px;font-weight:700;color:#F5F7F7;line-height:1.2;letter-spacing:-0.5px;">
-                Hey ${first_name},<br>you're in.
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#F5F7F7;line-height:1.25;letter-spacing:-0.4px;">
+                Hi ${first_name}, you're on the list.
               </h1>
 
               <!-- Divider -->
@@ -134,11 +143,11 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
               </tr></table>
 
               <!-- Body copy -->
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.75;color:#94a9b0;">
-                Thanks for joining the LatchClub waitlist. You'll be among the first to unlock exclusive deals at the best local spots in Toronto.
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#94a9b0;">
+                Thanks for joining the LatchClub waitlist. We'll email you once when membership opens in Toronto so you can claim your spot.
               </p>
-              <p style="margin:0 0 32px;font-size:15px;line-height:1.75;color:#94a9b0;">
-                We're building something special for people who want more from their city — better access, better deals, and a smarter way to explore.
+              <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#94a9b0;">
+                That's the only email you'll get from us until launch — no marketing, no follow-ups.
               </p>
 
 
@@ -158,9 +167,8 @@ To unsubscribe, reply to this email with "unsubscribe" or email corporate@latchc
                Gmail flags emails whose header-declared unsubscribe isn't also
                visible to the user. -->
           <p style="margin:0;font-size:11px;color:#5a6d75;line-height:1.6;">
-            You're receiving this because you joined our waitlist at latchclub.ca.<br>
-            Don't want these emails?
-            <a href="mailto:corporate@latchclub.ca?subject=Unsubscribe" style="color:#5a6d75;text-decoration:underline;">Unsubscribe</a>
+            You signed up at latchclub.ca with this email address.<br>
+            <a href="${unsubUrl}" style="color:#5a6d75;text-decoration:underline;">Unsubscribe</a>
           </p>
         </td></tr>
 
