@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/shared/ThemeProvider";
 import { useGSAP } from "@gsap/react";
@@ -13,6 +14,7 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { WaitlistDialog } from "@/components/waitlist/WaitlistDialog";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -25,12 +27,25 @@ export function Navbar() {
   const headerRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleWaitlistClickFromMobileMenu = (e: React.MouseEvent) => {
+    setOpen(false);
+    if (!isHome) {
+      e.preventDefault();
+      // Wait for sheet exit animation before opening dialog so the two
+      // overlays don't fight for focus/scroll-lock.
+      setTimeout(() => setWaitlistOpen(true), 220);
+    }
+  };
 
   useGSAP(() => {
     const bg = bgRef.current;
@@ -121,12 +136,21 @@ export function Navbar() {
                 {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               </button>
             )}
-            <Button
-              nativeButton={false} render={<a href="/#waitlist" />}
-              className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full px-5 h-8 text-[13px] font-medium"
-            >
-              Join the Waitlist
-            </Button>
+            {isHome ? (
+              <Button
+                nativeButton={false} render={<a href="/#waitlist" />}
+                className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full px-5 h-8 text-[13px] font-medium"
+              >
+                Join the Waitlist
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setWaitlistOpen(true)}
+                className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full px-5 h-8 text-[13px] font-medium"
+              >
+                Join the Waitlist
+              </Button>
+            )}
           </div>
 
           <div className="md:hidden flex items-center gap-1">
@@ -163,18 +187,29 @@ export function Navbar() {
                       {link.label}
                     </a>
                   ))}
-                  <Button
-                    render={<a href="/#waitlist" onClick={() => setOpen(false)} />}
-                    className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full h-10 font-medium mt-2"
-                  >
-                    Join the Waitlist
-                  </Button>
+                  {isHome ? (
+                    <Button
+                      render={<a href="/#waitlist" onClick={() => setOpen(false)} />}
+                      className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full h-10 font-medium mt-2"
+                    >
+                      Join the Waitlist
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleWaitlistClickFromMobileMenu}
+                      className="bg-teal-300 hover:bg-teal-300/90 text-carbon rounded-full h-10 font-medium mt-2"
+                    >
+                      Join the Waitlist
+                    </Button>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
         </nav>
       </div>
+
+      <WaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} />
     </header>
   );
 }
