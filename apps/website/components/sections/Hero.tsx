@@ -68,13 +68,13 @@ function MarqueeCardItem({ card }: { card: MarqueeCard }) {
               if (overlay) overlay.style.display = "none"
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-carbon/85 via-carbon/20 to-carbon/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-carbon/90 via-carbon/30 to-carbon/95" />
         </>
       )}
       <div className="relative z-10 h-full p-5 flex flex-col justify-between">
         <div>
-          <p className="text-[10px] tracking-[0.1em] uppercase text-teal-400">{card.category}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{card.description}</p>
+          <p className="text-[11px] tracking-[0.12em] uppercase font-medium text-teal-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">{card.category}</p>
+          <p className="text-sm font-medium text-bone/90 mt-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{card.description}</p>
         </div>
         <span className="inline-block self-start text-[10px] font-medium bg-teal-400/20 text-teal-300 px-2.5 py-1 rounded-full backdrop-blur-sm border border-teal-400/30">
           {card.badge}
@@ -205,7 +205,7 @@ export default function Hero() {
 
         {/* LEFT MARQUEE COLUMNS */}
         <div className="marquee-wrap marquee-left hidden lg:flex gap-3 w-[460px] shrink-0 overflow-hidden relative">
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-background via-transparent to-background" style={{ backgroundSize: "100% 100%", backgroundImage: "linear-gradient(to bottom, var(--background) 0%, var(--background) 6%, transparent 24%, transparent 84%, var(--background) 100%)" }} />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-background via-transparent to-background" style={{ backgroundSize: "100% 100%", backgroundImage: "linear-gradient(to bottom, var(--background) 0%, var(--background) 2%, transparent 10%, transparent 92%, var(--background) 100%)" }} />
           <MarqueeColumn cards={leftCol1Cards} className="marquee-up pt-12" />
           <MarqueeColumn cards={leftCol2Cards} className="marquee-down pt-24" />
         </div>
@@ -246,7 +246,7 @@ export default function Hero() {
 
         {/* RIGHT MARQUEE COLUMNS */}
         <div className="marquee-wrap marquee-right hidden lg:flex gap-3 w-[460px] shrink-0 overflow-hidden relative">
-          <div className="absolute inset-0 z-10 pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, var(--background) 0%, var(--background) 6%, transparent 24%, transparent 84%, var(--background) 100%)" }} />
+          <div className="absolute inset-0 z-10 pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, var(--background) 0%, var(--background) 2%, transparent 10%, transparent 92%, var(--background) 100%)" }} />
           <MarqueeColumn cards={rightCol1Cards} className="marquee-down pt-8" />
           <MarqueeColumn cards={rightCol2Cards} className="marquee-up pt-20" />
         </div>
