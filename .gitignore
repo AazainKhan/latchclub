@@ -18,6 +18,9 @@ coverage/
 .turbo/
 **/.turbo/
 
+# Vercel
+.vercel
+
 # OS/editor noise
 .DS_Store
 

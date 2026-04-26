@@ -14,7 +14,8 @@
     "db:push": "supabase db push",
     "db:push:dry": "supabase db push --dry-run",
     "db:migration:new": "supabase migration new",
-    "db:types": "supabase gen types typescript --linked > packages/db/src/database.types.ts"
+    "db:types": "supabase gen types typescript --linked > packages/db/src/database.types.ts",
+    "deploy:website": "bash scripts/deploy-website.sh"
   },
   "devDependencies": {
     "supabase": "^2.84.4",
