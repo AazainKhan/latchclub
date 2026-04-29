@@ -9,6 +9,7 @@ export type {
   TablesUpdate,
 } from "./database.types";
 export { createBrowserSupabaseClient } from "./browser";
+export { createMobileSupabaseClient } from "./mobile";
 export { createServerSupabaseClient } from "./server";
 
 export type AppUser = import("./database.types").Tables<"users">;
