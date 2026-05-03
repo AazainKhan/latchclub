@@ -14,7 +14,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import type { Session } from "@supabase/supabase-js";
 
-import type { Tables } from "@latchclub/db";
+import type { Tables } from "@latchclub/db/database.types";
 import {
   ANALYTICS_EVENTS,
   APP_ROUTES,

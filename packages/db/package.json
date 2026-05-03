@@ -6,6 +6,8 @@
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./browser": "./src/browser.ts",
+    "./server": "./src/server.ts",
     "./database.types": "./src/database.types.ts"
   },
   "scripts": {
@@ -15,7 +17,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.57.2"
+    "@supabase/supabase-js": "2.57.2"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
